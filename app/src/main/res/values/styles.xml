@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/app_icon_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon_round</item>
+        <item name="postSplashScreenTheme">@style/Theme.Notificity</item>
+        <item name="windowSplashScreenAnimationDuration">15000</item>
+    </style>
+</resources>
