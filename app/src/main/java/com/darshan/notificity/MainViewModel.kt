@@ -1,11 +1,9 @@
 package com.darshan.notificity
 
-import android.R
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.content.pm.PackageManager.NameNotFoundException
-import android.graphics.BitmapFactory
+import android.content.pm.PackageManager.*
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
@@ -26,7 +24,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         notifications.groupBy { it.packageName }.map { entry ->
             AppInfo(
                 appName = loadAppNameFromPackageName(packageManager, entry.key),
-                icon = loadIconFromPackageName(application,packageManager, entry.key),
+                icon = loadIconFromPackageName(packageManager, entry.key),
                 notificationCount = entry.value.size,
                 packageName = entry.key
             )
@@ -41,7 +39,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 fun loadAppNameFromPackageName(packageManager: PackageManager, packageName: String) : String {
     val ai: ApplicationInfo? = try {
         packageManager.getApplicationInfo(packageName, 0)
-    } catch (e: PackageManager.NameNotFoundException) {
+    } catch (e: NameNotFoundException) {
         null
     }
     val applicationName =
@@ -49,11 +47,11 @@ fun loadAppNameFromPackageName(packageManager: PackageManager, packageName: Stri
     return applicationName
 }
 
-fun loadIconFromPackageName(application: Application,packageManager: PackageManager, packageName: String): ImageBitmap? {
+fun loadIconFromPackageName(packageManager: PackageManager, packageName: String): ImageBitmap? {
 
     val ai: ApplicationInfo? = try {
         packageManager.getApplicationInfo(packageName, 0)
-    } catch (e: PackageManager.NameNotFoundException) {
+    } catch (e: NameNotFoundException) {
         null
     }
 
