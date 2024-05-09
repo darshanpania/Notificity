@@ -1,7 +1,5 @@
 # Notificity
 
-# Notificity
-
 Notificity is an Android application designed to capture and categorize all incoming push notifications. 
 It provides users with the ability to search through notifications both at the application level and using specific keywords. 
 This project aims to enhance user productivity and notification management on Android devices.
@@ -13,6 +11,11 @@ This project aims to enhance user productivity and notification management on An
 - **Search Functionality**: Enables users to search notifications by application or by specific keywords within the notifications.
 - **UI Design**: Utilizes Material Design & Jetpack Compose for a modern and intuitive user interface.
 - **Category Management**: Notifications are categorized by application, allowing for organized viewing.
+
+## Screenshots
+
+![Screenshot 1](images/Screenshot1.jpg)
+![Screenshot 2](images/Screenshot2.jpg)
 
 ## Installation
 
