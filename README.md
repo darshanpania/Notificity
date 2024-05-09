@@ -40,6 +40,12 @@ Relaunch the application and start managing your notifications more effectively.
 
 See our [Contribution Guidelines here](CONTRIBUTING.md)
 
+## Contributors
+
+| First Contributor | [Avadhut Tanugade](https://github.com/mrwhoknows55) |
+|-------------------|-----------------------------------------------------|
+
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details.
