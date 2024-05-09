@@ -6,13 +6,17 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.*
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(private val application: Application) : AndroidViewModel(application) {
 
     private val db = AppDatabase.getInstance(application.applicationContext)
     private val packageManager = application.packageManager
@@ -33,6 +37,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val notificationsGroupedByApp: LiveData<Map<String, List<NotificationEntity>>> = notifications.map { notificationList ->
         notificationList.groupBy { it.appName }
+    }
+
+
+    private val _isNotificationPermissionGranted = MutableStateFlow(false)
+    val isNotificationPermissionGranted = _isNotificationPermissionGranted.asStateFlow()
+    fun refreshNotificationPermission() {
+        val enabledListeners = NotificationManagerCompat.getEnabledListenerPackages(application)
+        _isNotificationPermissionGranted.update {
+            enabledListeners.contains(application.packageName)
+        }
+    }
+
+    init {
+        refreshNotificationPermission()
     }
 }
 

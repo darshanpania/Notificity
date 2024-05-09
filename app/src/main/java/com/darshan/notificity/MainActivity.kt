@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +32,7 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -39,16 +42,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
 
 class MainActivity : ComponentActivity() {
 
+    private val mainViewModel: MainViewModel by viewModels<MainViewModel> {
+        NotificationViewModelFactory(
+            this.application,
+            AppDatabase.getInstance(this.application.applicationContext)
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Initialize ViewModel with factory
-        val factory = NotificationViewModelFactory(this.application,AppDatabase.getInstance(this.application.applicationContext))
-        val mainViewModel = ViewModelProvider(this,factory).get(MainViewModel::class.java)
-
         setContent {
             MaterialTheme{
                 NotificityApp(mainViewModel)
@@ -159,7 +164,8 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun NotificityApp(viewModel: MainViewModel) {
-        if (hasNotificationAccess()) {
+        val isPermissionGranted by viewModel.isNotificationPermissionGranted.collectAsState()
+        if (isPermissionGranted) {
             MainContent(viewModel)
         } else {
             RequestAccessScreen()
@@ -188,14 +194,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun MainActivity.openNotificationAccessSettings() {
-        startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+    // refresh notification permission state as soon as user comes back from setting screen
+    private val activityForResultLauncher = registerForActivityResult(StartActivityForResult()) {
+        mainViewModel.refreshNotificationPermission()
     }
 
-    private fun hasNotificationAccess(): Boolean {
-        val enabledListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-        val packageName = packageName
-        return enabledListeners != null && enabledListeners.contains(packageName)
+    private fun openNotificationAccessSettings() {
+        activityForResultLauncher.launch(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
     }
 
 }
