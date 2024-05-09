@@ -14,6 +14,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
@@ -53,6 +54,7 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
     var searchQuery by remember { mutableStateOf("") }
 
     TextField(
+        colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onPrimary),
         value = searchQuery,
         onValueChange = { searchQuery = it; onSearchQueryChanged(it) },
         modifier = Modifier
@@ -78,7 +80,7 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
 
         // Filter notifications based on the search query
         val filteredNotifications = notifications.filter {
-            it.content!!.contains(searchQuery, ignoreCase = true) || it.title!!.contains(searchQuery, ignoreCase = true)
+            it.content.contains(searchQuery, ignoreCase = true) || it.title.contains(searchQuery, ignoreCase = true)
         }
 
         // Display the notifications using a LazyColumn
@@ -95,11 +97,11 @@ fun NotificationItem(notification: NotificationEntity) {
     Card(modifier = Modifier
         .fillMaxWidth()
         .padding(8.dp),
-        backgroundColor = MaterialTheme.colors.secondary) {
+        backgroundColor = MaterialTheme.colors.onPrimary) {
         Column(modifier = Modifier.padding(16.dp)) {
             //Text(text = "App: ${notification.appName}", style = MaterialTheme.typography.h6)
-            Text(text = "${notification.title}", style = MaterialTheme.typography.subtitle1)
-            Text(text = "${notification.content}", style = MaterialTheme.typography.body1)
+            Text(text = notification.title, style = MaterialTheme.typography.subtitle1)
+            Text(text = notification.content, style = MaterialTheme.typography.body1)
             //Image(bitmap = notification.imageBitmap.asImageBitmap(), contentDescription = "PN Image" )
         }
     }

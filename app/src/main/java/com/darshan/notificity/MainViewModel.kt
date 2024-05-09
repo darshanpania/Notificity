@@ -1,20 +1,18 @@
 package com.darshan.notificity
 
+import android.R
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.graphics.ColorSpace
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
+import android.content.pm.PackageManager.NameNotFoundException
+import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -28,11 +26,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         notifications.groupBy { it.packageName }.map { entry ->
             AppInfo(
                 appName = loadAppNameFromPackageName(packageManager, entry.key),
-                icon = loadIconFromPackageName(packageManager, entry.key),
+                icon = loadIconFromPackageName(application,packageManager, entry.key),
                 notificationCount = entry.value.size,
                 packageName = entry.key
             )
-        }.sortedBy { it.appName }
+        }
     }
 
     val notificationsGroupedByApp: LiveData<Map<String, List<NotificationEntity>>> = notifications.map { notificationList ->
@@ -51,9 +49,16 @@ fun loadAppNameFromPackageName(packageManager: PackageManager, packageName: Stri
     return applicationName
 }
 
-fun loadIconFromPackageName(packageManager: PackageManager, packageName: String): ImageBitmap {
+fun loadIconFromPackageName(application: Application,packageManager: PackageManager, packageName: String): ImageBitmap? {
 
-    val appInfo = packageManager.getApplicationInfo(packageName,0)
-    return appInfo.loadIcon(packageManager).toBitmap().asImageBitmap()
+    val ai: ApplicationInfo? = try {
+        packageManager.getApplicationInfo(packageName, 0)
+    } catch (e: PackageManager.NameNotFoundException) {
+        null
+    }
+
+
+        return (ai?.loadIcon(packageManager)?.toBitmap()?.asImageBitmap())
+
 
 }

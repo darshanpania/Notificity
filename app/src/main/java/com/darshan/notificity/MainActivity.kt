@@ -55,7 +55,9 @@ class MainActivity : ComponentActivity() {
         val mainViewModel = ViewModelProvider(this,factory).get(MainViewModel::class.java)
 
         setContent {
-            NotificityApp(mainViewModel)
+            MaterialTheme{
+                NotificityApp(mainViewModel)
+            }
         }
     }
 
@@ -85,7 +87,8 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier
                 .padding(8.dp)
                 .clickable(onClick = onClick),
-            elevation = 4.dp
+            elevation = 4.dp,
+            backgroundColor = MaterialTheme.colors.onPrimary
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -93,7 +96,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.padding(16.dp)
             ) {
                 // Assume you have a way to load the app icon from packageName
-                Image(bitmap = appInfo.icon, contentDescription = "App Icon", modifier = Modifier.size(50.dp) )
+                appInfo.icon?.let { Image(bitmap = it, contentDescription = "App Icon", modifier = Modifier.size(50.dp) ) }
                 Text(text = appInfo.appName, style = MaterialTheme.typography.h6)
                 Text(text = "${appInfo.notificationCount} Notifications")
             }
@@ -120,7 +123,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainContent(viewModel: MainViewModel) {
-        val notifications by viewModel.notifications.observeAsState(listOf())
+        val notifications by viewModel.notifications.observeAsState(listOf())//pass .value from top
         if(notifications.isEmpty()){
             Column(
                 modifier = Modifier
@@ -171,8 +174,8 @@ class MainActivity : ComponentActivity() {
             backgroundColor = MaterialTheme.colors.secondary) {
             Column(modifier = Modifier.padding(16.dp)) {
                 //Text(text = "App: ${notification.appName}", style = MaterialTheme.typography.h6)
-                Text(text = "${notification.title}", style = MaterialTheme.typography.subtitle1)
-                Text(text = "${notification.content}", style = MaterialTheme.typography.body1)
+                Text(text = notification.title, style = MaterialTheme.typography.subtitle1)
+                Text(text = notification.content, style = MaterialTheme.typography.body1)
                 //Image(bitmap = notification.imageBitmap.asImageBitmap(), contentDescription = "PN Image" )
             }
         }

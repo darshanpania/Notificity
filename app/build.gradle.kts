@@ -2,6 +2,8 @@ plugins {
     kotlin("kapt")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -75,6 +77,11 @@ dependencies {
     implementation("androidx.room:room-ktx:2.5.0")
 
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    //Firebase Dependencies
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics")
 
 
     // Testing

@@ -49,9 +49,11 @@ class NotificityListener : NotificationListenerService() {
             extras = extras.toString()
         )
 
-        // Insert the notification into the database using coroutines
-        CoroutineScope(Dispatchers.IO).launch {
-            database.notificationDao().insertNotification(notificationEntity)
+        if(notificationEntity.content.isNotEmpty() && notificationEntity.title.isNotEmpty()){
+            // Insert the notification into the database using coroutines
+            CoroutineScope(Dispatchers.IO).launch {
+                database.notificationDao().insertNotification(notificationEntity)
+            }
         }
     }
 
