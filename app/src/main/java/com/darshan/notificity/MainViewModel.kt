@@ -16,13 +16,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
-class MainViewModel(private val application: Application) : AndroidViewModel(application) {
+class MainViewModel(private val application: Application, repository: NotificationRepository) : AndroidViewModel(application) {
 
-    private val db = AppDatabase.getInstance(application.applicationContext)
+
     private val packageManager = application.packageManager
-    private val dao = db.notificationDao()
 
-    val notifications: LiveData<List<NotificationEntity>> = dao.getAllNotifications()
+    val notifications: LiveData<List<NotificationEntity>> = repository.getAllNotifications()
     // Live data to observe apps with their notification counts
     val appsInfo: LiveData<List<AppInfo>> = notifications.map { notifications ->
         notifications.groupBy { it.packageName }.map { entry ->

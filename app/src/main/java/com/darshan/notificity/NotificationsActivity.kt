@@ -27,9 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 
 class NotificationsActivity : AppCompatActivity() {
+    private val repository: NotificationRepository by lazy { NotificationRepository(AppDatabase.getInstance(application).notificationDao()) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val factory = NotificationViewModelFactory(this.application,AppDatabase.getInstance(this.application.applicationContext))
+        val factory = NotificationViewModelFactory(this.application,repository)
         val viewModel = ViewModelProvider(this,factory).get(MainViewModel::class.java)
         val appName:String = intent.getStringExtra("appName").toString()
         setContent {

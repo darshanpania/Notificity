@@ -11,12 +11,15 @@ import kotlinx.coroutines.launch
 
 
 class NotificityListener : NotificationListenerService() {
+
     private lateinit var database: AppDatabase
+    private lateinit var repository: NotificationRepository
 
     override fun onCreate() {
         super.onCreate()
         // Initialize the Room database
         database = AppDatabase.getInstance(applicationContext)
+        repository = NotificationRepository(database.notificationDao())
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
@@ -52,7 +55,7 @@ class NotificityListener : NotificationListenerService() {
         if(notificationEntity.content.isNotEmpty() && notificationEntity.title.isNotEmpty()){
             // Insert the notification into the database using coroutines
             CoroutineScope(Dispatchers.IO).launch {
-                database.notificationDao().insertNotification(notificationEntity)
+                repository.insertNotification(notificationEntity)
             }
         }
     }

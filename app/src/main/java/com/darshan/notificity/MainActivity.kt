@@ -45,10 +45,12 @@ import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
 
+    private val repository: NotificationRepository by lazy { NotificationRepository(AppDatabase.getInstance(application).notificationDao()) }
+
     private val mainViewModel: MainViewModel by viewModels<MainViewModel> {
         NotificationViewModelFactory(
             this.application,
-            AppDatabase.getInstance(this.application.applicationContext)
+            repository = repository
         )
     }
 
