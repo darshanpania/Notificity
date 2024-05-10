@@ -8,12 +8,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,15 +25,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,7 +45,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.darshan.notificity.ui.theme.NotificityTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -57,7 +64,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme{
+            NotificityTheme {
                 NotificityApp(mainViewModel)
             }
         }
@@ -77,7 +84,7 @@ class MainActivity : ComponentActivity() {
             columns = GridCells.Fixed(2),  // Adjust based on screen size or preference
             contentPadding = PaddingValues(8.dp)
         ) {
-            items(apps) { app ->
+            items(apps, key = { it.packageName }) { app ->
                 AppGridItem(appInfo = app, onClick = { onAppSelected(app.appName) })
             }
         }
@@ -89,18 +96,42 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier
                 .padding(8.dp)
                 .clickable(onClick = onClick),
-            elevation = 4.dp,
-            backgroundColor = MaterialTheme.colors.onPrimary
+            elevation = CardDefaults.cardElevation(4.dp),
+            shape = RoundedCornerShape(8.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(16.dp)
+                verticalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
             ) {
                 // Assume you have a way to load the app icon from packageName
-                appInfo.icon?.let { Image(bitmap = it, contentDescription = "App Icon", modifier = Modifier.size(50.dp) ) }
-                Text(text = appInfo.appName, style = MaterialTheme.typography.h6)
-                Text(text = "${appInfo.notificationCount} Notifications")
+                appInfo.icon?.let {
+                    Image(
+                        bitmap = it,
+                        contentDescription = "App Icon",
+                        modifier = Modifier.size(50.dp)
+                    )
+                } ?: kotlin.run {
+                    Box(Modifier.size(50.dp))
+                }
+                Spacer(modifier = Modifier.size(2.dp))
+                Text(
+                    text = appInfo.appName,
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    letterSpacing = 0.04.sp
+                )
+                Spacer(modifier = Modifier.size(2.dp))
+                Text(
+                    text = "${appInfo.notificationCount} Notifications",
+                    textAlign = TextAlign.Center,
+                    letterSpacing = 0.04.sp
+                )
             }
         }
     }
@@ -111,56 +142,50 @@ class MainActivity : ComponentActivity() {
         var searchQuery by remember { mutableStateOf("") }
 
         TextField(
-            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onPrimary),
             value = searchQuery,
             onValueChange = { searchQuery = it; onSearchQueryChanged(it) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            placeholder = { Text(hint, color = MaterialTheme.colors.onPrimary) },
-            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search Icon",tint = MaterialTheme.colors.onPrimary) },
+            placeholder = { Text(hint) },
+            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search Icon") },
             singleLine = true
         )
     }
 
     @Composable
-    fun MainContent(viewModel: MainViewModel) {
-        val notifications by viewModel.notifications.observeAsState(listOf())//pass .value from top
-        if(notifications.isEmpty()){
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "No Notifications yet",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.body1,
-                    color = MaterialTheme.colors.onPrimary
-                )
-            }
-        }
-
-        AppSearchScreen(viewModel = viewModel)
-
-    }
-
-    @Composable
-    fun AppSearchScreen(viewModel: MainViewModel){
+    fun AppSearchScreen(viewModel: MainViewModel) {
+        val notifications by viewModel.notifications.observeAsState(listOf())
         var appSearchQuery by remember { mutableStateOf("") }
-
         val allApps = viewModel.appsInfo.observeAsState(initial = emptyList())
-
         Column {
-            SearchBar("Search Apps... ",onSearchQueryChanged = { appSearchQuery = it })
-            AppGridView(
-                apps = allApps.value.filter {
-                    it.appName.contains(appSearchQuery, ignoreCase = true)
-                },
-                onAppSelected = { appName -> startNotificationsActivity(appName)}
-            )
+            SearchBar("Search Apps... ", onSearchQueryChanged = { appSearchQuery = it })
+            AnimatedContent(notifications, label = "app_list") { list ->
+                if (list.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "No Notifications yet",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.displaySmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                } else {
+                    AppGridView(
+                        apps = allApps.value.filter {
+                            it.appName.contains(appSearchQuery, ignoreCase = true)
+                        },
+                        onAppSelected = { appName -> startNotificationsActivity(appName) }
+                    )
+                }
+            }
+
         }
     }
 
@@ -168,7 +193,7 @@ class MainActivity : ComponentActivity() {
     fun NotificityApp(viewModel: MainViewModel) {
         val isPermissionGranted by viewModel.isNotificationPermissionGranted.collectAsState()
         if (isPermissionGranted) {
-            MainContent(viewModel)
+            AppSearchScreen(viewModel)
         } else {
             RequestAccessScreen()
         }
@@ -186,8 +211,7 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = "We need access to your notifications to manage and search them effectively.",
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.body1,
-                color = MaterialTheme.colors.onPrimary
+                style = MaterialTheme.typography.displaySmall,
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { openNotificationAccessSettings() }) {
