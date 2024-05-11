@@ -22,7 +22,7 @@ class MainViewModel(private val application: Application,
 
     private val packageManager = application.packageManager
 
-    val notificationsFlow: Flow<List<NotificationEntity>> = repository.getAllNotificationsFlow()
+    val notificationsFlow: Flow<List<Notification>> = repository.getAllNotificationsFlow()
 
     val appInfoFromFlow: Flow<List<AppInfo>> = notificationsFlow.map { notifications ->
         notifications.groupBy { it.packageName }.map { entry ->
@@ -32,12 +32,13 @@ class MainViewModel(private val application: Application,
                 notificationCount = entry.value.size,
                 packageName = entry.key
             )
-    }
+        }
     }
 
-    val notificationsGroupedByAppFlow : Flow<Map<String, List<NotificationEntity>>> =notificationsFlow.map { notificationsFLow ->
-                notificationsFLow.groupBy { it.appName }
-            }
+    val notificationsGroupedByAppFlow : Flow<Map<String, List<Notification>>> =
+        notificationsFlow.map { notificationsFLow ->
+            notificationsFLow.groupBy { it.appName }
+        }
 
     private val _isNotificationPermissionGranted = MutableStateFlow(false)
     val isNotificationPermissionGranted = _isNotificationPermissionGranted.asStateFlow()
