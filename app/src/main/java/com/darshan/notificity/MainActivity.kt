@@ -154,9 +154,9 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun AppSearchScreen(viewModel: MainViewModel) {
-        val notifications by viewModel.notifications.observeAsState(listOf())
+        val notifications by viewModel.notificationsFlow.collectAsState(initial = emptyList())
         var appSearchQuery by remember { mutableStateOf("") }
-        val allApps = viewModel.appsInfo.observeAsState(initial = emptyList())
+        val allApps = viewModel.appInfoFromFlow.collectAsState(initial = emptyList()).value
         Column {
             SearchBar("Search Apps... ", onSearchQueryChanged = { appSearchQuery = it })
             AnimatedContent(notifications, label = "app_list") { list ->
@@ -177,7 +177,7 @@ class MainActivity : ComponentActivity() {
                     }
                 } else {
                     AppGridView(
-                        apps = allApps.value.filter {
+                        apps = allApps.filter {
                             it.appName.contains(appSearchQuery, ignoreCase = true)
                         },
                         onAppSelected = { appName -> startNotificationsActivity(appName) }
