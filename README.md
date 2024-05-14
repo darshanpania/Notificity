@@ -14,8 +14,10 @@ This project aims to enhance user productivity and notification management on An
 
 ## Screenshots
 
-![Screenshot 1](images/Screenshot1.jpg)
-![Screenshot 2](images/Screenshot2.jpg)
+<img src="images/Screenshot_Light_1.jpg" width="540" height="1200"/>
+<img src="images/Screenshot_Light_2.jpg" width="540" height="1200"/>
+<img src="images/Screenshot_Dark_1.jpg" width="540" height="1200"/>
+<img src="images/Screenshot_Dark_2.jpg" width="540" height="1200"/>
 
 ## Installation
 
