@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 
 
 class MainViewModel(private val application: Application,
-                    private val repository: NotificationRepository
+                    repository: NotificationRepository
 ) : AndroidViewModel(application) {
 
     private val packageManager = application.packageManager

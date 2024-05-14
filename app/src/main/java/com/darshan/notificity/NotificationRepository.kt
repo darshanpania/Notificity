@@ -1,6 +1,5 @@
 package com.darshan.notificity
 
-import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
 
 class NotificationRepository(private val notificationDao: NotificationDao) {
