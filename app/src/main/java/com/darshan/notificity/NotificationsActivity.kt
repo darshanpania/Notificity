@@ -1,21 +1,27 @@
 package com.darshan.notificity
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,18 +30,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
+import androidx.compose.ui.unit.sp
+import com.darshan.notificity.ui.theme.NotificityTheme
 
-class NotificationsActivity : AppCompatActivity() {
+class NotificationsActivity : ComponentActivity() {
     private val repository: NotificationRepository by lazy { NotificationRepository(AppDatabase.getInstance(application).notificationDao()) }
+    private val viewModel: MainViewModel by viewModels {
+        NotificationViewModelFactory(application, repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val factory = NotificationViewModelFactory(this.application,repository)
-        val viewModel = ViewModelProvider(this,factory).get(MainViewModel::class.java)
         val appName:String = intent.getStringExtra("appName").toString()
+        this.actionBar?.hide()
         setContent {
-            NotificationSearchScreen(viewModel = viewModel, appName)
+            NotificityTheme {
+                NotificationSearchScreen(viewModel = viewModel, appName)
+            }
         }
     }
 }
@@ -55,14 +66,13 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
     var searchQuery by remember { mutableStateOf("") }
 
     TextField(
-        colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onPrimary),
         value = searchQuery,
         onValueChange = { searchQuery = it; onSearchQueryChanged(it) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        placeholder = { Text(hint, color = MaterialTheme.colors.onPrimary) },
-        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search Icon",tint = MaterialTheme.colors.onPrimary) },
+        placeholder = { Text(hint) },
+        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search Icon") },
         singleLine = true
     )
 }
@@ -84,26 +94,35 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
             it.content.contains(searchQuery, ignoreCase = true) || it.title.contains(searchQuery, ignoreCase = true)
         }
 
-        // Display the notifications using a LazyColumn
-        LazyColumn {
-            items(filteredNotifications) { notification ->
-                NotificationItem(notification)
+
+        AnimatedVisibility(
+            filteredNotifications.isNotEmpty(),
+            enter = fadeIn() + expandVertically()
+        ) {
+            // Display the notifications using a LazyColumn
+            LazyColumn {
+                items(filteredNotifications, key = { it.id }) { notification ->
+                    NotificationItem(notification)
+                }
             }
         }
-
     }
 
 @Composable
 fun NotificationItem(notification: NotificationEntity) {
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(8.dp),
-        backgroundColor = MaterialTheme.colors.onPrimary) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            //Text(text = "App: ${notification.appName}", style = MaterialTheme.typography.h6)
-            Text(text = notification.title, style = MaterialTheme.typography.subtitle1)
-            Text(text = notification.content, style = MaterialTheme.typography.body1)
-            //Image(bitmap = notification.imageBitmap.asImageBitmap(), contentDescription = "PN Image" )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        shape = RoundedCornerShape(8.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(text = notification.title, style = MaterialTheme.typography.titleMedium, letterSpacing = 0.08.sp)
+            Text(text = notification.content, style = MaterialTheme.typography.bodyMedium, letterSpacing = 0.08.sp)
         }
     }
 }
