@@ -34,7 +34,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -125,7 +124,8 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainContent(viewModel: MainViewModel) {
-        val notifications by viewModel.notifications.observeAsState(listOf())//pass .value from top
+        val notifications by viewModel.notificationsFlow.collectAsState(initial = emptyList())
+
         if(notifications.isEmpty()){
             Column(
                 modifier = Modifier
@@ -151,13 +151,12 @@ class MainActivity : ComponentActivity() {
     fun AppSearchScreen(viewModel: MainViewModel){
         var appSearchQuery by remember { mutableStateOf("") }
 
-        val allApps = viewModel.appsInfo.observeAsState(initial = emptyList())
+        val allAppsFromFlow = viewModel.appInfoFromFlow.collectAsState(initial = emptyList()).value
 
         Column {
             SearchBar("Search Apps... ",onSearchQueryChanged = { appSearchQuery = it })
             AppGridView(
-                apps = allApps.value.filter {
-                    it.appName.contains(appSearchQuery, ignoreCase = true)
+                apps = allAppsFromFlow.filter {it.appName.contains(appSearchQuery,ignoreCase = true)
                 },
                 onAppSelected = { appName -> startNotificationsActivity(appName)}
             )

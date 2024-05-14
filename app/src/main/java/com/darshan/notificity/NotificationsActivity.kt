@@ -17,8 +17,8 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -77,7 +77,7 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
         }
 
         // Get the list of notifications for the specified app
-        val notifications = viewModel.notificationsGroupedByApp.observeAsState().value?.get(appName) ?: listOf()
+        val notifications = viewModel.notificationsGroupedByAppFlow.collectAsState(mapOf()).value.get(appName) ?: listOf()
 
         // Filter notifications based on the search query
         val filteredNotifications = notifications.filter {

@@ -1,6 +1,7 @@
 package com.darshan.notificity
 
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 
 class NotificationRepository(private val notificationDao: NotificationDao) {
 
@@ -8,6 +9,6 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
         notificationDao.insertNotification(notificationEntity)
     }
 
-    fun getAllNotifications() : LiveData<List<NotificationEntity>> = notificationDao.getAllNotifications()
+    fun getAllNotificationsFlow() : Flow<List<NotificationEntity>> = notificationDao.getAllNotificationsFlow()
 
 }
