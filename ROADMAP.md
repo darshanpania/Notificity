@@ -9,6 +9,7 @@
 - [ ] Use a State class to abstract Flows from the Composables
 - [x] Remove the need to relaunch the app after Notification Access Permission has been granted
 - [x] Improve NotificationListActivity UI
+- [ ] Add timestamp to the Notification Card in the NotificationsListActivity
 - [ ] Add Settings menu
 - [ ] Add configurable storage time in Settings
 - [ ] Add workflows to build APKs & App Bundles on GitHub actions
