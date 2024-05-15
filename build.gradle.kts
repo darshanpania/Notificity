@@ -41,3 +41,16 @@ subprojects {
         }
     }
 }
+
+task("addPreCommitCodeStyleHook") {
+    println("⚈ ⚈ ⚈ Running Add Pre Commit Code Style Analysis ⚈ ⚈ ⚈")
+    exec {
+        commandLine("cp", "./.scripts/pre-commit", "./.git/hooks")
+    }
+}
+
+task("lockCommitToMainHook") {
+    exec {
+        commandLine("cp", "./.scripts/commit-rule", "./.git/hooks")
+    }
+}
