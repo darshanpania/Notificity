@@ -42,13 +42,19 @@ subprojects {
     }
 }
 
+/**
+ * Runs ./gradlew spotlessApply with kt-lint/kt-fmt() before commits
+ */
 task("addPreCommitCodeStyleHook") {
-    println("⚈ ⚈ ⚈ Running Add Pre Commit Code Style Analysis ⚈ ⚈ ⚈")
+    println("⚈ ⚈ ⚈ Running Spotless Code Style Analysis ⚈ ⚈ ⚈")
     exec {
         commandLine("cp", "./.scripts/pre-commit", "./.git/hooks")
     }
 }
 
+/**
+ * No commits directly on main branch git hook
+ */
 task("lockCommitToMainHook") {
     exec {
         commandLine("cp", "./.scripts/commit-rule", "./.git/hooks")
