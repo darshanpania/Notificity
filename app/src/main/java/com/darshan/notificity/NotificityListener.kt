@@ -1,3 +1,27 @@
+/*
+ *   MIT License
+ *
+ *   Copyright (c) 2024 Darshan Pania
+ *
+ *   Permission is hereby granted, free of charge, to any person obtaining a copy
+ *   of this software and associated documentation files (the "Software"), to deal
+ *   in the Software without restriction, including without limitation the rights
+ *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *   copies of the Software, and to permit persons to whom the Software is
+ *   furnished to do so, subject to the following conditions:
+ *
+ *   The above copyright notice and this permission notice shall be included in all
+ *   copies or substantial portions of the Software.
+ *
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *   SOFTWARE.
+*/
+
 package com.darshan.notificity
 
 import android.app.Notification
@@ -8,7 +32,6 @@ import android.service.notification.StatusBarNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
 
 class NotificityListener : NotificationListenerService() {
 
@@ -26,33 +49,34 @@ class NotificityListener : NotificationListenerService() {
         val packageName = sbn.packageName
         val notification = sbn.notification
         val extras = notification.extras
-        val title = extras.getString(Notification.EXTRA_TITLE,"")
-        val text = extras.getCharSequence(Notification.EXTRA_TEXT,"").toString()
+        val title = extras.getString(Notification.EXTRA_TITLE, "")
+        val text = extras.getCharSequence(Notification.EXTRA_TEXT, "").toString()
         val timestamp = sbn.postTime
         val image = extras.getString(Notification.EXTRA_PICTURE)
 
-        //Find App Name from Package Name
+        // Find App Name from Package Name
         val pm = applicationContext.packageManager
-        val ai: ApplicationInfo? = try {
-            pm.getApplicationInfo(packageName, 0)
-        } catch (e: NameNotFoundException) {
-            null
-        }
+        val ai: ApplicationInfo? =
+            try {
+                pm.getApplicationInfo(packageName, 0)
+            } catch (e: NameNotFoundException) {
+                null
+            }
         val applicationName =
             (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
 
         // Create a new notification entity
-        val notificationEntity = NotificationEntity(
-            packageName = packageName,
-            timestamp = timestamp,
-            appName = applicationName,
-            title = title,
-            content = text,
-            imageUrl = image,
-            extras = extras.toString()
-        )
+        val notificationEntity =
+            NotificationEntity(
+                packageName = packageName,
+                timestamp = timestamp,
+                appName = applicationName,
+                title = title,
+                content = text,
+                imageUrl = image,
+                extras = extras.toString())
 
-        if(notificationEntity.content.isNotEmpty() && notificationEntity.title.isNotEmpty()){
+        if (notificationEntity.content.isNotEmpty() && notificationEntity.title.isNotEmpty()) {
             // Insert the notification into the database using coroutines
             CoroutineScope(Dispatchers.IO).launch {
                 repository.insertNotification(notificationEntity)
@@ -64,4 +88,3 @@ class NotificityListener : NotificationListenerService() {
         // Handle removed notifications if necessary
     }
 }
-
