@@ -51,12 +51,3 @@ task("addPreCommitCodeStyleHook") {
         commandLine("cp", "./.scripts/pre-commit", "./.git/hooks")
     }
 }
-
-/**
- * No commits directly on main branch git hook
- */
-task("lockCommitToMainHook") {
-    exec {
-        commandLine("cp", "./.scripts/commit-rule", "./.git/hooks")
-    }
-}
