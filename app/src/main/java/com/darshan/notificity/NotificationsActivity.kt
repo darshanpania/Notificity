@@ -109,7 +109,7 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
     }
 
 @Composable
-fun NotificationItem(notification: Notification) {
+fun NotificationItem(notification: NotificationEntity) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

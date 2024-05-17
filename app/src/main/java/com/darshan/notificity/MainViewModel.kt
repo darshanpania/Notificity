@@ -3,7 +3,7 @@ package com.darshan.notificity
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.content.pm.PackageManager.*
+import android.content.pm.PackageManager.NameNotFoundException
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.app.NotificationManagerCompat
@@ -22,7 +22,7 @@ class MainViewModel(private val application: Application,
 
     private val packageManager = application.packageManager
 
-    val notificationsFlow: Flow<List<Notification>> = repository.getAllNotificationsFlow()
+    val notificationsFlow: Flow<List<NotificationEntity>> = repository.getAllNotificationsFlow()
 
     val appInfoFromFlow: Flow<List<AppInfo>> = notificationsFlow.map { notifications ->
         notifications.groupBy { it.packageName }.map { entry ->
@@ -35,7 +35,7 @@ class MainViewModel(private val application: Application,
         }
     }
 
-    val notificationsGroupedByAppFlow : Flow<Map<String, List<Notification>>> =
+    val notificationsGroupedByAppFlow : Flow<Map<String, List<NotificationEntity>>> =
         notificationsFlow.map { notificationsFLow ->
             notificationsFLow.groupBy { it.appName }
         }

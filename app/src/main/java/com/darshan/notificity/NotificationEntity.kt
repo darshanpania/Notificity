@@ -3,7 +3,7 @@ package com.darshan.notificity
 import androidx.room.Entity
 
 @Entity(tableName = "notification", primaryKeys = ["id", "packageName"])
-data class Notification(
+data class NotificationEntity(
     val id: Int = 0,
     val packageName: String,
     val timestamp: Long,

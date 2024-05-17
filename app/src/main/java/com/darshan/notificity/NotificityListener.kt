@@ -5,7 +5,6 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager.NameNotFoundException
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,7 +42,7 @@ class NotificityListener : NotificationListenerService() {
             (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
 
         // Create a new notification entity
-        val newNotification = Notification(
+        val newNotification = NotificationEntity(
             id = sbn.id,
             packageName = packageName,
             timestamp = timestamp,

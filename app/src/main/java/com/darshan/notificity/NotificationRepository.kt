@@ -4,10 +4,10 @@ import kotlinx.coroutines.flow.Flow
 
 class NotificationRepository(private val notificationDao: NotificationDao) {
 
-    suspend fun insertNotification(notification: Notification){
+    suspend fun insertNotification(notification: NotificationEntity){
         notificationDao.insertNotification(notification)
     }
 
-    fun getAllNotificationsFlow() : Flow<List<Notification>> = notificationDao.getAllNotificationsFlow()
+    fun getAllNotificationsFlow() : Flow<List<NotificationEntity>> = notificationDao.getAllNotificationsFlow()
 
 }

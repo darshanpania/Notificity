@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Notification::class], version = 2, exportSchema = false)
+@Database(entities = [NotificationEntity::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun notificationDao(): NotificationDao
 
@@ -36,9 +36,9 @@ abstract class AppDatabase : RoomDatabase() {
 
         /**
         * MIGRATION 1 -> 2
-        * Change in PrimaryKey for [Notification]
-         * The primary key is now composed of [Notification.id] && [Notification.packageName]
-         * The [Notification.id] is now set to the notificationId which was originally sent to the NotificationManager
+        * Change in PrimaryKey for [NotificationEntity]
+         * The primary key is now composed of [NotificationEntity.id] && [NotificationEntity.packageName]
+         * The [NotificationEntity.id] is now set to the notificationId which was originally sent to the NotificationManager
         * */
         private val MIGRATION_1_2: Migration = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
