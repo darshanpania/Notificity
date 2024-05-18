@@ -4,7 +4,7 @@ echo "Running git pre-commit hook. Running Spotless Apply... "
 echo "*********************************************************"
 
 # run spotless apply
-./gradlew addPreCommitCodeStyleHook
+./gradlew addCodeStyle
 
 status=$?
 

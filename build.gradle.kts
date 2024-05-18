@@ -37,7 +37,7 @@ subprojects {
 /**
  * Runs ./gradlew spotlessApply with kt-lint/kt-fmt() before commits
  */
-task("addPreCommitCodeStyleHook") {
+task("addCodeStyle") {
     println("⚈ ⚈ ⚈ Running Spotless Code Style Analysis ⚈ ⚈ ⚈")
     exec {
         commandLine("cp", "./.scripts/pre-commit", "./.git/hooks")
