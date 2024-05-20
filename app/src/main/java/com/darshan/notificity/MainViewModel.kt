@@ -3,7 +3,7 @@ package com.darshan.notificity
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.content.pm.PackageManager.*
+import android.content.pm.PackageManager.NameNotFoundException
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.app.NotificationManagerCompat

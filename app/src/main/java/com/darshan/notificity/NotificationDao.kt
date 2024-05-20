@@ -11,6 +11,6 @@ interface NotificationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNotification(notification: NotificationEntity)
 
-    @Query("SELECT * FROM notificationentity ORDER BY timestamp DESC")
+    @Query("SELECT * FROM notification ORDER BY timestamp DESC")
     fun getAllNotificationsFlow(): Flow<List<NotificationEntity>>
 }

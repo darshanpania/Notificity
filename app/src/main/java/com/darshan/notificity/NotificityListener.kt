@@ -55,7 +55,7 @@ class NotificityListener : NotificationListenerService() {
         if (notificationEntity.content.isNotEmpty() && notificationEntity.title.isNotEmpty()) {
             // Insert the notification into the database using coroutines
             CoroutineScope(Dispatchers.IO).launch {
-                repository.insertNotification(notificationEntity)
+                repository.insertNotification(newNotification)
             }
         }
     }
