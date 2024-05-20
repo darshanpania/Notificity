@@ -46,7 +46,8 @@ See our [Contribution Guidelines here](CONTRIBUTING.md)
 
 | First Contributor | [Avadhut Tanugade](https://github.com/mrwhoknows55) |
 |-------------------|-----------------------------------------------------|
-
+| Others            | [Hritik Tayade](https://github.com/tayadehritik)    |
+|                   | [Jay Rathod](https://github.com/zzjjaayy)           |
 
 ## License
 
