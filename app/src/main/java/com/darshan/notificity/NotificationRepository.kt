@@ -6,7 +6,9 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
 
     suspend fun insertNotification(notificationEntity: NotificationEntity) {
         notificationDao.insertNotification(notificationEntity)
+    }
 
     fun getAllNotificationsFlow(): Flow<List<NotificationEntity>> =
-        notificationDao.getAllNotificationsFlow()
+            notificationDao.getAllNotificationsFlow()
+
 }

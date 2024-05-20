@@ -32,10 +32,6 @@ fun NotificityTheme(
 
     MaterialTheme(colorScheme = colorScheme, content = content)
 
-        darkTheme -> darkColorScheme()
-        else -> lightColorScheme()
-    }
-
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
