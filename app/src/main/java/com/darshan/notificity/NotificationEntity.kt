@@ -1,12 +1,10 @@
 package com.darshan.notificity
 
-import android.graphics.Bitmap
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "notification", primaryKeys = ["id", "packageName"])
 data class NotificationEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val id: Int = 0,
     val packageName: String,
     val timestamp: Long,
     val appName: String,
