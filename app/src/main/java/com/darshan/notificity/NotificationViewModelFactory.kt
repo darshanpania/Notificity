@@ -4,9 +4,12 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-class NotificationViewModelFactory(private val application: Application, val repository: NotificationRepository) : ViewModelProvider.Factory {
+class NotificationViewModelFactory(
+    private val application: Application,
+    val repository: NotificationRepository
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if(modelClass.isAssignableFrom(MainViewModel::class.java)){
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return MainViewModel(application = application, repository) as T
         }

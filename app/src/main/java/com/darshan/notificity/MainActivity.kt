@@ -26,15 +26,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -51,28 +51,23 @@ import com.darshan.notificity.ui.theme.NotificityTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val repository: NotificationRepository by lazy { NotificationRepository(AppDatabase.getInstance(application).notificationDao()) }
+    private val repository: NotificationRepository by lazy {
+        NotificationRepository(AppDatabase.getInstance(application).notificationDao())
+    }
 
-    private val mainViewModel: MainViewModel by viewModels<MainViewModel> {
-        NotificationViewModelFactory(
-            this.application,
-            repository = repository
-        )
+    private val mainViewModel: MainViewModel by
+    viewModels<MainViewModel> {
+        NotificationViewModelFactory(this.application, repository = repository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            NotificityTheme {
-                NotificityApp(mainViewModel)
-            }
-        }
+        setContent { NotificityTheme { NotificityApp(mainViewModel) } }
     }
 
     private fun Context.startNotificationsActivity(appName: String) {
-        val intent = Intent(this, NotificationsActivity::class.java).apply {
-            putExtra("appName", appName)
-        }
+        val intent =
+            Intent(this, NotificationsActivity::class.java).apply { putExtra("appName", appName) }
         startActivity(intent)
     }
 
@@ -80,7 +75,7 @@ class MainActivity : ComponentActivity() {
     fun AppGridView(apps: List<AppInfo>, onAppSelected: (String) -> Unit) {
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),  // Adjust based on screen size or preference
+            columns = GridCells.Fixed(2), // Adjust based on screen size or preference
             contentPadding = PaddingValues(8.dp)
         ) {
             items(apps, key = { it.packageName }) { app ->
@@ -113,9 +108,7 @@ class MainActivity : ComponentActivity() {
                         contentDescription = "App Icon",
                         modifier = Modifier.size(50.dp)
                     )
-                } ?: kotlin.run {
-                    Box(Modifier.size(50.dp))
-                }
+                } ?: kotlin.run { Box(Modifier.size(50.dp)) }
                 Spacer(modifier = Modifier.size(2.dp))
                 Text(
                     text = appInfo.appName,
@@ -135,14 +128,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     @Composable
     fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
         var searchQuery by remember { mutableStateOf("") }
 
         TextField(
             value = searchQuery,
-            onValueChange = { searchQuery = it; onSearchQueryChanged(it) },
+            onValueChange = {
+                searchQuery = it
+                onSearchQueryChanged(it)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
@@ -177,14 +172,13 @@ class MainActivity : ComponentActivity() {
                     }
                 } else {
                     AppGridView(
-                        apps = allApps.filter {
+                        apps =
+                        allApps.filter {
                             it.appName.contains(appSearchQuery, ignoreCase = true)
                         },
-                        onAppSelected = { appName -> startNotificationsActivity(appName) }
-                    )
+                        onAppSelected = { appName -> startNotificationsActivity(appName) })
                 }
             }
-
         }
     }
 
@@ -208,24 +202,23 @@ class MainActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "We need access to your notifications to manage and search them effectively.",
+                text =
+                "We need access to your notifications to manage and search them effectively.",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.displaySmall,
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { openNotificationAccessSettings() }) {
-                Text("Grant Access")
-            }
+            Button(onClick = { openNotificationAccessSettings() }) { Text("Grant Access") }
         }
     }
 
     // refresh notification permission state as soon as user comes back from setting screen
-    private val activityForResultLauncher = registerForActivityResult(StartActivityForResult()) {
-        mainViewModel.refreshNotificationPermission()
-    }
+    private val activityForResultLauncher =
+        registerForActivityResult(StartActivityForResult()) {
+            mainViewModel.refreshNotificationPermission()
+        }
 
     private fun openNotificationAccessSettings() {
         activityForResultLauncher.launch(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
     }
-
 }

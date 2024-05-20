@@ -9,7 +9,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
 class NotificityListener : NotificationListenerService() {
 
     private lateinit var database: AppDatabase
@@ -26,34 +25,34 @@ class NotificityListener : NotificationListenerService() {
         val packageName = sbn.packageName
         val notification = sbn.notification
         val extras = notification.extras
-        val title = extras.getString(Notification.EXTRA_TITLE,"")
-        val text = extras.getCharSequence(Notification.EXTRA_TEXT,"").toString()
+        val title = extras.getString(Notification.EXTRA_TITLE, "")
+        val text = extras.getCharSequence(Notification.EXTRA_TEXT, "").toString()
         val timestamp = sbn.postTime
         val image = extras.getString(Notification.EXTRA_PICTURE)
 
-        //Find App Name from Package Name
+        // Find App Name from Package Name
         val pm = applicationContext.packageManager
-        val ai: ApplicationInfo? = try {
-            pm.getApplicationInfo(packageName, 0)
-        } catch (e: NameNotFoundException) {
-            null
-        }
+        val ai: ApplicationInfo? =
+            try {
+                pm.getApplicationInfo(packageName, 0)
+            } catch (e: NameNotFoundException) {
+                null
+            }
         val applicationName =
             (if (ai != null) pm.getApplicationLabel(ai) else "(unknown)") as String
 
         // Create a new notification entity
-        val newNotification = NotificationEntity(
-            id = sbn.id,
-            packageName = packageName,
-            timestamp = timestamp,
-            appName = applicationName,
-            title = title,
-            content = text,
-            imageUrl = image,
-            extras = extras.toString()
-        )
+        val notificationEntity =
+            NotificationEntity(
+                packageName = packageName,
+                timestamp = timestamp,
+                appName = applicationName,
+                title = title,
+                content = text,
+                imageUrl = image,
+                extras = extras.toString())
 
-        if(newNotification.content.isNotEmpty() && newNotification.title.isNotEmpty()){
+        if (notificationEntity.content.isNotEmpty() && notificationEntity.title.isNotEmpty()) {
             // Insert the notification into the database using coroutines
             CoroutineScope(Dispatchers.IO).launch {
                 repository.insertNotification(newNotification)
@@ -65,4 +64,3 @@ class NotificityListener : NotificationListenerService() {
         // Handle removed notifications if necessary
     }
 }
-

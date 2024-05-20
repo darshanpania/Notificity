@@ -11,23 +11,24 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 abstract class AppDatabase : RoomDatabase() {
     abstract fun notificationDao(): NotificationDao
 
-    //Singleton instance of the DB
+    // Singleton instance of the DB
     companion object {
-        @Volatile
-        private var INSTANCE: AppDatabase? = null
+
+        @Volatile private var INSTANCE: AppDatabase? = null
 
         fun getInstance(context: Context): AppDatabase {
             synchronized(this) {
                 var instance = INSTANCE
 
                 if (instance == null) {
-                    instance = Room.databaseBuilder(
-                        context.applicationContext,
-                        AppDatabase::class.java,
-                        Constants.dbName
-                    )
-                        .addMigrations(MIGRATION_1_2)
-                        .build()
+                    instance =
+                        Room.databaseBuilder(
+                                context.applicationContext,
+                                AppDatabase::class.java,
+                                Constants.dbName)
+                            .fallbackToDestructiveMigration()
+                            .build()
+
                     INSTANCE = instance
                 }
                 return instance
@@ -62,6 +63,3 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 }
-
-
-
