@@ -48,6 +48,7 @@ See our [Contribution Guidelines here](CONTRIBUTING.md)
 |-------------------|-----------------------------------------------------|
 | Others            | [Hritik Tayade](https://github.com/tayadehritik)    |
 |                   | [Jay Rathod](https://github.com/zzjjaayy)           |
+|                   | [William John](https://github.com/goonerDroid)      |
 
 ## License
 

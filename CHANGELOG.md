@@ -6,6 +6,7 @@
 * Fixes ongoing notifications causing multiple entries to the DB thanks to [Jay Rathod](https://github.com/zzjjaayy)
 * Adds timestamp to the notification card UI
 * Adds functionality to search notifications by date and time
+* Added Spotless commit style checks to the repo thanks to [William John](https://github.com/goonerDroid)
 
 ## Version 1.0.1
 
