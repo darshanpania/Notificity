@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -22,6 +23,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -185,11 +188,14 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun NotificityApp(viewModel: MainViewModel) {
         val isPermissionGranted by viewModel.isNotificationPermissionGranted.collectAsState()
-        if (isPermissionGranted) {
-            AppSearchScreen(viewModel)
-        } else {
-            RequestAccessScreen()
+        Box(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)) {
+            if (isPermissionGranted) {
+                AppSearchScreen(viewModel)
+            } else {
+                RequestAccessScreen()
+            }
         }
+
     }
 
     @Composable
