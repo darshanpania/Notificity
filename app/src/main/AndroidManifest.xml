@@ -12,7 +12,6 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/app_icon_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Notificity"
         tools:targetApi="31">
         <activity
             android:name=".NotificationsActivity"
