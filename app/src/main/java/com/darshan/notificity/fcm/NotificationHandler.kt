@@ -10,53 +10,53 @@ import kotlinx.coroutines.withContext
 
 class NotificationHandler(private val context: Context) {
 
-    suspend fun handleNotification(notificationPayload: NotificationPayload) {
-        if (notificationPayload.hasImage()) {
-            handleNotificationWithImage(notificationPayload)
+    suspend fun handleNotification(notificationContent: NotificationContent) {
+        if (notificationContent.hasImage()) {
+            handleNotificationWithImage(notificationContent)
         } else {
-            handleSimpleNotification(notificationPayload)
+            handleSimpleNotification(notificationContent)
         }
     }
 
-    private suspend fun handleNotificationWithImage(notificationPayload: NotificationPayload) {
+    private suspend fun handleNotificationWithImage(notificationContent: NotificationContent) {
         val notificationId = System.currentTimeMillis().toInt()
 
         // Show the notification instantly without image
         withContext(Dispatchers.Main) {
-            showNotification(notificationPayload, null, notificationId)
+            showNotification(notificationContent, null, notificationId)
         }
 
         // Launch a separate coroutine for image download & update the notification
         CoroutineScope(Dispatchers.IO).launch {
             val largeIcon = NotificationUtil.getLargeIcon(
                 context,
-                notificationPayload.imageUrl!!,
+                notificationContent.imageUrl!!,
                 timeout = 5
             )
 
             if (largeIcon != null) {
                 withContext(Dispatchers.Main) {
                     // Update same notification ID with image
-                    showNotification(notificationPayload, largeIcon, notificationId)
+                    showNotification(notificationContent, largeIcon, notificationId)
                 }
             }
         }
     }
 
-    private suspend fun handleSimpleNotification(notificationPayload: NotificationPayload) {
+    private suspend fun handleSimpleNotification(notificationContent: NotificationContent) {
         val notificationId = System.currentTimeMillis().toInt()
 
         withContext(Dispatchers.Main) {
-            showNotification(notificationPayload, null, notificationId)
+            showNotification(notificationContent, null, notificationId)
         }
     }
 
-    private fun showNotification(notificationPayload: NotificationPayload, largeIcon: Bitmap?, notificationId: Int) {
+    private fun showNotification(notificationContent: NotificationContent, largeIcon: Bitmap?, notificationId: Int) {
         NotificationUtil.showNotification(
             context = context,
-            title = notificationPayload.title,
-            message = notificationPayload.body,
-            channelId = notificationPayload.channelId,
+            title = notificationContent.title,
+            message = notificationContent.body,
+            channelId = notificationContent.channelId,
             largeIcon = largeIcon,
             notificationId = notificationId
         )

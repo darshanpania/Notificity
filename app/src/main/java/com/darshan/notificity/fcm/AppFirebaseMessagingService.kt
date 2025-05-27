@@ -12,10 +12,10 @@ class AppFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
-        val notificationPayload = NotificationPayload.fromRemoteMessage(remoteMessage) ?: return
+        val notificationContent = NotificationContent.fromRemoteMessage(remoteMessage) ?: return
 
         CoroutineScope(Dispatchers.Default).launch {
-            notificationHandler.handleNotification(notificationPayload)
+            notificationHandler.handleNotification(notificationContent)
         }
     }
 
