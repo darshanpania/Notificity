@@ -13,7 +13,15 @@ import com.darshan.notificity.R
 
 object NotificationUtil {
 
-    internal fun getLargeIcon(context: Context?, imageUrl: String?, timeout: Long): Bitmap? {
+    /**
+     * Loads a bitmap image from the provided URL within the specified timeout.
+     *
+     * @param context The context used to load the image.
+     * @param imageUrl The URL of the image to load.
+     * @param timeout The maximum time in seconds to wait for the image to load.
+     * @return The loaded Bitmap if successful within the timeout; null otherwise.
+     */
+    fun getLargeIcon(context: Context?, imageUrl: String?, timeout: Long): Bitmap? {
         if (context == null || imageUrl.isNullOrBlank()) return null
 
         return try {
