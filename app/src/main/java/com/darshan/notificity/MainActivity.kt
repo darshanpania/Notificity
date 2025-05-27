@@ -1,11 +1,15 @@
 package com.darshan.notificity
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
@@ -28,18 +32,21 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +54,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.ui.theme.NotificityTheme
 
 class MainActivity : ComponentActivity() {
@@ -59,6 +68,10 @@ class MainActivity : ComponentActivity() {
     viewModels<MainViewModel> {
         NotificationViewModelFactory(this.application, repository = repository)
     }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -185,10 +198,23 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun NotificityApp(viewModel: MainViewModel) {
         val isPermissionGranted by viewModel.isNotificationPermissionGranted.collectAsState()
+        val showDialog by viewModel.showNotificationPermissionBlockedDialog.collectAsState()
+
         if (isPermissionGranted) {
             AppSearchScreen(viewModel)
+            AskNotificationPermission()
         } else {
             RequestAccessScreen()
+        }
+
+        if (showDialog) {
+            PermissionBlockedDialog(
+                onDismiss = { viewModel.showNotificationPermissionBlockedDialog(false) },
+                onGoToSettings = {
+                    viewModel.showNotificationPermissionBlockedDialog(false)
+                    openAppSettings()
+                }
+            )
         }
     }
 
@@ -220,5 +246,49 @@ class MainActivity : ComponentActivity() {
 
     private fun openNotificationAccessSettings() {
         activityForResultLauncher.launch(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+    }
+
+    @Composable
+    private fun AskNotificationPermission() {
+        val alreadyAsked = rememberSaveable { mutableStateOf(false) }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !alreadyAsked.value) {
+            val permissionState = ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+
+            alreadyAsked.value = true
+
+            if (permissionState != PackageManager.PERMISSION_GRANTED) {
+                if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    mainViewModel.showNotificationPermissionBlockedDialog(true)
+                } else {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun PermissionBlockedDialog(
+        onDismiss: () -> Unit,
+        onGoToSettings: () -> Unit
+    ) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Permission needed") },
+            text = { Text("Notification permission is blocked. Please enable it in app settings.") },
+            confirmButton = {
+                TextButton(onClick = { onGoToSettings() }) {
+                    Text("Go to Settings")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onDismiss() }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
