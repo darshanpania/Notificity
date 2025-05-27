@@ -3,6 +3,9 @@ package com.darshan.notificity.fcm
 import com.darshan.notificity.Constants
 import com.google.firebase.messaging.RemoteMessage
 
+/**
+ * Data class representing notification content extracted from a [RemoteMessage].
+ */
 data class NotificationContent(
     val title: String,
     val body: String,
@@ -10,6 +13,12 @@ data class NotificationContent(
     val imageUrl: String?
 ) {
     companion object {
+        /**
+         * Parses a [RemoteMessage] to extract [NotificationContent].
+         *
+         * @param remoteMessage The FCM message containing the payload.
+         * @return A [NotificationContent] instance if the notification payload is valid; otherwise, null.
+         */
         fun fromRemoteMessage(remoteMessage: RemoteMessage): NotificationContent? {
             return fromNotificationPayload(remoteMessage)
         }
