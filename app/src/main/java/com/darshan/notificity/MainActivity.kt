@@ -198,7 +198,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun NotificityApp(viewModel: MainViewModel) {
         val isPermissionGranted by viewModel.isNotificationPermissionGranted.collectAsState()
-        val showDialog by viewModel.showNotificationPermissionBlockedDialog.collectAsState()
+        val showNotificationPermissionBlockedDialog by viewModel.showNotificationPermissionBlockedDialog.collectAsState()
 
         if (isPermissionGranted) {
             AppSearchScreen(viewModel)
@@ -207,7 +207,7 @@ class MainActivity : ComponentActivity() {
             RequestAccessScreen()
         }
 
-        if (showDialog) {
+        if (showNotificationPermissionBlockedDialog) {
             PermissionBlockedDialog(
                 onDismiss = { viewModel.showNotificationPermissionBlockedDialog(false) },
                 onGoToSettings = {
