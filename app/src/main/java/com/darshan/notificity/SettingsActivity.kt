@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.darshan.notificity.components.NotificityAppBar
+import com.darshan.notificity.extensions.recommendApp
 import com.darshan.notificity.ui.theme.NotificityTheme
 
 class SettingsActivity : ComponentActivity() {
@@ -92,7 +93,7 @@ class SettingsActivity : ComponentActivity() {
                 SettingsCard(
                     icon = rememberVectorPainter(image = Icons.Default.Share),
                     text = "Recommend this app",
-                    onClick = { /* Share app logic */ })
+                    onClick = { recommendApp() })
             }
         }
     }
