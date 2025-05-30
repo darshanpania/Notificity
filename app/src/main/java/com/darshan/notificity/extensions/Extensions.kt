@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import androidx.core.net.toUri
 
 fun Context.recommendApp() {
     val appName = "Notificity"
@@ -25,9 +26,20 @@ fun Context.recommendApp() {
     }
 }
 
-fun Context.getActivity(): Activity? =
-    when (this) {
-        is Activity -> this
-        is ContextWrapper -> baseContext.getActivity()
-        else -> null
-    }
+fun Context.getActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.getActivity()
+    else -> null
+}
+
+inline fun <reified T : Activity> Context.launchActivity() {
+    val intent = Intent(this, T::class.java)
+    startActivity(intent)
+}
+
+fun Context.openUrl(url: String) {
+    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    startActivity(intent)
+}
+

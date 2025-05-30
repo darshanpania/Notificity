@@ -40,6 +40,7 @@ android {
     // Setting up Jetpack Compose
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.13"
