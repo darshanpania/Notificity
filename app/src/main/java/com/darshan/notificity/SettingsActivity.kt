@@ -16,8 +16,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.getActivity
+import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.recommendApp
 import com.darshan.notificity.ui.theme.NotificityTheme
 
@@ -82,11 +83,11 @@ class SettingsActivity : ComponentActivity() {
                     text = "Change Theme",
                     onClick = { /* Navigate to Theme screen */ })
                 SettingsCard(
-                    icon = rememberVectorPainter(image = Icons.Default.Info),
+                    icon = rememberVectorPainter(image =  Icons.Outlined.Info),
                     text = "About",
-                    onClick = { /* Navigate to About screen */ })
+                    onClick = { launchActivity<AboutActivity>() })
                 SettingsCard(
-                    icon = rememberVectorPainter(image = Icons.Default.Share),
+                    icon = rememberVectorPainter(image = Icons.Outlined.Share),
                     text = "Recommend this app",
                     onClick = { recommendApp() })
             }
@@ -116,8 +117,11 @@ class SettingsActivity : ComponentActivity() {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        icon, modifier = Modifier.size(32.dp), contentDescription = null
-                    )
+                        icon,
+                        modifier = Modifier.size(32.dp),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     Spacer(modifier = Modifier.width(24.dp))
                     Text(
                         text,

@@ -51,6 +51,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.darshan.notificity.components.NotificityAppBar
+import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.ui.theme.NotificityTheme
 
 class MainActivity : ComponentActivity() {
@@ -202,7 +203,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .padding(end = 16.dp)
                                 .clickable {
-                                    context.startActivity(Intent(context, SettingsActivity::class.java))
+                                    launchActivity<SettingsActivity>()
                                 }
                         )
                     }
