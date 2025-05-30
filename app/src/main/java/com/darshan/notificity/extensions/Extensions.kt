@@ -1,6 +1,8 @@
 package com.darshan.notificity.extensions
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 
 fun Context.recommendApp() {
@@ -22,3 +24,10 @@ fun Context.recommendApp() {
         startActivity(chooser)
     }
 }
+
+fun Context.getActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.getActivity()
+        else -> null
+    }
