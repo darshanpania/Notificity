@@ -17,7 +17,8 @@ import com.darshan.notificity.DarkGrey
 @Composable
 fun NotificityAppBar(
     title: String,
-    actions: @Composable (RowScope.() -> Unit)? = null
+    actions: @Composable (RowScope.() -> Unit)? = null,
+    navigationIcon: @Composable (() -> Unit)? = null
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
@@ -34,6 +35,9 @@ fun NotificityAppBar(
     ) {
         TopAppBar(
             title = { Text(text = title) },
+            navigationIcon = {
+                navigationIcon?.invoke()
+            },
             actions = {
                 actions?.invoke(this)
             },
