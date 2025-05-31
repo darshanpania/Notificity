@@ -1,4 +1,4 @@
-package com.darshan.notificity.ui.theme;
+package com.darshan.notificity.ui.theme
 
 /**
  * Enum representing the app's theme modes.
