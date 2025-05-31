@@ -37,20 +37,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
+import com.darshan.notificity.utils.Util
 
 class NotificationsActivity : ComponentActivity() {
     private val repository: NotificationRepository by lazy { NotificationRepository(AppDatabase.getInstance(application).notificationDao()) }
     private val viewModel: MainViewModel by viewModels {
         NotificationViewModelFactory(application, repository)
     }
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val appName:String = intent.getStringExtra("appName").toString()
         this.actionBar?.hide()
         setContent {
-            NotificityTheme {
+            val themeMode by settingsViewModel.themeMode.collectAsState()
+
+            NotificityTheme(themeMode = themeMode) {
                 NotificationSearchScreen(viewModel = viewModel, appName)
             }
         }

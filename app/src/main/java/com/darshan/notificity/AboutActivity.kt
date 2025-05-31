@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,14 +41,19 @@ import com.darshan.notificity.components.ClickableSection
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.openUrl
+import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 
 class AboutActivity : ComponentActivity() {
+    private val settingsViewModel: SettingsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            NotificityTheme {
+            val themeMode by settingsViewModel.themeMode.collectAsState()
+
+            NotificityTheme(themeMode = themeMode) {
                 val context = LocalContext.current
 
                 AboutScreen {
@@ -62,7 +70,8 @@ class AboutActivity : ComponentActivity() {
         Scaffold(
             topBar = {
                 NotificityAppBar(
-                    title = "About", navigationIcon = {
+                    title = "About",
+                    navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
