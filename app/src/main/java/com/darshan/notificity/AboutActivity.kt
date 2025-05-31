@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
@@ -72,7 +74,8 @@ class AboutActivity : ComponentActivity() {
                 modifier = Modifier
                     .padding(innerPadding)
                     .padding(16.dp)
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
@@ -101,7 +104,7 @@ class AboutActivity : ComponentActivity() {
                 Contributor("Shrinath Gupta", "gupta_shrinath", context)
                 Contributor("William", "goonerdroid11", context)
                 Contributor("Jay Rathod", "zzjjaayy", context)
-
+                Contributor("Avadhut", "mr_whoknows55", context)
             }
         }
     }
