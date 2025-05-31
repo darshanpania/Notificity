@@ -61,6 +61,7 @@ dependencies {
 
     implementation(libs.glide)
     implementation(libs.glide.compose)
+    implementation(libs.datastore.preferences)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
