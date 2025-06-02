@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,10 +30,15 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -63,26 +69,49 @@ class NotificationsActivity : ComponentActivity() {
         this.actionBar?.hide()
         setContent {
             NotificityTheme {
-                NotificationSearchScreen(viewModel = viewModel, appName)
+                NotificationSearchScreen(
+                    viewModel = viewModel,
+                    appName = appName
+                )
             }
         }
     }
 }
 
 @Composable
-fun NotificationSearchScreen(viewModel: MainViewModel, appName: String?) {
+fun NotificationSearchScreen(
+    viewModel: MainViewModel,
+    appName: String?
+) {
     var notificationSearchQuery by remember { mutableStateOf("") }
+    var showDatePicker by remember { mutableStateOf(false) }
+    val toggleDatePicker = remember { { showDatePicker = !showDatePicker } }
+    var selectedDateRange by remember { mutableStateOf<Pair<Long?, Long?>>(null to null) }
 
     Column {
         SearchBar(
-            "Search Notifications in $appName",
-            onSearchQueryChanged = { notificationSearchQuery = it })
+            hint = "Search Notifications in $appName",
+            onSearchQueryChanged = { notificationSearchQuery = it },
+            toggleDatePicker = toggleDatePicker
+        )
         NotificationList(viewModel, appName, notificationSearchQuery)
+    }
+
+    if (showDatePicker) {
+        DateRangePickerModal(onDateRangeSelected = {
+            selectedDateRange = it
+            showDatePicker = false
+        }, onDismiss = { showDatePicker = false }
+        )
     }
 }
 
 @Composable
-fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
+fun SearchBar(
+    hint: String,
+    onSearchQueryChanged: (String) -> Unit,
+    toggleDatePicker: () -> Unit,
+) {
     var searchQuery by remember { mutableStateOf("") }
 
     Row(
@@ -98,13 +127,16 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
             placeholder = { Text(hint) },
             leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search Icon") },
             singleLine = true,
-            modifier = Modifier.weight(1f) // Take remaining space
+            modifier = Modifier.weight(1f)
         )
         Card(
             modifier = Modifier
                 .fillMaxHeight()
-                .aspectRatio(1f), // Keep it square for circular shape
-            shape = CircleShape, // Change to circular shape
+                .aspectRatio(1f)
+                .clickable {
+                    toggleDatePicker()
+                },
+            shape = CircleShape,
             elevation = CardDefaults.cardElevation(4.dp),
         ) {
             Box(
@@ -114,7 +146,7 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
                 Icon(
                     imageVector = Icons.Filled.DateRange,
                     contentDescription = "Data Filter",
-                    modifier = Modifier.padding(4.dp) // Add padding for better appearance
+                    modifier = Modifier.padding(4.dp)
                 )
             }
         }
@@ -192,5 +224,50 @@ fun NotificationItem(notification: NotificationEntity) {
                 modifier = Modifier.align(Alignment.End)
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateRangePickerModal(
+    onDateRangeSelected: (Pair<Long?, Long?>) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val dateRangePickerState = rememberDateRangePickerState()
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDateRangeSelected(
+                        Pair(
+                            dateRangePickerState.selectedStartDateMillis,
+                            dateRangePickerState.selectedEndDateMillis
+                        )
+                    )
+                    onDismiss()
+                }
+            ) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DateRangePicker(
+            state = dateRangePickerState,
+            title = {
+                Text(text = "Select date range")
+            },
+            showModeToggle = false,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+                .padding(16.dp)
+        )
     }
 }
