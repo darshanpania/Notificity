@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.darshan.notificity.components.ClickableSection
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.getActivity
@@ -127,7 +128,9 @@ class AboutActivity : ComponentActivity() {
                 contentDescription = "$name profile picture",
                 modifier = Modifier
                     .size(40.dp)
-                    .clip(CircleShape)
+                    .clip(CircleShape),
+                loading = placeholder(R.drawable.iv_profile),
+                failure = placeholder(R.drawable.iv_profile)
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
