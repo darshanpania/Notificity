@@ -41,10 +41,19 @@ class MainViewModel(private val application: Application, repository: Notificati
     private val _isNotificationPermissionGranted = MutableStateFlow(false)
     val isNotificationPermissionGranted = _isNotificationPermissionGranted.asStateFlow()
 
+    private val _showNotificationPermissionBlockedDialog = MutableStateFlow(false)
+    val showNotificationPermissionBlockedDialog = _showNotificationPermissionBlockedDialog.asStateFlow()
+
     fun refreshNotificationPermission() {
         val enabledListeners = NotificationManagerCompat.getEnabledListenerPackages(application)
         _isNotificationPermissionGranted.update {
             enabledListeners.contains(application.packageName)
+        }
+    }
+
+    fun showNotificationPermissionBlockedDialog(show: Boolean) {
+        _showNotificationPermissionBlockedDialog.update {
+            show
         }
     }
 
