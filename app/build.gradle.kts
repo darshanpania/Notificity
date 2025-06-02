@@ -60,6 +60,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.runtime:runtime-livedata")
+    implementation("androidx.compose.material:material-icons-extended")
 
     val roomVersion = "2.6.1"
     ksp("androidx.room:room-compiler:$roomVersion")

@@ -14,5 +14,4 @@ open class Util {
             return localDate.format(formatter)
         }
     }
-
 }
