@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.launchActivity
+import com.darshan.notificity.ui.settings.SettingsActivity
+import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 
 class MainActivity : ComponentActivity() {
@@ -64,9 +66,18 @@ class MainActivity : ComponentActivity() {
         NotificationViewModelFactory(this.application, repository = repository)
     }
 
+    private val settingsViewModel: SettingsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { NotificityTheme { NotificityApp(mainViewModel) } }
+
+        setContent {
+            val themeMode by settingsViewModel.themeMode.collectAsState()
+
+            NotificityTheme(themeMode = themeMode) {
+                NotificityApp(mainViewModel)
+            }
+        }
     }
 
     private fun Context.startNotificationsActivity(appName: String) {
