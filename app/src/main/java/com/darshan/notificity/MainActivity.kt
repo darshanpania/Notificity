@@ -28,11 +28,13 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -47,6 +49,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darshan.notificity.components.NotificityAppBar
+import com.darshan.notificity.extensions.launchActivity
+import com.darshan.notificity.ui.settings.SettingsActivity
+import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 
 class MainActivity : ComponentActivity() {
@@ -60,9 +66,18 @@ class MainActivity : ComponentActivity() {
         NotificationViewModelFactory(this.application, repository = repository)
     }
 
+    private val settingsViewModel: SettingsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { NotificityTheme { NotificityApp(mainViewModel) } }
+
+        setContent {
+            val themeMode by settingsViewModel.themeMode.collectAsState()
+
+            NotificityTheme(themeMode = themeMode) {
+                NotificityApp(mainViewModel)
+            }
+        }
     }
 
     private fun Context.startNotificationsActivity(appName: String) {
@@ -185,12 +200,35 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun NotificityApp(viewModel: MainViewModel) {
         val isPermissionGranted by viewModel.isNotificationPermissionGranted.collectAsState()
-        if (isPermissionGranted) {
-            AppSearchScreen(viewModel)
-        } else {
-            RequestAccessScreen()
+
+        Scaffold(
+            topBar = {
+                NotificityAppBar(
+                    title = "Notificity",
+                    actions = {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Open settings screen",
+                            modifier = Modifier
+                                .padding(end = 16.dp)
+                                .clickable {
+                                    launchActivity<SettingsActivity>()
+                                }
+                        )
+                    }
+                )
+            }
+        ) { innerPadding ->
+            Box(modifier = Modifier.padding(innerPadding)) {
+                if (isPermissionGranted) {
+                    AppSearchScreen(viewModel)
+                } else {
+                    RequestAccessScreen()
+                }
+            }
         }
     }
+
 
     @Composable
     fun RequestAccessScreen() {

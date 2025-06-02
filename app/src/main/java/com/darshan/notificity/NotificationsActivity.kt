@@ -10,9 +10,12 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,20 +37,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
+import com.darshan.notificity.utils.Util
 
 class NotificationsActivity : ComponentActivity() {
     private val repository: NotificationRepository by lazy { NotificationRepository(AppDatabase.getInstance(application).notificationDao()) }
     private val viewModel: MainViewModel by viewModels {
         NotificationViewModelFactory(application, repository)
     }
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val appName:String = intent.getStringExtra("appName").toString()
         this.actionBar?.hide()
         setContent {
-            NotificityTheme {
+            val themeMode by settingsViewModel.themeMode.collectAsState()
+
+            NotificityTheme(themeMode = themeMode) {
                 NotificationSearchScreen(viewModel = viewModel, appName)
             }
         }
@@ -58,7 +66,7 @@ class NotificationsActivity : ComponentActivity() {
 fun NotificationSearchScreen(viewModel: MainViewModel, appName: String?) {
     var notificationSearchQuery by remember { mutableStateOf("") }
 
-    Column {
+    Column(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)) {
             SearchBar("Search Notifications in $appName", onSearchQueryChanged = { notificationSearchQuery = it })
             NotificationList(viewModel, appName, notificationSearchQuery)
         }
