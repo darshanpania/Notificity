@@ -7,16 +7,10 @@ import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -34,6 +28,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -116,8 +111,7 @@ fun SearchBar(
 
     Row(
         modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-            .height(IntrinsicSize.Min),
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -127,27 +121,13 @@ fun SearchBar(
             placeholder = { Text(hint) },
             leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search Icon") },
             singleLine = true,
-            modifier = Modifier.weight(1f)
         )
         Card(
-            modifier = Modifier
-                .fillMaxHeight()
-                .aspectRatio(1f)
-                .clickable {
-                    toggleDatePicker()
-                },
-            shape = CircleShape,
             elevation = CardDefaults.cardElevation(4.dp),
+            shape = CircleShape,
         ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.DateRange,
-                    contentDescription = "Data Filter",
-                    modifier = Modifier.padding(4.dp)
-                )
+            IconButton(onClick = toggleDatePicker) {
+                Icon(Icons.Default.DateRange, contentDescription = "Date Picker")
             }
         }
     }
