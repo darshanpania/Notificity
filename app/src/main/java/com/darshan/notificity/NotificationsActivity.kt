@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -49,6 +50,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
@@ -87,14 +93,13 @@ fun NotificationSearchScreen(
 ) {
     var notificationSearchQuery by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
-    val toggleDatePicker = remember { { showDatePicker = !showDatePicker } }
     var selectedDateRange by remember { mutableStateOf<Pair<Long?, Long?>>(null to null) }
 
     Column(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)) {
         SearchBar(
             hint = "Search Notifications in $appName",
             onSearchQueryChanged = { notificationSearchQuery = it },
-            toggleDatePicker = toggleDatePicker
+            toggleDatePicker = { showDatePicker = true }
         )
         NotificationList(
             viewModel = viewModel,
@@ -106,8 +111,8 @@ fun NotificationSearchScreen(
 
     if (showDatePicker) {
         DateRangePickerModal(
-            onDateRangeSelected = {
-                selectedDateRange = it
+            onDateRangeSelected = { dateRange ->
+                selectedDateRange = dateRange
                 showDatePicker = false
             },
             onDismiss = { showDatePicker = false }
@@ -175,15 +180,24 @@ fun NotificationList(
             ?: listOf()
 
     // Filter notifications based on the search query
-    val filteredNotifications = notifications.filter {
-        (it.content.contains(other = searchQuery, ignoreCase = true) ||
-                (it.title.contains(other = searchQuery, ignoreCase = true)) ||
-                Util.convertEpochLongToString(it.timestamp)
-                    .contains(other = searchQuery, ignoreCase = true)
-                || ((selectedDateRange.first != null) &&
-                (selectedDateRange.second != null) &&
-                (selectedDateRange.first!! < it.timestamp) &&
-                (selectedDateRange.second!! > it.timestamp)))
+    val filteredNotifications = notifications.filter { notification ->
+        val matchesSearchQuery = searchQuery.isEmpty() ||
+                notification.content.contains(searchQuery, ignoreCase = true) ||
+                notification.title.contains(searchQuery, ignoreCase = true) ||
+                Util.convertEpochLongToString(notification.timestamp)
+                    .contains(searchQuery, ignoreCase = true)
+
+        val matchesDateRange = selectedDateRange.first?.let { start ->
+            selectedDateRange.second?.let { end ->
+                notification.timestamp >= start && notification.timestamp <= end
+            }
+        } != false
+
+        matchesSearchQuery && matchesDateRange
+    }
+
+    if (filteredNotifications.isEmpty()) {
+        EmptyNotifications()
     }
 
 
@@ -255,7 +269,6 @@ fun DateRangePickerModal(
                             dateRangePickerState.selectedEndDateMillis
                         )
                     )
-                    onDismiss()
                 }
             ) {
                 Text("OK")
@@ -276,6 +289,40 @@ fun DateRangePickerModal(
             modifier = Modifier
                 .height(500.dp)
                 .padding(10.dp)
+        )
+    }
+}
+
+@Composable
+fun EmptyNotifications(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        val composition by rememberLottieComposition(
+            LottieCompositionSpec.RawRes(R.raw.lottie_no_data)
+        )
+        val progress by animateLottieCompositionAsState(
+            composition = composition,
+            iterations = LottieConstants.IterateForever
+        )
+
+        LottieAnimation(
+            composition = composition,
+            progress = { progress },
+            modifier = Modifier.size(200.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "No notifications found with this filter",
+            maxLines = 2,
+            fontSize = 20.sp,
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }

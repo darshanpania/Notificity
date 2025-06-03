@@ -16,6 +16,7 @@ crashlytics = "3.0.3"
 glide = "4.16.0"
 glide-compose = "1.0.0-beta01"
 datastore = "1.1.7"
+lottie-compose = "6.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,6 +43,7 @@ firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compose = { group = "com.github.bumptech.glide", name = "compose", version.ref = "glide-compose" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie-compose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
