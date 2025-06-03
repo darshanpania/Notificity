@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -44,7 +47,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
+import com.darshan.notificity.utils.Util
 
 class NotificationsActivity : ComponentActivity() {
     private val repository: NotificationRepository by lazy {
@@ -57,17 +62,17 @@ class NotificationsActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels {
         NotificationViewModelFactory(application, repository)
     }
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val appName: String = intent.getStringExtra("appName").toString()
         this.actionBar?.hide()
         setContent {
-            NotificityTheme {
-                NotificationSearchScreen(
-                    viewModel = viewModel,
-                    appName = appName
-                )
+            val themeMode by settingsViewModel.themeMode.collectAsState()
+
+            NotificityTheme(themeMode = themeMode) {
+                NotificationSearchScreen(viewModel = viewModel, appName)
             }
         }
     }
@@ -83,13 +88,17 @@ fun NotificationSearchScreen(
     val toggleDatePicker = remember { { showDatePicker = !showDatePicker } }
     var selectedDateRange by remember { mutableStateOf<Pair<Long?, Long?>>(null to null) }
 
-    Column {
+    Column(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)) {
         SearchBar(
-            hint = "Search Notifications in $appName",
+            "Search Notifications in $appName",
             onSearchQueryChanged = { notificationSearchQuery = it },
             toggleDatePicker = toggleDatePicker
         )
-        NotificationList(viewModel, appName, notificationSearchQuery)
+        NotificationList(
+            viewModel,
+            appName,
+            notificationSearchQuery,
+        )
     }
 
     if (showDatePicker) {
