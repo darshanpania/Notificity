@@ -1,6 +1,7 @@
 package com.darshan.notificity
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -45,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.darshan.notificity.ui.settings.SettingsViewModel
@@ -72,7 +74,7 @@ class NotificationsActivity : ComponentActivity() {
             val themeMode by settingsViewModel.themeMode.collectAsState()
 
             NotificityTheme(themeMode = themeMode) {
-                NotificationSearchScreen(viewModel = viewModel, appName)
+                NotificationSearchScreen(viewModel = viewModel, appName = appName)
             }
         }
     }
@@ -90,22 +92,25 @@ fun NotificationSearchScreen(
 
     Column(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)) {
         SearchBar(
-            "Search Notifications in $appName",
+            hint = "Search Notifications in $appName",
             onSearchQueryChanged = { notificationSearchQuery = it },
             toggleDatePicker = toggleDatePicker
         )
         NotificationList(
-            viewModel,
-            appName,
-            notificationSearchQuery,
+            viewModel = viewModel,
+            appName = appName,
+            searchQuery = notificationSearchQuery,
+            selectedDateRange = selectedDateRange,
         )
     }
 
     if (showDatePicker) {
-        DateRangePickerModal(onDateRangeSelected = {
-            selectedDateRange = it
-            showDatePicker = false
-        }, onDismiss = { showDatePicker = false }
+        DateRangePickerModal(
+            onDateRangeSelected = {
+                selectedDateRange = it
+                showDatePicker = false
+            },
+            onDismiss = { showDatePicker = false }
         )
     }
 }
@@ -125,10 +130,16 @@ fun SearchBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         TextField(
+            modifier = Modifier.weight(1f),
             value = searchQuery,
             onValueChange = { searchQuery = it; onSearchQueryChanged(it) },
-            placeholder = { Text(hint) },
-            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search Icon") },
+            placeholder = { Text(text = hint, overflow = TextOverflow.Ellipsis, maxLines = 1) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = "Search Icon"
+                )
+            },
             singleLine = true,
         )
         Card(
@@ -136,20 +147,27 @@ fun SearchBar(
             shape = CircleShape,
         ) {
             IconButton(onClick = toggleDatePicker) {
-                Icon(Icons.Default.DateRange, contentDescription = "Date Picker")
+                Icon(imageVector = Icons.Default.DateRange, contentDescription = "Date Picker")
             }
         }
     }
 }
 
 @Composable
-fun NotificationList(viewModel: MainViewModel, appName: String?, searchQuery: String) {
+fun NotificationList(
+    viewModel: MainViewModel,
+    appName: String?,
+    searchQuery: String,
+    selectedDateRange: Pair<Long?, Long?>,
+) {
     // Safely handle the case where appName is null
     if (appName == null) {
         // Optionally, display a message or return if no app is selected
-        Text("Select an app to view notifications")
+        Text(text = "Select an app to view notifications")
         return
     }
+
+    Log.d("Anas", Util.convertEpochLongToString(selectedDateRange.first ?: 0L))
 
     // Get the list of notifications for the specified app
     val notifications =
@@ -158,17 +176,19 @@ fun NotificationList(viewModel: MainViewModel, appName: String?, searchQuery: St
 
     // Filter notifications based on the search query
     val filteredNotifications = notifications.filter {
-        it.content.contains(searchQuery, ignoreCase = true) || it.title.contains(
-            searchQuery,
-            ignoreCase = true
-        )
-                || Util.convertEpochLongToString(it.timestamp)
-            .contains(searchQuery, ignoreCase = true)
+        (it.content.contains(other = searchQuery, ignoreCase = true) ||
+                (it.title.contains(other = searchQuery, ignoreCase = true)) ||
+                Util.convertEpochLongToString(it.timestamp)
+                    .contains(other = searchQuery, ignoreCase = true)
+                || ((selectedDateRange.first != null) &&
+                (selectedDateRange.second != null) &&
+                (selectedDateRange.first!! < it.timestamp) &&
+                (selectedDateRange.second!! > it.timestamp)))
     }
 
 
     AnimatedVisibility(
-        filteredNotifications.isNotEmpty(),
+        visible = filteredNotifications.isNotEmpty(),
         enter = fadeIn() + expandVertically()
     ) {
         // Display the notifications using a LazyColumn
@@ -254,9 +274,8 @@ fun DateRangePickerModal(
             },
             showModeToggle = false,
             modifier = Modifier
-                .fillMaxWidth()
                 .height(500.dp)
-                .padding(16.dp)
+                .padding(10.dp)
         )
     }
 }
