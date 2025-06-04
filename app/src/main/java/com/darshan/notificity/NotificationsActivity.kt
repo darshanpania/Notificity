@@ -31,6 +31,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.DateRangePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -86,11 +87,13 @@ class NotificationsActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationSearchScreen(
     viewModel: MainViewModel,
     appName: String?
 ) {
+    val dateRangePickerState = rememberDateRangePickerState()
     var notificationSearchQuery by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
     var selectedDateRange by remember { mutableStateOf<Pair<Long?, Long?>>(null to null) }
@@ -111,6 +114,7 @@ fun NotificationSearchScreen(
 
     if (showDatePicker) {
         DateRangePickerModal(
+            dateRangePickerState = dateRangePickerState,
             onDateRangeSelected = { dateRange ->
                 selectedDateRange = dateRange
                 showDatePicker = false
@@ -197,7 +201,7 @@ fun NotificationList(
     }
 
     if (filteredNotifications.isEmpty()) {
-        EmptyNotifications()
+        EmptyNotification()
     }
 
 
@@ -253,11 +257,10 @@ fun NotificationItem(notification: NotificationEntity) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateRangePickerModal(
+    dateRangePickerState: DateRangePickerState,
     onDateRangeSelected: (Pair<Long?, Long?>) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
-    val dateRangePickerState = rememberDateRangePickerState()
-
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -294,7 +297,7 @@ fun DateRangePickerModal(
 }
 
 @Composable
-fun EmptyNotifications(modifier: Modifier = Modifier) {
+fun EmptyNotification(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
