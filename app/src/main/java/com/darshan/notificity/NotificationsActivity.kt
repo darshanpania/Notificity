@@ -1,7 +1,6 @@
 package com.darshan.notificity
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -48,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -175,8 +175,6 @@ fun NotificationList(
         Text(text = "Select an app to view notifications")
         return
     }
-
-    Log.d("Anas", Util.convertEpochLongToString(selectedDateRange.first ?: 0L))
 
     // Get the list of notifications for the specified app
     val notifications =
@@ -325,7 +323,7 @@ fun EmptyNotification(modifier: Modifier = Modifier) {
             text = "No notifications found with this filter",
             maxLines = 2,
             fontSize = 20.sp,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium.copy(color = Color.Black)
         )
     }
 }
