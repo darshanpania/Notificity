@@ -1,6 +1,7 @@
 package com.darshan.notificity
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -13,4 +14,7 @@ interface NotificationDao {
 
     @Query("SELECT * FROM notification ORDER BY timestamp DESC")
     fun getAllNotificationsFlow(): Flow<List<NotificationEntity>>
+
+    @Delete
+    suspend fun deleteNotification(notification: NotificationEntity)
 }

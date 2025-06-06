@@ -32,14 +32,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darshan.notificity.components.SwipeToDelete
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
+import kotlinx.coroutines.launch
 
 class NotificationsActivity : ComponentActivity() {
     private val repository: NotificationRepository by lazy { NotificationRepository(AppDatabase.getInstance(application).notificationDao()) }
@@ -90,6 +93,7 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
 
     @Composable
     fun NotificationList(viewModel: MainViewModel, appName: String?, searchQuery: String) {
+        val coroutineScope = rememberCoroutineScope()
         // Safely handle the case where appName is null
         if (appName == null) {
             // Optionally, display a message or return if no app is selected
@@ -114,7 +118,15 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
             // Display the notifications using a LazyColumn
             LazyColumn {
                 items(filteredNotifications, key = { it.id }) { notification ->
-                    NotificationItem(notification)
+                    SwipeToDelete(
+                        item = notification,
+                        onDelete = {
+                            viewModel.deleteNotification(notification)
+                        }
+                    ) {
+                        NotificationItem(notification)
+                    }
+
                 }
             }
         }
