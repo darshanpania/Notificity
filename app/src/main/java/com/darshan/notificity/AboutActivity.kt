@@ -1,13 +1,18 @@
 package com.darshan.notificity
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,14 +34,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -58,7 +65,6 @@ class AboutActivity : ComponentActivity() {
 
             NotificityTheme(themeMode = themeMode) {
                 val context = LocalContext.current
-
                 AboutScreen {
                     context.getActivity()?.finish()
                 }
@@ -69,7 +75,12 @@ class AboutActivity : ComponentActivity() {
     @Composable
     fun AboutScreen(onBack: () -> Unit) {
         val context = LocalContext.current
-
+        val scrollState = rememberScrollState()
+        val showButton by remember {
+            derivedStateOf {
+                scrollState.maxValue == 0 || scrollState.maxValue != scrollState.value
+            }
+        }
         Scaffold(
             topBar = {
                 NotificityAppBar(
@@ -80,42 +91,55 @@ class AboutActivity : ComponentActivity() {
                         }
                     })
             }) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(16.dp)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "An app designed to capture and categorizes your notifications, so you never miss or lose important messages.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            Box(modifier = Modifier.padding(innerPadding)) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxSize()
+                        .verticalScroll(scrollState),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "An app designed to capture and categorizes your notifications, so you never miss or lose important messages.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
 
-                ClickableSection(
-                    title = "App Version", description = BuildConfig.VERSION_NAME
-                )
+                    ClickableSection(
+                        title = "App Version", description = BuildConfig.VERSION_NAME
+                    )
 
-                HorizontalDivider()
+                    HorizontalDivider()
 
-                ClickableSection(
-                    title = "Privacy Policy",
-                    description = "Learn more about how the app manages your data",
-                    onClick = {
-                        openUrl("https://github.com/darshanpania/Notificity/blob/main/PRIVACY.md")
+                    ClickableSection(
+                        title = "Privacy Policy",
+                        description = "Learn more about how the app manages your data",
+                        onClick = {
+                            openUrl("https://github.com/darshanpania/Notificity/blob/main/PRIVACY.md")
+                        })
+
+                    HorizontalDivider()
+
+                    Text("Contributors", style = MaterialTheme.typography.titleMedium)
+                    Contributor("Darshan Pania", "i_m_Pania", context)
+                    Contributor("Shivam Sharma", "ShivamS707", context)
+                    Contributor("Shrinath Gupta", "gupta_shrinath", context)
+                    Contributor("William", "goonerdroid11", context)
+                    Contributor("Jay Rathod", "zzjjaayy", context)
+                    Contributor("Avadhut", "mr_whoknows55", context)
+                }
+                AnimatedVisibility(
+                    visible = showButton, enter = fadeIn(), exit = fadeOut(),
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                ) {
+                    BuyMeACoffee(onClick = {
+                        settingsViewModel.openLink(
+                            context,
+                            Constants.BUY_ME_A_COFFEE_LINK
+                        )
                     })
-
-                HorizontalDivider()
-
-                Text("Contributors", style = MaterialTheme.typography.titleMedium)
-                Contributor("Darshan Pania", "i_m_Pania", context)
-                Contributor("Shivam Sharma", "ShivamS707", context)
-                Contributor("Shrinath Gupta", "gupta_shrinath", context)
-                Contributor("William", "goonerdroid11", context)
-                Contributor("Jay Rathod", "zzjjaayy", context)
-                Contributor("Avadhut", "mr_whoknows55", context)
+                }
             }
+
         }
     }
 
@@ -125,13 +149,13 @@ class AboutActivity : ComponentActivity() {
         val twitterProfileUrl = "https://twitter.com/$twitterUsername"
         val profilePicUrl = "https://unavatar.io/twitter/$twitterUsername"
 
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                val intent = Intent(Intent.ACTION_VIEW, twitterProfileUrl.toUri())
-                context.startActivity(intent)
-            }
-            .padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    settingsViewModel.openLink(context, twitterProfileUrl)
+                }
+                .padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             GlideImage(
                 model = profilePicUrl,
                 contentDescription = "$name profile picture",
@@ -148,6 +172,21 @@ class AboutActivity : ComponentActivity() {
                 color = MaterialTheme.colorScheme.primary
             )
         }
+    }
+
+    @Composable
+    fun BuyMeACoffee(modifier: Modifier = Modifier, onClick: () -> Unit) {
+        val interactionSource  = remember { MutableInteractionSource() }
+        Image(
+            modifier = modifier.then(
+                Modifier
+                    .width(width = 150.dp)
+                    .clickable(onClick = onClick, interactionSource = interactionSource, indication = null)
+                    .padding(bottom = 20.dp)
+            ),
+            painter = painterResource(R.drawable.buy_me_a_coffee),
+            contentDescription = "Buy me a coffee"
+        )
     }
 
     @Composable
