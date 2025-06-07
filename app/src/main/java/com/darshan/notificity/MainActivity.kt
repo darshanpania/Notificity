@@ -3,7 +3,6 @@ package com.darshan.notificity
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -55,10 +54,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.NotificityAppBar
+import com.darshan.notificity.enums.NotificationPermissionStatus
+import com.darshan.notificity.extensions.getNotificationPermissionStatus
 import com.darshan.notificity.extensions.isLaunchedFromLauncher
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.openAppSettings
@@ -79,7 +79,20 @@ class MainActivity : BaseActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) {}
+    ) { isGranted ->
+        val status = if (isGranted) {
+            NotificationPermissionStatus.GRANTED
+        } else {
+            NotificationPermissionStatus.DENIED
+        }
+        logNotificationPermissionStatus(status)
+    }
+
+    private val appSettingsLauncher = registerForActivityResult(StartActivityForResult()) {
+        // Re-check permission after returning from Settings
+        val updatedStatus = getNotificationPermissionStatus()
+        logNotificationPermissionStatus(updatedStatus)
+    }
 
     private val settingsViewModel: SettingsViewModel by viewModels()
 
@@ -105,6 +118,10 @@ class MainActivity : BaseActivity() {
             // It will ONLY run during a fresh launch (cold start)
             val source = if (intent.isLaunchedFromLauncher()) "launcher" else "external_or_notification"
             AnalyticsLogger.onAppLaunch(source)
+
+            // Log notification permission status at app launch
+            val status = getNotificationPermissionStatus()
+            logNotificationPermissionStatus(status)
         }
     }
 
@@ -263,7 +280,7 @@ class MainActivity : BaseActivity() {
                 onDismiss = { viewModel.showNotificationPermissionBlockedDialog(false) },
                 onGoToSettings = {
                     viewModel.showNotificationPermissionBlockedDialog(false)
-                    openAppSettings()
+                    openAppSettings(appSettingsLauncher)
                 }
             )
         }
@@ -304,17 +321,15 @@ class MainActivity : BaseActivity() {
         val alreadyAsked = rememberSaveable { mutableStateOf(false) }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !alreadyAsked.value) {
-            val permissionState = ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.POST_NOTIFICATIONS
-            )
+            val permissionStatus = getNotificationPermissionStatus()
 
             alreadyAsked.value = true
 
-            if (permissionState != PackageManager.PERMISSION_GRANTED) {
+            if (permissionStatus == NotificationPermissionStatus.DENIED) {
                 if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
                     mainViewModel.showNotificationPermissionBlockedDialog(true)
                 } else {
+                    AnalyticsLogger.onNotificationPermissionRequested()
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
@@ -341,5 +356,10 @@ class MainActivity : BaseActivity() {
                 }
             }
         )
+    }
+
+    fun logNotificationPermissionStatus(status: NotificationPermissionStatus) {
+        AnalyticsLogger.onNotificationPermissionChanged(status)
+        AnalyticsLogger.setNotificationPermissionProperty(status)
     }
 }

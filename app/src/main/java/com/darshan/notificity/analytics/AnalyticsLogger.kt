@@ -1,5 +1,7 @@
 package com.darshan.notificity.analytics
 
+import com.darshan.notificity.enums.NotificationPermissionStatus
+
 /**
  * Wrapper around [AnalyticsService] to log analytics events.
  * Simplifies event logging by providing easy-to-use functions for typical app actions.
@@ -24,6 +26,26 @@ object AnalyticsLogger {
                 AnalyticsConstants.Params.SCREEN_CLASS to screenClass
             )
         )
+    }
+
+    fun onNotificationPermissionRequested() {
+        AnalyticsService.logEvent(object : AnalyticsEvent {
+            override val name = AnalyticsConstants.Events.NOTIFICATION_PERMISSION_REQUESTED
+            override val properties = null
+        })
+    }
+
+    fun onNotificationPermissionChanged(status: NotificationPermissionStatus) {
+        AnalyticsService.logEvent(object : AnalyticsEvent {
+            override val name = AnalyticsConstants.Events.NOTIFICATION_PERMISSION_CHANGED
+            override val properties = mapOf(
+                AnalyticsConstants.Params.PERMISSION_STATUS to status.code
+            )
+        })
+    }
+
+    fun setNotificationPermissionProperty(status: NotificationPermissionStatus) {
+        AnalyticsService.setUserProperty(AnalyticsConstants.Params.PERMISSION_STATUS, status.code.toString())
     }
 
     /** Logs notification list viewed event with app name and total notifications. */

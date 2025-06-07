@@ -15,6 +15,8 @@ object AnalyticsConstants {
         const val CONTRIBUTOR_CLICKED = "contributor_clicked"
         const val BUY_ME_COFFEE_CLICKED = "buy_me_coffee_clicked"
         const val LOGIN = "login"
+        const val NOTIFICATION_PERMISSION_REQUESTED = "notification_permission_requested"
+        const val NOTIFICATION_PERMISSION_CHANGED = "notification_permission_changed"
     }
 
     // Parameter keys used with analytics events.
@@ -27,6 +29,7 @@ object AnalyticsConstants {
         const val CONTRIBUTOR_NAME = "contributor_name"
         const val USER_TYPE = "user_type"
         const val USER_ID = "user_id"
+        const val PERMISSION_STATUS = "permission_status" // e.g. granted, denied
     }
 
     // Names of screens for screen view tracking.
