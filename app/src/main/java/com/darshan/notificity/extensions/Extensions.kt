@@ -45,8 +45,11 @@ fun Context.getActivity(): Activity? = when (this) {
 }
 
 
-inline fun <reified T : Activity> Context.launchActivity() {
+inline fun <reified T : Activity> Context.launchActivity(
+    noinline extras: (Intent.() -> Unit)? = null
+) {
     val intent = Intent(this, T::class.java)
+    extras?.let { intent.it() }
     startActivity(intent)
 }
 
@@ -54,4 +57,8 @@ fun Context.openUrl(url: String) {
     val intent = Intent(Intent.ACTION_VIEW, url.toUri())
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     startActivity(intent)
+}
+
+fun Intent?.isLaunchedFromLauncher(): Boolean {
+    return this?.action == Intent.ACTION_MAIN && this.hasCategory(Intent.CATEGORY_LAUNCHER)
 }
