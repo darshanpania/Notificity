@@ -3,11 +3,15 @@ package com.darshan.notificity
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import com.darshan.notificity.analytics.AnalyticsService
+import com.darshan.notificity.analytics.FirebaseAnalyticsTracker
 
 class MyApplication : Application() {
+
     override fun onCreate() {
         super.onCreate()
 
+        AnalyticsService.init(FirebaseAnalyticsTracker())
         createNotificationChannels()
     }
 

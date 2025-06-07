@@ -1,21 +1,30 @@
 package com.darshan.notificity.extensions
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
+import androidx.activity.result.ActivityResultLauncher
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import com.darshan.notificity.enums.NotificationPermissionStatus
+
+
 
 /**
  * Launches the app settings screen
  */
-fun Context.openAppSettings() {
+fun Context.openAppSettings(appSettingsLauncher: ActivityResultLauncher<Intent>) {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
         data = Uri.fromParts("package", packageName, null)
     }
-    startActivity(intent)
+    appSettingsLauncher.launch(intent)
 }
 
 fun Context.recommendApp() {
@@ -45,8 +54,11 @@ fun Context.getActivity(): Activity? = when (this) {
 }
 
 
-inline fun <reified T : Activity> Context.launchActivity() {
+inline fun <reified T : Activity> Context.launchActivity(
+    noinline extras: (Intent.() -> Unit)? = null
+) {
     val intent = Intent(this, T::class.java)
+    extras?.let { intent.it() }
     startActivity(intent)
 }
 
@@ -54,4 +66,22 @@ fun Context.openUrl(url: String) {
     val intent = Intent(Intent.ACTION_VIEW, url.toUri())
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     startActivity(intent)
+}
+
+fun Intent?.isLaunchedFromLauncher(): Boolean {
+    return this?.action == Intent.ACTION_MAIN && this.hasCategory(Intent.CATEGORY_LAUNCHER)
+}
+
+fun Context.getNotificationPermissionStatus(): NotificationPermissionStatus {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val granted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+        if (granted) NotificationPermissionStatus.GRANTED else NotificationPermissionStatus.DENIED
+    } else {
+        // For below Android 13, check if notifications are enabled at system level
+        val notificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled()
+        if (notificationsEnabled) NotificationPermissionStatus.GRANTED else NotificationPermissionStatus.DENIED
+    }
 }
