@@ -45,8 +45,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,11 +56,9 @@ import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
 import com.darshan.notificity.components.SwipeToDelete
 import com.darshan.notificity.ui.BaseActivity
-import com.darshan.notificity.components.SwipeToDelete
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
-import kotlinx.coroutines.launch
 
 class NotificationsActivity : BaseActivity() {
     private val repository: NotificationRepository by lazy {
@@ -181,8 +177,6 @@ fun NotificationList(
     searchQuery: String,
     selectedDateRange: Pair<Long?, Long?>,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
     // Safely handle the case where appName is null
     if (appName == null) {
         // Optionally, display a message or return if no app is selected
@@ -215,7 +209,6 @@ fun NotificationList(
     if (filteredNotifications.isEmpty()) {
         EmptyContentState(text = "No notifications found with this filter")
     }
-
 
     AnimatedVisibility(
         visible = filteredNotifications.isNotEmpty(),
