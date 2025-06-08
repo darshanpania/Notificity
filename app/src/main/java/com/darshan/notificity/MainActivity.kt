@@ -3,11 +3,9 @@ package com.darshan.notificity
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -32,8 +30,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -56,16 +54,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darshan.notificity.analytics.AnalyticsConstants
+import com.darshan.notificity.analytics.AnalyticsLogger
+import androidx.core.content.ContextCompat
+import com.darshan.notificity.components.EmptyContentState
 import com.darshan.notificity.components.NotificityAppBar
+import com.darshan.notificity.enums.NotificationPermissionStatus
+import com.darshan.notificity.extensions.getNotificationPermissionStatus
+import com.darshan.notificity.extensions.isLaunchedFromLauncher
 import com.darshan.notificity.extensions.launchActivity
+import com.darshan.notificity.extensions.openAppSettings
+import com.darshan.notificity.ui.BaseActivity
+import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.ui.settings.SettingsActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
-import androidx.core.content.ContextCompat
-import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.ui.theme.NotificityTheme
 
-class MainActivity : ComponentActivity() {
-
+class MainActivity : BaseActivity() {
     private val repository: NotificationRepository by lazy {
         NotificationRepository(AppDatabase.getInstance(application).notificationDao())
     }
@@ -77,12 +82,29 @@ class MainActivity : ComponentActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) {}
+    ) { isGranted ->
+        val status = if (isGranted) {
+            NotificationPermissionStatus.GRANTED
+        } else {
+            NotificationPermissionStatus.DENIED
+        }
+        logNotificationPermissionStatus(status)
+    }
+
+    private val appSettingsLauncher = registerForActivityResult(StartActivityForResult()) {
+        // Re-check permission after returning from Settings
+        val updatedStatus = getNotificationPermissionStatus()
+        logNotificationPermissionStatus(updatedStatus)
+    }
 
     private val settingsViewModel: SettingsViewModel by viewModels()
 
+    override val screenName: String
+        get() = AnalyticsConstants.Screens.MAIN
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handleAppLaunchAnalytics(savedInstanceState)
 
         setContent {
             val themeMode by settingsViewModel.themeMode.collectAsState()
@@ -93,10 +115,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun handleAppLaunchAnalytics(savedInstanceState: Bundle?) {
+        if (savedInstanceState == null) {
+            // This block will NOT run during orientation change
+            // It will ONLY run during a fresh launch (cold start)
+            val source = if (intent.isLaunchedFromLauncher()) "launcher" else "external_or_notification"
+            AnalyticsLogger.onAppLaunch(source)
+
+            // Log notification permission status at app launch
+            val status = getNotificationPermissionStatus()
+            logNotificationPermissionStatus(status)
+        }
+    }
+
     private fun Context.startNotificationsActivity(appName: String) {
-        val intent =
-            Intent(this, NotificationsActivity::class.java).apply { putExtra("appName", appName) }
-        startActivity(intent)
+        launchActivity<NotificationsActivity> {
+            putExtra("appName", appName)
+        }
     }
 
     @Composable
@@ -180,31 +215,34 @@ class MainActivity : ComponentActivity() {
         val notifications by viewModel.notificationsFlow.collectAsState(initial = emptyList())
         var appSearchQuery by remember { mutableStateOf("") }
         val allApps = viewModel.appInfoFromFlow.collectAsState(initial = emptyList()).value
+        val filteredApps = allApps.filter {
+            it.appName.contains(appSearchQuery, ignoreCase = true)
+        }
+
         Column {
             SearchBar("Search Apps... ", onSearchQueryChanged = { appSearchQuery = it })
             AnimatedContent(notifications, label = "app_list") { list ->
-                if (list.isEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "No Notifications yet",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.displaySmall,
-                            color = MaterialTheme.colorScheme.onSurface
+                when {
+                    list.isEmpty() -> {
+                        // No notifications collected at all
+                        EmptyContentState(
+                            text = "No Notifications yet"
                         )
                     }
-                } else {
-                    AppGridView(
-                        apps =
-                        allApps.filter {
-                            it.appName.contains(appSearchQuery, ignoreCase = true)
-                        },
-                        onAppSelected = { appName -> startNotificationsActivity(appName) })
+
+                    filteredApps.isEmpty() && appSearchQuery.isNotBlank() -> {
+                        // Search active, but no matching app
+                        EmptyContentState(
+                            text = "No apps found matching \"$appSearchQuery\"",
+                        )
+                    }
+
+                    else -> {
+                        AppGridView(
+                            apps = filteredApps,
+                            onAppSelected = { appName -> startNotificationsActivity(appName) }
+                        )
+                    }
                 }
             }
         }
@@ -248,7 +286,7 @@ class MainActivity : ComponentActivity() {
                 onDismiss = { viewModel.showNotificationPermissionBlockedDialog(false) },
                 onGoToSettings = {
                     viewModel.showNotificationPermissionBlockedDialog(false)
-                    openAppSettings()
+                    openAppSettings(appSettingsLauncher)
                 }
             )
         }
@@ -289,17 +327,15 @@ class MainActivity : ComponentActivity() {
         val alreadyAsked = rememberSaveable { mutableStateOf(false) }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !alreadyAsked.value) {
-            val permissionState = ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.POST_NOTIFICATIONS
-            )
+            val permissionStatus = getNotificationPermissionStatus()
 
             alreadyAsked.value = true
 
-            if (permissionState != PackageManager.PERMISSION_GRANTED) {
+            if (permissionStatus == NotificationPermissionStatus.DENIED) {
                 if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
                     mainViewModel.showNotificationPermissionBlockedDialog(true)
                 } else {
+                    AnalyticsLogger.onNotificationPermissionRequested()
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
@@ -326,5 +362,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         )
+    }
+
+    fun logNotificationPermissionStatus(status: NotificationPermissionStatus) {
+        AnalyticsLogger.onNotificationPermissionChanged(status)
+        AnalyticsLogger.setNotificationPermissionProperty(status)
     }
 }

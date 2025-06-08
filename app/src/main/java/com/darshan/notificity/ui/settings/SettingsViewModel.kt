@@ -3,6 +3,7 @@ package com.darshan.notificity.ui.settings
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.ui.theme.ThemeMode
 import com.darshan.notificity.ui.theme.ThemePreferenceManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,8 @@ class SettingsViewModel(private val application: Application) : AndroidViewModel
         viewModelScope.launch {
             ThemePreferenceManager.saveTheme(application.applicationContext, theme)
             _themeMode.value = theme
+
+            AnalyticsLogger.onThemeToggleClicked(theme.name)
         }
     }
 }

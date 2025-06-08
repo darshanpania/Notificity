@@ -34,7 +34,8 @@ class MainViewModel(private val application: Application, private val repository
                         appName = loadAppNameFromPackageName(packageManager, entry.key),
                         icon = loadIconFromPackageName(packageManager, entry.key),
                         notificationCount = entry.value.size,
-                        packageName = entry.key)
+                        packageName = entry.key
+                    )
                 }
         }
 
@@ -76,7 +77,7 @@ fun loadAppNameFromPackageName(packageManager: PackageManager, packageName: Stri
     val ai: ApplicationInfo? =
         try {
             packageManager.getApplicationInfo(packageName, 0)
-        } catch (e: NameNotFoundException) {
+        } catch (_: NameNotFoundException) {
             null
         }
     val applicationName =
@@ -89,7 +90,7 @@ fun loadIconFromPackageName(packageManager: PackageManager, packageName: String)
     val ai: ApplicationInfo? =
         try {
             packageManager.getApplicationInfo(packageName, 0)
-        } catch (e: NameNotFoundException) {
+        } catch (_: NameNotFoundException) {
             null
         }
 
