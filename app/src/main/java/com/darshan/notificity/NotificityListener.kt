@@ -44,7 +44,7 @@ class NotificityListener : NotificationListenerService() {
         // Create a new notification entity
         val newNotification =
             NotificationEntity(
-                id = sbn.id,
+                notificationId = sbn.id,
                 packageName = packageName,
                 timestamp = timestamp,
                 appName = applicationName,
