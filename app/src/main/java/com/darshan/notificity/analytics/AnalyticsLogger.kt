@@ -28,6 +28,9 @@ object AnalyticsLogger {
         )
     }
 
+    /**
+     * Logs the event when the app requests notification permission from the user.
+     */
     fun onNotificationPermissionRequested() {
         AnalyticsService.logEvent(object : AnalyticsEvent {
             override val name = AnalyticsConstants.Events.NOTIFICATION_PERMISSION_REQUESTED
@@ -35,6 +38,9 @@ object AnalyticsLogger {
         })
     }
 
+    /**
+     * Logs a change in the user's notification permission status (granted or denied).
+     */
     fun onNotificationPermissionChanged(status: NotificationPermissionStatus) {
         AnalyticsService.logEvent(object : AnalyticsEvent {
             override val name = AnalyticsConstants.Events.NOTIFICATION_PERMISSION_CHANGED
@@ -44,6 +50,10 @@ object AnalyticsLogger {
         })
     }
 
+    /**
+     * Sets the user's current notification permission status as a user property.
+     * Enables filtering or segmentation based on permission status in analytics.
+     */
     fun setNotificationPermissionProperty(status: NotificationPermissionStatus) {
         AnalyticsService.setUserProperty(AnalyticsConstants.Params.PERMISSION_STATUS, status.code.toString())
     }

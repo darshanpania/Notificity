@@ -1,15 +1,12 @@
 package com.darshan.notificity
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +45,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
+import com.darshan.notificity.components.BuyMeACoffee
 import com.darshan.notificity.components.ClickableSection
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.getActivity
@@ -80,7 +78,6 @@ class AboutActivity : BaseActivity() {
 
     @Composable
     fun AboutScreen(onBack: () -> Unit) {
-        val context = LocalContext.current
         val scrollState = rememberScrollState()
         val showButton by remember {
             derivedStateOf {
@@ -132,13 +129,13 @@ class AboutActivity : BaseActivity() {
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Contributor("Darshan Pania", "i_m_Pania", context)
-                    Contributor("Shivam Sharma", "ShivamS707", context)
-                    Contributor("Shrinath Gupta", "gupta_shrinath", context)
-                    Contributor("William John", "goonerdroid11", context)
-                    Contributor("Jay Rathod", "zzjjaayy", context)
-                    Contributor("Avadhut", "mr_whoknows55", context)
-                    Contributor("Md Anas Shikoh", "ansiili_billi", context)
+                    Contributor("Darshan Pania", "i_m_Pania")
+                    Contributor("Shivam Sharma", "ShivamS707")
+                    Contributor("Shrinath Gupta", "gupta_shrinath")
+                    Contributor("William John", "goonerdroid11")
+                    Contributor("Jay Rathod", "zzjjaayy")
+                    Contributor("Avadhut", "mr_whoknows55")
+                    Contributor("Md Anas Shikoh", "ansiili_billi")
                 }
                 AnimatedVisibility(
                     visible = showButton, enter = fadeIn(), exit = fadeOut(),
@@ -146,6 +143,8 @@ class AboutActivity : BaseActivity() {
                 ) {
                     BuyMeACoffee(onClick = {
                         openUrl(Constants.BUY_ME_A_COFFEE_LINK)
+
+                        AnalyticsLogger.onBuyMeCoffeeClicked()
                     })
                 }
             }
@@ -154,7 +153,7 @@ class AboutActivity : BaseActivity() {
 
     @OptIn(ExperimentalGlideComposeApi::class)
     @Composable
-    fun Contributor(name: String, twitterUsername: String, context: Context) {
+    fun Contributor(name: String, twitterUsername: String) {
         val twitterProfileUrl = "https://twitter.com/$twitterUsername"
         val profilePicUrl = "https://unavatar.io/twitter/$twitterUsername"
 
@@ -193,21 +192,6 @@ class AboutActivity : BaseActivity() {
                 tint = MaterialTheme.colorScheme.outline
             )
         }
-    }
-
-    @Composable
-    fun BuyMeACoffee(modifier: Modifier = Modifier, onClick: () -> Unit) {
-        val interactionSource  = remember { MutableInteractionSource() }
-        Image(
-            modifier = modifier.then(
-                Modifier
-                    .width(width = 150.dp)
-                    .clickable(onClick = onClick, interactionSource = interactionSource, indication = null)
-                    .padding(bottom = 20.dp)
-            ),
-            painter = painterResource(R.drawable.buy_me_a_coffee),
-            contentDescription = "Buy me a coffee"
-        )
     }
 
     @Composable
