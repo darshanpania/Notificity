@@ -1,7 +1,6 @@
 package com.darshan.notificity
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
@@ -41,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,11 +56,14 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.darshan.notificity.analytics.AnalyticsConstants
+import com.darshan.notificity.analytics.AnalyticsLogger
+import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
 
-class NotificationsActivity : ComponentActivity() {
+class NotificationsActivity : BaseActivity() {
     private val repository: NotificationRepository by lazy {
         NotificationRepository(
             AppDatabase.getInstance(
@@ -72,6 +75,9 @@ class NotificationsActivity : ComponentActivity() {
         NotificationViewModelFactory(application, repository)
     }
     private val settingsViewModel: SettingsViewModel by viewModels()
+
+    override val screenName: String
+        get() = AnalyticsConstants.Screens.NOTIFICATION_LIST
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -212,6 +218,13 @@ fun NotificationList(
         visible = filteredNotifications.isNotEmpty(),
         enter = fadeIn() + expandVertically()
     ) {
+        LaunchedEffect(key1 = Unit) {
+            // LaunchedEffect ensures the logging doesn't rerun on every recomposition but initial composition.
+            if (filteredNotifications.isNotEmpty()) {
+                AnalyticsLogger.onNotificationListOpened(appName, filteredNotifications.size)
+            }
+        }
+
         // Display the notifications using a LazyColumn
         LazyColumn {
             items(filteredNotifications, key = { it.id }) { notification ->

@@ -1,7 +1,6 @@
 package com.darshan.notificity.ui.settings
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
@@ -50,17 +49,22 @@ import androidx.compose.ui.unit.dp
 import com.darshan.notificity.AboutActivity
 import com.darshan.notificity.CardColor
 import com.darshan.notificity.R
+import com.darshan.notificity.analytics.AnalyticsConstants
+import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.recommendApp
+import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.theme.LocalIsDarkTheme
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.ui.theme.ThemeMode
 
-class SettingsActivity : ComponentActivity() {
+class SettingsActivity : BaseActivity() {
 
     private val settingsViewModel: SettingsViewModel by viewModels()
+    override val screenName: String
+        get() = AnalyticsConstants.Screens.SETTINGS
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,7 +124,12 @@ class SettingsActivity : ComponentActivity() {
                 SettingsCard(
                     icon = rememberVectorPainter(image = Icons.Outlined.Share),
                     text = "Recommend this app",
-                    onClick = { recommendApp() })
+                    onClick = {
+                        recommendApp()
+
+                        AnalyticsLogger.onRecommendAppClicked()
+                    }
+                )
             }
 
             if (showSheet.value) {
@@ -141,7 +150,9 @@ class SettingsActivity : ComponentActivity() {
                             label = "System Default",
                             selected = currentTheme == ThemeMode.SYSTEM,
                             onClick = {
-                                settingsViewModel.updateTheme(ThemeMode.SYSTEM)
+                                if (currentTheme != ThemeMode.SYSTEM) {
+                                    settingsViewModel.updateTheme(ThemeMode.SYSTEM)
+                                }
                                 showSheet.value = false
                             })
                         ThemeOptionItem(
@@ -149,7 +160,9 @@ class SettingsActivity : ComponentActivity() {
                             label = "Light Theme",
                             selected = currentTheme == ThemeMode.LIGHT,
                             onClick = {
-                                settingsViewModel.updateTheme(ThemeMode.LIGHT)
+                                if (currentTheme != ThemeMode.LIGHT) {
+                                    settingsViewModel.updateTheme(ThemeMode.LIGHT)
+                                }
                                 showSheet.value = false
                             })
                         ThemeOptionItem(
@@ -157,7 +170,9 @@ class SettingsActivity : ComponentActivity() {
                             label = "Dark Theme",
                             selected = currentTheme == ThemeMode.DARK,
                             onClick = {
-                                settingsViewModel.updateTheme(ThemeMode.DARK)
+                                if (currentTheme != ThemeMode.DARK) {
+                                    settingsViewModel.updateTheme(ThemeMode.DARK)
+                                }
                                 showSheet.value = false
                             })
                     }
