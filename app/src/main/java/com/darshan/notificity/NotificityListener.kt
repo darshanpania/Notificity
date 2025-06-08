@@ -25,7 +25,7 @@ class NotificityListener : NotificationListenerService() {
         val packageName = sbn.packageName
         val notification = sbn.notification
         val extras = notification.extras
-        val title = extras.getString(Notification.EXTRA_TITLE, "")
+        val title = extras.getCharSequence(Notification.EXTRA_TITLE, "").toString()
         val text = extras.getCharSequence(Notification.EXTRA_TEXT, "").toString()
         val timestamp = sbn.postTime
         val image = extras.getString(Notification.EXTRA_PICTURE)
