@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
+import com.darshan.notificity.components.SwipeToDelete
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
@@ -209,7 +210,6 @@ fun NotificationList(
         EmptyContentState(text = "No notifications found with this filter")
     }
 
-
     AnimatedVisibility(
         visible = filteredNotifications.isNotEmpty(),
         enter = fadeIn() + expandVertically()
@@ -224,7 +224,15 @@ fun NotificationList(
         // Display the notifications using a LazyColumn
         LazyColumn {
             items(filteredNotifications, key = { it.id }) { notification ->
-                NotificationItem(notification)
+                SwipeToDelete(
+                    item = notification,
+                    onDelete = {
+                        viewModel.deleteNotification(notification)
+                    }
+                ) {
+                    NotificationItem(notification)
+                }
+
             }
         }
     }

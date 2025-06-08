@@ -9,13 +9,16 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class MainViewModel(private val application: Application, repository: NotificationRepository) :
+class MainViewModel(private val application: Application, private val repository: NotificationRepository) :
     AndroidViewModel(application) {
 
     private val packageManager = application.packageManager
@@ -61,6 +64,13 @@ class MainViewModel(private val application: Application, repository: Notificati
     init {
         refreshNotificationPermission()
     }
+
+    fun deleteNotification(notificationEntity: NotificationEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteNotification(notificationEntity)
+        }
+    }
+
 }
 
 fun loadAppNameFromPackageName(packageManager: PackageManager, packageName: String): String {
