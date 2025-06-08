@@ -59,6 +59,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
+import com.darshan.notificity.utils.ViewModelProviderFactory
 
 class NotificationsActivity : ComponentActivity() {
     private val repository: NotificationRepository by lazy {
@@ -68,9 +69,15 @@ class NotificationsActivity : ComponentActivity() {
             ).notificationDao()
         )
     }
+
     private val viewModel: MainViewModel by viewModels {
-        NotificationViewModelFactory(application, repository)
+        ViewModelProviderFactory(MainViewModel::class) {
+            MainViewModel(
+                application = this.application, repository = repository
+            )
+        }
     }
+
     private val settingsViewModel: SettingsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {

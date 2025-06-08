@@ -32,8 +32,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -56,13 +56,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.launchActivity
+import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.ui.settings.SettingsActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
-import androidx.core.content.ContextCompat
-import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.ui.theme.NotificityTheme
+import com.darshan.notificity.utils.ViewModelProviderFactory
 
 class MainActivity : ComponentActivity() {
 
@@ -70,9 +71,12 @@ class MainActivity : ComponentActivity() {
         NotificationRepository(AppDatabase.getInstance(application).notificationDao())
     }
 
-    private val mainViewModel: MainViewModel by
-    viewModels<MainViewModel> {
-        NotificationViewModelFactory(this.application, repository = repository)
+    private val mainViewModel: MainViewModel by viewModels {
+        ViewModelProviderFactory(MainViewModel::class) {
+            MainViewModel(
+                application = this.application, repository = repository
+            )
+        }
     }
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -201,9 +205,9 @@ class MainActivity : ComponentActivity() {
                 } else {
                     AppGridView(
                         apps =
-                        allApps.filter {
-                            it.appName.contains(appSearchQuery, ignoreCase = true)
-                        },
+                            allApps.filter {
+                                it.appName.contains(appSearchQuery, ignoreCase = true)
+                            },
                         onAppSelected = { appName -> startNotificationsActivity(appName) })
                 }
             }
@@ -265,7 +269,7 @@ class MainActivity : ComponentActivity() {
         ) {
             Text(
                 text =
-                "We need access to your notifications to manage and search them effectively.",
+                    "We need access to your notifications to manage and search them effectively.",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.displaySmall,
             )
