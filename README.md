@@ -51,6 +51,7 @@ See our [Contribution Guidelines here](CONTRIBUTING.md)
 |                   | [William John](https://github.com/goonerDroid)      |
 |                   | [Shivam Sharma](https://github.com/shivamsharma-1996)|
 |                   | [Shrinath Gupta](https://github.com/gupta-shrinath)  |
+|                   | [Shikoh](https://github.com/Mutant-Slayer)           |
 
 ## License
 
