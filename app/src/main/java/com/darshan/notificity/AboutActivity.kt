@@ -119,13 +119,18 @@ class AboutActivity : ComponentActivity() {
 
                     HorizontalDivider()
 
-                    Text("Contributors", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = "Contributors",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                     Contributor("Darshan Pania", "i_m_Pania", context)
                     Contributor("Shivam Sharma", "ShivamS707", context)
                     Contributor("Shrinath Gupta", "gupta_shrinath", context)
                     Contributor("William", "goonerdroid11", context)
                     Contributor("Jay Rathod", "zzjjaayy", context)
                     Contributor("Avadhut", "mr_whoknows55", context)
+                    Contributor("Md Anas Shikoh", "ansiili_billi", context)
                 }
                 AnimatedVisibility(
                     visible = showButton, enter = fadeIn(), exit = fadeOut(),
@@ -145,27 +150,37 @@ class AboutActivity : ComponentActivity() {
         val twitterProfileUrl = "https://twitter.com/$twitterUsername"
         val profilePicUrl = "https://unavatar.io/twitter/$twitterUsername"
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    openUrl(twitterProfileUrl)
-                }
-                .padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            GlideImage(
-                model = profilePicUrl,
-                contentDescription = "$name profile picture",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape),
-                loading = placeholder(R.drawable.iv_profile),
-                failure = placeholder(R.drawable.iv_profile)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                openUrl(twitterProfileUrl)
+            }
+            .padding(vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                GlideImage(
+                    model = profilePicUrl,
+                    contentDescription = "$name profile picture",
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape),
+                    loading = placeholder(R.drawable.iv_profile),
+                    failure = placeholder(R.drawable.iv_profile)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            Icon(
+                painterResource(id = R.drawable.iv_next),
+                modifier = Modifier.size(16.dp),
+                contentDescription = "Go to Twitter profile",
+                tint = MaterialTheme.colorScheme.outline
             )
         }
     }
