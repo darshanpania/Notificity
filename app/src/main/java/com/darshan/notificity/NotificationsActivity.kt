@@ -51,11 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
+import com.darshan.notificity.components.EmptyContentState
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
@@ -204,7 +200,7 @@ fun NotificationList(
     }
 
     if (filteredNotifications.isEmpty()) {
-        EmptyNotification()
+        EmptyContentState(text = "No notifications found with this filter")
     }
 
 
@@ -295,40 +291,6 @@ fun DateRangePickerModal(
             modifier = Modifier
                 .height(500.dp)
                 .padding(10.dp)
-        )
-    }
-}
-
-@Composable
-fun EmptyNotification(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        val composition by rememberLottieComposition(
-            LottieCompositionSpec.RawRes(R.raw.lottie_no_data)
-        )
-        val progress by animateLottieCompositionAsState(
-            composition = composition,
-            iterations = LottieConstants.IterateForever
-        )
-
-        LottieAnimation(
-            composition = composition,
-            progress = { progress },
-            modifier = Modifier.size(200.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "No notifications found with this filter",
-            maxLines = 2,
-            fontSize = 20.sp,
-            style = MaterialTheme.typography.titleMedium
         )
     }
 }
