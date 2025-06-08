@@ -1,9 +1,6 @@
 package com.darshan.notificity.ui.settings
 
 import android.app.Application
-import android.content.Context
-import android.content.Intent
-import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.darshan.notificity.ui.theme.ThemeMode
@@ -30,11 +27,5 @@ class SettingsViewModel(private val application: Application) : AndroidViewModel
             ThemePreferenceManager.saveTheme(application.applicationContext, theme)
             _themeMode.value = theme
         }
-    }
-
-
-    fun openLink(context: Context, link: String) {
-        val intent = Intent(Intent.ACTION_VIEW, link.toUri())
-        context.startActivity(intent)
     }
 }

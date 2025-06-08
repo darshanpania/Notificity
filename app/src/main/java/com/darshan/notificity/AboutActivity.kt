@@ -132,14 +132,10 @@ class AboutActivity : ComponentActivity() {
                     modifier = Modifier.align(Alignment.BottomCenter)
                 ) {
                     BuyMeACoffee(onClick = {
-                        settingsViewModel.openLink(
-                            context,
-                            Constants.BUY_ME_A_COFFEE_LINK
-                        )
+                        openUrl(Constants.BUY_ME_A_COFFEE_LINK)
                     })
                 }
             }
-
         }
     }
 
@@ -153,7 +149,7 @@ class AboutActivity : ComponentActivity() {
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    settingsViewModel.openLink(context, twitterProfileUrl)
+                    openUrl(twitterProfileUrl)
                 }
                 .padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             GlideImage(
