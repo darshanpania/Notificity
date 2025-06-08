@@ -41,7 +41,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,16 +51,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.darshan.notificity.analytics.AnalyticsLogger
-import com.darshan.notificity.ui.BaseActivity
-import com.darshan.notificity.analytics.AnalyticsConstants
-import com.darshan.notificity.analytics.AnalyticsLogger
-import com.darshan.notificity.ui.BaseActivity
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.darshan.notificity.analytics.AnalyticsConstants
+import com.darshan.notificity.analytics.AnalyticsLogger
+import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
