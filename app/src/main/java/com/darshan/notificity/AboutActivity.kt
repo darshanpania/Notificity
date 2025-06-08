@@ -130,6 +130,7 @@ class AboutActivity : ComponentActivity() {
                     Contributor("William", "goonerdroid11", context)
                     Contributor("Jay Rathod", "zzjjaayy", context)
                     Contributor("Avadhut", "mr_whoknows55", context)
+                    Contributor("Md Anas Shikoh", "ansiili_billi", context)
                 }
                 AnimatedVisibility(
                     visible = showButton, enter = fadeIn(), exit = fadeOut(),
