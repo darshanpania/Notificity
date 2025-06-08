@@ -1,7 +1,10 @@
 package com.darshan.notificity
 
 import android.content.Context
+import com.darshan.notificity.analytics.AnalyticsConstants
+import com.darshan.notificity.analytics.AnalyticsLogger
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
@@ -46,13 +49,11 @@ import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.ClickableSection
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.openUrl
-import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 
@@ -127,13 +128,18 @@ class AboutActivity : BaseActivity() {
 
                     HorizontalDivider()
 
-                    Text("Contributors", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = "Contributors",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                     Contributor("Darshan Pania", "i_m_Pania", context)
                     Contributor("Shivam Sharma", "ShivamS707", context)
                     Contributor("Shrinath Gupta", "gupta_shrinath", context)
                     Contributor("William John", "goonerdroid11", context)
                     Contributor("Jay Rathod", "zzjjaayy", context)
                     Contributor("Avadhut", "mr_whoknows55", context)
+                    Contributor("Md Anas Shikoh", "ansiili_billi", context)
                 }
                 AnimatedVisibility(
                     visible = showButton, enter = fadeIn(), exit = fadeOut(),
@@ -160,21 +166,32 @@ class AboutActivity : BaseActivity() {
 
                 AnalyticsLogger.onContributorProfileClicked(name)
             }
-            .padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            GlideImage(
-                model = profilePicUrl,
-                contentDescription = "$name profile picture",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape),
-                loading = placeholder(R.drawable.iv_profile),
-                failure = placeholder(R.drawable.iv_profile)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary
+            .padding(vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                GlideImage(
+                    model = profilePicUrl,
+                    contentDescription = "$name profile picture",
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape),
+                    loading = placeholder(R.drawable.iv_profile),
+                    failure = placeholder(R.drawable.iv_profile)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            Icon(
+                painterResource(id = R.drawable.iv_next),
+                modifier = Modifier.size(16.dp),
+                contentDescription = "Go to Twitter profile",
+                tint = MaterialTheme.colorScheme.outline
             )
         }
     }
