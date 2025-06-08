@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
+import androidx.core.content.ContextCompat
+import com.darshan.notificity.components.EmptyContentState
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.enums.NotificationPermissionStatus
 import com.darshan.notificity.extensions.getNotificationPermissionStatus
@@ -63,6 +65,7 @@ import com.darshan.notificity.extensions.isLaunchedFromLauncher
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.ui.BaseActivity
+import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.ui.settings.SettingsActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
@@ -212,31 +215,34 @@ class MainActivity : BaseActivity() {
         val notifications by viewModel.notificationsFlow.collectAsState(initial = emptyList())
         var appSearchQuery by remember { mutableStateOf("") }
         val allApps = viewModel.appInfoFromFlow.collectAsState(initial = emptyList()).value
+        val filteredApps = allApps.filter {
+            it.appName.contains(appSearchQuery, ignoreCase = true)
+        }
+
         Column {
             SearchBar("Search Apps... ", onSearchQueryChanged = { appSearchQuery = it })
             AnimatedContent(notifications, label = "app_list") { list ->
-                if (list.isEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "No Notifications yet",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.displaySmall,
-                            color = MaterialTheme.colorScheme.onSurface
+                when {
+                    list.isEmpty() -> {
+                        // No notifications collected at all
+                        EmptyContentState(
+                            text = "No Notifications yet"
                         )
                     }
-                } else {
-                    AppGridView(
-                        apps =
-                        allApps.filter {
-                            it.appName.contains(appSearchQuery, ignoreCase = true)
-                        },
-                        onAppSelected = { appName -> startNotificationsActivity(appName) })
+
+                    filteredApps.isEmpty() && appSearchQuery.isNotBlank() -> {
+                        // Search active, but no matching app
+                        EmptyContentState(
+                            text = "No apps found matching \"$appSearchQuery\"",
+                        )
+                    }
+
+                    else -> {
+                        AppGridView(
+                            apps = filteredApps,
+                            onAppSelected = { appName -> startNotificationsActivity(appName) }
+                        )
+                    }
                 }
             }
         }
