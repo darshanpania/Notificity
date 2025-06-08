@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 1.1.1
+## Version 1.2.0
 
 * Added **date range filter** to the notification history screen, making it easier to browse older records thanks to [Md Anas Shikoh](https://github.com/Mutant-Slayer)
 * Added Lottie-based animated UI for empty states like no results or no notification history thanks to [Md Anas Shikoh](https://github.com/Mutant-Slayer)
