@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 1.2.0
+
+* Added **date range filter** to the notification history screen, making it easier to browse older records thanks to [Md Anas Shikoh](https://github.com/Mutant-Slayer)
+* Added Lottie-based animated UI for empty states like no results or no notification history thanks to [Md Anas Shikoh](https://github.com/Mutant-Slayer)
+* Added swipe-to-delete functionality in notification history items thanks to [Shrinath Gupta](https://github.com/gupta-shrinath)
+* Added **Buy Me a Coffee** button in About screen so supporters can show appreciate the contributors with a coffee thanks to [Shrinath Gupta](https://github.com/gupta-shrinath)
+* Integrated Firebase Analytics for tracking app usage and key user actions thanks to [Shivam Sharma](https://github.com/shivamsharma-1996)
+* Fixed dropped notifications caused by unreadable notification-titles in some apps thanks to [Shivam Sharma](https://github.com/shivamsharma-1996)
+* Skipped summary notifications like "2 new messages" to reduce clutter and prevent duplication in the history thanks to [Shivam Sharma](https://github.com/shivamsharma-1996)
+
 ## Version 1.1.0
 
 * Updates all dependencies to their latest versions and sets target SDK to 35 (Android 15) thanks to [Shrinath Gupta](https://github.com/gupta-shrinath)
