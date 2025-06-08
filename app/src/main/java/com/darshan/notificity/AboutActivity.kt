@@ -2,7 +2,6 @@ package com.darshan.notificity
 
 import android.content.Context
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
@@ -47,15 +46,21 @@ import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import com.darshan.notificity.analytics.AnalyticsConstants
+import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.ClickableSection
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.openUrl
+import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 
-class AboutActivity : ComponentActivity() {
+class AboutActivity : BaseActivity() {
     private val settingsViewModel: SettingsViewModel by viewModels()
+
+    override val screenName: String
+        get() = AnalyticsConstants.Screens.ABOUT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +70,7 @@ class AboutActivity : ComponentActivity() {
 
             NotificityTheme(themeMode = themeMode) {
                 val context = LocalContext.current
+
                 AboutScreen {
                     context.getActivity()?.finish()
                 }
@@ -115,6 +121,8 @@ class AboutActivity : ComponentActivity() {
                         description = "Learn more about how the app manages your data",
                         onClick = {
                             openUrl("https://github.com/darshanpania/Notificity/blob/main/PRIVACY.md")
+
+                            AnalyticsLogger.onPrivacyPolicyClicked()
                         })
 
                     HorizontalDivider()
@@ -123,7 +131,7 @@ class AboutActivity : ComponentActivity() {
                     Contributor("Darshan Pania", "i_m_Pania", context)
                     Contributor("Shivam Sharma", "ShivamS707", context)
                     Contributor("Shrinath Gupta", "gupta_shrinath", context)
-                    Contributor("William", "goonerdroid11", context)
+                    Contributor("William John", "goonerdroid11", context)
                     Contributor("Jay Rathod", "zzjjaayy", context)
                     Contributor("Avadhut", "mr_whoknows55", context)
                 }
@@ -145,13 +153,14 @@ class AboutActivity : ComponentActivity() {
         val twitterProfileUrl = "https://twitter.com/$twitterUsername"
         val profilePicUrl = "https://unavatar.io/twitter/$twitterUsername"
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    openUrl(twitterProfileUrl)
-                }
-                .padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                openUrl(twitterProfileUrl)
+
+                AnalyticsLogger.onContributorProfileClicked(name)
+            }
+            .padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             GlideImage(
                 model = profilePicUrl,
                 contentDescription = "$name profile picture",
