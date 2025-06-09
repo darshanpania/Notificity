@@ -1,10 +1,12 @@
 package com.darshan.notificity
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-@Entity(tableName = "notification", primaryKeys = ["id", "packageName"])
+@Entity(tableName = "notification")
 data class NotificationEntity(
-    val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val notificationId: Int, // sbn.id
     val packageName: String,
     val timestamp: Long,
     val appName: String,

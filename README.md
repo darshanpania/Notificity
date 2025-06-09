@@ -1,7 +1,9 @@
+![Live on Peerlist!](images/Launch_SVG_Light.svg)
+
 # Notificity
 
-Notificity is an Android application designed to capture and categorize all incoming push notifications. 
-It provides users with the ability to search through notifications both at the application level and using specific keywords. 
+Notificity is an Android application designed to capture and categorize all incoming push notifications.
+It provides users with the ability to search through notifications both at the application level and using specific keywords.
 This project aims to enhance user productivity and notification management on Android devices.
 
 ## Features
@@ -51,6 +53,7 @@ See our [Contribution Guidelines here](CONTRIBUTING.md)
 |                   | [William John](https://github.com/goonerDroid)      |
 |                   | [Shivam Sharma](https://github.com/shivamsharma-1996)|
 |                   | [Shrinath Gupta](https://github.com/gupta-shrinath)  |
+|                   | [Shikoh](https://github.com/Mutant-Slayer)           |
 
 ## License
 
@@ -58,9 +61,16 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) f
 
 ## Contact
 
-Reach out to me for any issue in this app on my [Email](mailto:darshanpania.dev@gmail.com) or [Twitter](https://twitter.com/i_m_Pania) 
+Reach out to me for any issue in this app on my [Email](mailto:darshanpania.dev@gmail.com) or [Twitter](https://twitter.com/i_m_Pania)
 Feel free to open any [issues](https://github.com/darshanpania/Notificity/issues) you encounter
 
 ## Acknowledgements
 
-Special thanks to [Arnav Gupta](https://twitter.com/championswimmer) for the idea, [Himanshu Singh](https://twitter.com/hi_man_shoe) for the initial feedback and [Sutirth Chakravarthy](https://twitter.com/Sutirth) for his moral support! 
+Special thanks to [Arnav Gupta](https://twitter.com/championswimmer) for the idea, [Himanshu Singh](https://twitter.com/hi_man_shoe) for the initial feedback and [Sutirth Chakravarthy](https://twitter.com/Sutirth) for his moral support!
+
+## Support
+
+The simplest way to show your support is by giving the project a star! ⭐ <br>
+You can also support Notificity monetarily by buying a coffee for it's contributors. <br>
+<br>
+<a href="https://buymeacoffee.com/darshanpania" target="_blank"><img src="https://www.owlstown.com/assets/icons/bmc-yellow-button-e91f626c5320efe1868dd75673b6edae7d0e2e4f059d40cd3287a7c8536805e6.png" alt="Buy Me A Coffee" style="!important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>

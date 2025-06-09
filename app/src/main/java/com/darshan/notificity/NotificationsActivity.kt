@@ -1,7 +1,6 @@
 package com.darshan.notificity
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
@@ -41,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,17 +51,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
+import com.darshan.notificity.analytics.AnalyticsConstants
+import com.darshan.notificity.analytics.AnalyticsLogger
+import com.darshan.notificity.components.EmptyContentState
+import com.darshan.notificity.components.SwipeToDelete
+import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
 import com.darshan.notificity.utils.ViewModelProviderFactory
 
-class NotificationsActivity : ComponentActivity() {
+class NotificationsActivity : BaseActivity() {
     private val repository: NotificationRepository by lazy {
         NotificationRepository(
             AppDatabase.getInstance(
@@ -79,6 +79,9 @@ class NotificationsActivity : ComponentActivity() {
     }
 
     private val settingsViewModel: SettingsViewModel by viewModels()
+
+    override val screenName: String
+        get() = AnalyticsConstants.Screens.NOTIFICATION_LIST
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -211,18 +214,32 @@ fun NotificationList(
     }
 
     if (filteredNotifications.isEmpty()) {
-        EmptyNotification()
+        EmptyContentState(text = "No notifications found with this filter")
     }
-
 
     AnimatedVisibility(
         visible = filteredNotifications.isNotEmpty(),
         enter = fadeIn() + expandVertically()
     ) {
+        LaunchedEffect(key1 = Unit) {
+            // LaunchedEffect ensures the logging doesn't rerun on every recomposition but initial composition.
+            if (filteredNotifications.isNotEmpty()) {
+                AnalyticsLogger.onNotificationListOpened(appName, filteredNotifications.size)
+            }
+        }
+
         // Display the notifications using a LazyColumn
         LazyColumn {
             items(filteredNotifications, key = { it.id }) { notification ->
-                NotificationItem(notification)
+                SwipeToDelete(
+                    item = notification,
+                    onDelete = {
+                        viewModel.deleteNotification(notification)
+                    }
+                ) {
+                    NotificationItem(notification)
+                }
+
             }
         }
     }
@@ -302,40 +319,6 @@ fun DateRangePickerModal(
             modifier = Modifier
                 .height(500.dp)
                 .padding(10.dp)
-        )
-    }
-}
-
-@Composable
-fun EmptyNotification(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        val composition by rememberLottieComposition(
-            LottieCompositionSpec.RawRes(R.raw.lottie_no_data)
-        )
-        val progress by animateLottieCompositionAsState(
-            composition = composition,
-            iterations = LottieConstants.IterateForever
-        )
-
-        LottieAnimation(
-            composition = composition,
-            progress = { progress },
-            modifier = Modifier.size(200.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "No notifications found with this filter",
-            maxLines = 2,
-            fontSize = 20.sp,
-            style = MaterialTheme.typography.titleMedium
         )
     }
 }
