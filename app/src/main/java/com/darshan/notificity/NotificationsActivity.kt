@@ -55,29 +55,17 @@ import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
 import com.darshan.notificity.components.SwipeToDelete
+import com.darshan.notificity.main.viewmodel.MainViewModel
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
-import com.darshan.notificity.utils.ViewModelProviderFactory
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class NotificationsActivity : BaseActivity() {
-    private val repository: NotificationRepository by lazy {
-        NotificationRepository(
-            AppDatabase.getInstance(
-                application
-            ).notificationDao()
-        )
-    }
 
-    private val viewModel: MainViewModel by viewModels {
-        ViewModelProviderFactory(MainViewModel::class) {
-            MainViewModel(
-                application = this.application, repository = repository
-            )
-        }
-    }
-
+    private val viewModel: MainViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
 
     override val screenName: String

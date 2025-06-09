@@ -1,4 +1,4 @@
-package com.darshan.notificity
+package com.darshan.notificity.main.ui
 
 import android.Manifest
 import android.content.Context
@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
@@ -54,6 +53,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darshan.notificity.AppInfo
+import com.darshan.notificity.NotificationsActivity
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
@@ -63,24 +64,19 @@ import com.darshan.notificity.extensions.getNotificationPermissionStatus
 import com.darshan.notificity.extensions.isLaunchedFromLauncher
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.openAppSettings
+import com.darshan.notificity.main.viewmodel.MainViewModel
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
-import com.darshan.notificity.utils.ViewModelProviderFactory
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity() {
-    private val repository: NotificationRepository by lazy {
-        NotificationRepository(AppDatabase.getInstance(application).notificationDao())
-    }
 
-    private val mainViewModel: MainViewModel by viewModels {
-        ViewModelProviderFactory(MainViewModel::class) {
-            MainViewModel(
-                application = this.application, repository = repository
-            )
-        }
-    }
+    private val mainViewModel: MainViewModel by viewModels()
+
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -93,13 +89,12 @@ class MainActivity : BaseActivity() {
         logNotificationPermissionStatus(status)
     }
 
-    private val appSettingsLauncher = registerForActivityResult(StartActivityForResult()) {
-        // Re-check permission after returning from Settings
-        val updatedStatus = getNotificationPermissionStatus()
-        logNotificationPermissionStatus(updatedStatus)
-    }
-
-    private val settingsViewModel: SettingsViewModel by viewModels()
+    private val appSettingsLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            // Re-check permission after returning from Settings
+            val updatedStatus = getNotificationPermissionStatus()
+            logNotificationPermissionStatus(updatedStatus)
+        }
 
     override val screenName: String
         get() = AnalyticsConstants.Screens.MAIN
@@ -153,16 +148,16 @@ class MainActivity : BaseActivity() {
     @Composable
     fun AppGridItem(appInfo: AppInfo, onClick: () -> Unit) {
         Card(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .padding(8.dp)
                 .clickable(onClick = onClick),
             elevation = CardDefaults.cardElevation(4.dp),
             shape = RoundedCornerShape(8.dp)
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.Companion.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .padding(16.dp)
                     .fillMaxWidth()
                     .aspectRatio(1f)
@@ -172,22 +167,22 @@ class MainActivity : BaseActivity() {
                     Image(
                         bitmap = it,
                         contentDescription = "App Icon",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier.Companion.size(50.dp)
                     )
-                } ?: kotlin.run { Box(Modifier.size(50.dp)) }
-                Spacer(modifier = Modifier.size(2.dp))
+                } ?: run { Box(Modifier.Companion.size(50.dp)) }
+                Spacer(modifier = Modifier.Companion.size(2.dp))
                 Text(
                     text = appInfo.appName,
                     style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center,
+                    textAlign = TextAlign.Companion.Center,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Companion.Ellipsis,
                     letterSpacing = 0.04.sp
                 )
-                Spacer(modifier = Modifier.size(2.dp))
+                Spacer(modifier = Modifier.Companion.size(2.dp))
                 Text(
                     text = "${appInfo.notificationCount} Notifications",
-                    textAlign = TextAlign.Center,
+                    textAlign = TextAlign.Companion.Center,
                     letterSpacing = 0.04.sp
                 )
             }
@@ -204,7 +199,7 @@ class MainActivity : BaseActivity() {
                 searchQuery = it
                 onSearchQueryChanged(it)
             },
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxWidth()
                 .padding(16.dp),
             placeholder = { Text(hint) },
@@ -264,7 +259,7 @@ class MainActivity : BaseActivity() {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "Open settings screen",
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .padding(end = 16.dp)
                                 .clickable {
                                     launchActivity<SettingsActivity>()
@@ -274,7 +269,7 @@ class MainActivity : BaseActivity() {
                 )
             }
         ) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
+            Box(modifier = Modifier.Companion.padding(innerPadding)) {
                 if (isPermissionGranted) {
                     AppSearchScreen(viewModel)
                     AskNotificationPermission()
@@ -298,26 +293,26 @@ class MainActivity : BaseActivity() {
     @Composable
     fun RequestAccessScreen() {
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxSize()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Companion.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text =
                     "We need access to your notifications to manage and search them effectively.",
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Companion.Center,
                 style = MaterialTheme.typography.displaySmall,
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.Companion.height(16.dp))
             Button(onClick = { openNotificationAccessSettings() }) { Text("Grant Access") }
         }
     }
 
     // refresh notification permission state as soon as user comes back from setting screen
     private val activityForResultLauncher =
-        registerForActivityResult(StartActivityForResult()) {
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             mainViewModel.refreshNotificationPermission()
         }
 

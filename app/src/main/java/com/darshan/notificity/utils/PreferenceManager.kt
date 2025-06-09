@@ -6,14 +6,18 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
+
+private val Context.dataStore by preferencesDataStore(name = "settings")
 
 /**
  * Generic PreferenceManager using DataStore to save and retrieve preferences by key.
  */
-object PreferenceManager {
-    private val Context.dataStore by preferencesDataStore(
-        name = "settings"
-    )
+@Singleton
+class PreferenceManager
+@Inject
+constructor() {
 
     /**
      * Save a String preference by key.

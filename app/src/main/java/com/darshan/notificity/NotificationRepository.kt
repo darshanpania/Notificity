@@ -9,7 +9,8 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
     }
 
     fun getAllNotificationsFlow(): Flow<List<NotificationEntity>> =
-            notificationDao.getAllNotificationsFlow()
+        notificationDao.getAllNotificationsFlow()
 
-    suspend fun deleteNotification(notificationEntity: NotificationEntity) = notificationDao.deleteNotification(notificationEntity)
+    suspend fun deleteNotification(notificationEntity: NotificationEntity) =
+        notificationDao.deleteNotification(notificationEntity)
 }
