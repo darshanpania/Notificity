@@ -1,3 +1,5 @@
+![Live on Peerlist!](images/Launch_SVG_Light.svg)
+
 # Notificity
 
 Notificity is an Android application designed to capture and categorize all incoming push notifications.
