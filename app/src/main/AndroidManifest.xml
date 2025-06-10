@@ -20,12 +20,12 @@
         tools:targetApi="31">
 
         <activity
-            android:name=".NotificationsActivity"
+            android:name=".ui.activity.NotificationsActivity"
             android:exported="false"
             android:theme="@style/Theme.App.Starting" />
 
         <activity
-            android:name=".main.ui.MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,16 +35,16 @@
         </activity>
 
         <activity
-            android:name=".ui.settings.SettingsActivity"
+            android:name=".ui.activity.SettingsActivity"
             android:exported="false" />
 
         <activity
-            android:name=".AboutActivity"
+            android:name=".ui.activity.AboutActivity"
             android:exported="false" />
 
         <!-- Notification Listener Service -->
         <service
-            android:name=".NotificityListener"
+            android:name=".service.NotificityListenerService"
             android:exported="true"
             android:label="Notification Service"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">

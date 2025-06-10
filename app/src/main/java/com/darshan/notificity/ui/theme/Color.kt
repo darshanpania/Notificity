@@ -1,4 +1,4 @@
-package com.darshan.notificity
+package com.darshan.notificity.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

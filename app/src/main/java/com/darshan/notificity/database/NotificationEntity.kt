@@ -1,4 +1,4 @@
-package com.darshan.notificity
+package com.darshan.notificity.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

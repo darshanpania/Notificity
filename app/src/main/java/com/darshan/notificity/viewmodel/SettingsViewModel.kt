@@ -1,4 +1,4 @@
-package com.darshan.notificity.ui.settings
+package com.darshan.notificity.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -14,7 +14,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
+class SettingsViewModel
+@Inject
+constructor(
     @ApplicationContext private val context: Context,
     private val themePreferenceManager: ThemePreferenceManager
 ) : ViewModel() {

@@ -1,4 +1,4 @@
-package com.darshan.notificity
+package com.darshan.notificity.ui.activity
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -55,11 +55,11 @@ import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
 import com.darshan.notificity.components.SwipeToDelete
-import com.darshan.notificity.main.viewmodel.MainViewModel
-import com.darshan.notificity.ui.BaseActivity
-import com.darshan.notificity.ui.settings.SettingsViewModel
+import com.darshan.notificity.database.NotificationEntity
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
+import com.darshan.notificity.viewmodel.MainViewModel
+import com.darshan.notificity.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

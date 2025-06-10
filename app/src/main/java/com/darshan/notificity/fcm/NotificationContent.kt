@@ -1,6 +1,6 @@
 package com.darshan.notificity.fcm
 
-import com.darshan.notificity.Constants
+import com.darshan.notificity.utils.Constants
 import com.google.firebase.messaging.RemoteMessage
 
 /**
