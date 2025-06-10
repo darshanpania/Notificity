@@ -1,5 +1,7 @@
 package com.darshan.notificity
 
+import com.darshan.notificity.database.NotificationDao
+import com.darshan.notificity.database.NotificationEntity
 import kotlinx.coroutines.flow.Flow
 
 class NotificationRepository(private val notificationDao: NotificationDao) {
@@ -9,7 +11,8 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
     }
 
     fun getAllNotificationsFlow(): Flow<List<NotificationEntity>> =
-            notificationDao.getAllNotificationsFlow()
+        notificationDao.getAllNotificationsFlow()
 
-    suspend fun deleteNotification(notificationEntity: NotificationEntity) = notificationDao.deleteNotification(notificationEntity)
+    suspend fun deleteNotification(notificationEntity: NotificationEntity) =
+        notificationDao.deleteNotification(notificationEntity)
 }

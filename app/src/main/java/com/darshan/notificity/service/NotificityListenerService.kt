@@ -1,17 +1,20 @@
-package com.darshan.notificity
+package com.darshan.notificity.service
 
 import android.app.Notification
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager.NameNotFoundException
+import android.content.pm.PackageManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import com.darshan.notificity.NotificationRepository
+import com.darshan.notificity.database.AppDatabase
+import com.darshan.notificity.database.NotificationEntity
 import com.darshan.notificity.utils.Logger
-import com.darshan.notificity.validation.NotificationValidator
+import com.darshan.notificity.utils.NotificationValidator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class NotificityListener : NotificationListenerService() {
+class NotificityListenerService : NotificationListenerService() {
 
     private lateinit var database: AppDatabase
     private lateinit var repository: NotificationRepository
@@ -38,7 +41,7 @@ class NotificityListener : NotificationListenerService() {
         val ai: ApplicationInfo? =
             try {
                 pm.getApplicationInfo(packageName, 0)
-            } catch (_: NameNotFoundException) {
+            } catch (_: PackageManager.NameNotFoundException) {
                 null
             }
         val applicationName =
@@ -66,7 +69,8 @@ class NotificityListener : NotificationListenerService() {
                 title = title,
                 content = text,
                 imageUrl = image,
-                extras = extras.toString())
+                extras = extras.toString()
+            )
 
         if (NotificationValidator.isValidContent(newNotification.title, newNotification.content)) {
             // Insert the notification into the database using coroutines

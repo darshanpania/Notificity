@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
     <application
@@ -12,16 +14,16 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/app_icon"
         android:label="@string/app_name"
-        android:theme="@style/Theme.Notificity"
         android:roundIcon="@mipmap/app_icon_round"
         android:supportsRtl="true"
+        android:theme="@style/Theme.Notificity"
         tools:targetApi="31">
         <activity
-            android:name=".NotificationsActivity"
+            android:name=".ui.activity.NotificationsActivity"
             android:exported="false"
             android:theme="@style/Theme.App.Starting" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,14 +32,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.settings.SettingsActivity"
+            android:name=".ui.activity.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".AboutActivity"
+            android:name=".ui.activity.AboutActivity"
             android:exported="false" />
         <!-- Notification Listener Service -->
         <service
-            android:name=".NotificityListener"
+            android:name=".service.NotificityListenerService"
             android:exported="true"
             android:label="Notification Service"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">

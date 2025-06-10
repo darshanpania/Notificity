@@ -1,4 +1,4 @@
-package com.darshan.notificity.ui.settings
+package com.darshan.notificity.ui.activity
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -46,8 +46,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.darshan.notificity.AboutActivity
-import com.darshan.notificity.CardColor
 import com.darshan.notificity.R
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
@@ -55,14 +53,16 @@ import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.recommendApp
-import com.darshan.notificity.ui.BaseActivity
+import com.darshan.notificity.ui.theme.CardColor
 import com.darshan.notificity.ui.theme.LocalIsDarkTheme
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.ui.theme.ThemeMode
+import com.darshan.notificity.viewmodel.SettingsViewModel
 
 class SettingsActivity : BaseActivity() {
 
     private val settingsViewModel: SettingsViewModel by viewModels()
+
     override val screenName: String
         get() = AnalyticsConstants.Screens.SETTINGS
 
@@ -106,7 +106,7 @@ class SettingsActivity : BaseActivity() {
             }
         ) { innerPadding ->
             Column(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .padding(innerPadding)
                     .padding(16.dp)
                     .fillMaxSize()
@@ -188,25 +188,27 @@ class SettingsActivity : BaseActivity() {
         selected: Boolean,
         onClick: () -> Unit
     ) {
-        val textColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-        val iconTint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+        val textColor =
+            if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+        val iconTint =
+            if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
 
         Row(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxWidth()
                 .clickable { onClick() }
                 .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Companion.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.Companion.CenterVertically) {
                 Icon(
                     painter = icon,
                     contentDescription = label,
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.Companion.size(24.dp),
                     tint = iconTint
                 )
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.Companion.width(16.dp))
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodyLarge.copy(color = textColor)
@@ -232,36 +234,36 @@ class SettingsActivity : BaseActivity() {
 
         Card(
             onClick = onClick,
-            modifier = Modifier,
+            modifier = Modifier.Companion,
             colors = CardDefaults.cardColors(
-                containerColor = if (isDark) CardColor else Color.White,
+                containerColor = if (isDark) CardColor else Color.Companion.White,
             ),
-            shape = RoundedCornerShape(12.dp),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
             elevation = CardDefaults.cardElevation(4.dp)
         ) {
             Row(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .padding(18.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Companion.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.Companion.CenterVertically) {
                     Icon(
                         icon,
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.Companion.size(32.dp),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    Spacer(modifier = Modifier.width(24.dp))
+                    )
+                    Spacer(modifier = Modifier.Companion.width(24.dp))
                     Text(
                         text,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal)
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Companion.Normal)
                     )
                 }
                 Icon(
                     painterResource(id = R.drawable.iv_next),
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.Companion.size(16.dp),
                     contentDescription = "Navigate"
                 )
             }

@@ -1,4 +1,4 @@
-package com.darshan.notificity
+package com.darshan.notificity.viewmodel
 
 import android.app.Application
 import android.content.pm.ApplicationInfo
@@ -10,6 +10,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.darshan.notificity.NotificationRepository
+import com.darshan.notificity.database.NotificationEntity
+import com.darshan.notificity.model.AppInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +21,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class MainViewModel(private val application: Application, private val repository: NotificationRepository) :
+class MainViewModel(
+    private val application: Application,
+    private val repository: NotificationRepository
+) :
     AndroidViewModel(application) {
 
     private val packageManager = application.packageManager
@@ -46,7 +52,8 @@ class MainViewModel(private val application: Application, private val repository
     val isNotificationPermissionGranted = _isNotificationPermissionGranted.asStateFlow()
 
     private val _showNotificationPermissionBlockedDialog = MutableStateFlow(false)
-    val showNotificationPermissionBlockedDialog = _showNotificationPermissionBlockedDialog.asStateFlow()
+    val showNotificationPermissionBlockedDialog =
+        _showNotificationPermissionBlockedDialog.asStateFlow()
 
     fun refreshNotificationPermission() {
         val enabledListeners = NotificationManagerCompat.getEnabledListenerPackages(application)

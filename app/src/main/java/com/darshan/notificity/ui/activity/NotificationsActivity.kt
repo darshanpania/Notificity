@@ -1,4 +1,4 @@
-package com.darshan.notificity
+package com.darshan.notificity.ui.activity
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -51,14 +51,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.darshan.notificity.NotificationRepository
+import com.darshan.notificity.NotificationViewModelFactory
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
 import com.darshan.notificity.components.SwipeToDelete
-import com.darshan.notificity.ui.BaseActivity
-import com.darshan.notificity.ui.settings.SettingsViewModel
+import com.darshan.notificity.database.AppDatabase
+import com.darshan.notificity.database.NotificationEntity
+import com.darshan.notificity.viewmodel.MainViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
+import com.darshan.notificity.viewmodel.SettingsViewModel
 
 class NotificationsActivity : BaseActivity() {
     private val repository: NotificationRepository by lazy {

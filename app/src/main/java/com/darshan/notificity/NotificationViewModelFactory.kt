@@ -3,6 +3,7 @@ package com.darshan.notificity
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.darshan.notificity.viewmodel.MainViewModel
 
 class NotificationViewModelFactory(
     private val application: Application,

@@ -1,4 +1,4 @@
-package com.darshan.notificity
+package com.darshan.notificity.ui.activity
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import com.darshan.notificity.BuildConfig
+import com.darshan.notificity.R
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.BuyMeACoffee
@@ -50,11 +52,12 @@ import com.darshan.notificity.components.ClickableSection
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.openUrl
-import com.darshan.notificity.ui.BaseActivity
-import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
+import com.darshan.notificity.utils.Constants
+import com.darshan.notificity.viewmodel.SettingsViewModel
 
 class AboutActivity : BaseActivity() {
+
     private val settingsViewModel: SettingsViewModel by viewModels()
 
     override val screenName: String
@@ -94,9 +97,9 @@ class AboutActivity : BaseActivity() {
                         }
                     })
             }) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
+            Box(modifier = Modifier.Companion.padding(innerPadding)) {
                 Column(
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .padding(16.dp)
                         .fillMaxSize()
                         .verticalScroll(scrollState),
@@ -139,7 +142,7 @@ class AboutActivity : BaseActivity() {
                 }
                 AnimatedVisibility(
                     visible = showButton, enter = fadeIn(), exit = fadeOut(),
-                    modifier = Modifier.align(Alignment.BottomCenter)
+                    modifier = Modifier.Companion.align(Alignment.Companion.BottomCenter)
                 ) {
                     BuyMeACoffee(onClick = {
                         openUrl(Constants.BUY_ME_A_COFFEE_LINK)
@@ -157,28 +160,29 @@ class AboutActivity : BaseActivity() {
         val twitterProfileUrl = "https://twitter.com/$twitterUsername"
         val profilePicUrl = "https://unavatar.io/twitter/$twitterUsername"
 
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                openUrl(twitterProfileUrl)
+        Row(
+            modifier = Modifier.Companion
+                .fillMaxWidth()
+                .clickable {
+                    openUrl(twitterProfileUrl)
 
-                AnalyticsLogger.onContributorProfileClicked(name)
-            }
-            .padding(vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                    AnalyticsLogger.onContributorProfileClicked(name)
+                }
+                .padding(vertical = 6.dp),
+            verticalAlignment = Alignment.Companion.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.Companion.CenterVertically) {
                 GlideImage(
                     model = profilePicUrl,
                     contentDescription = "$name profile picture",
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .size(36.dp)
                         .clip(CircleShape),
                     loading = placeholder(R.drawable.iv_profile),
                     failure = placeholder(R.drawable.iv_profile)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.Companion.width(8.dp))
                 Text(
                     text = name,
                     style = MaterialTheme.typography.bodyMedium,
@@ -187,7 +191,7 @@ class AboutActivity : BaseActivity() {
 
             Icon(
                 painterResource(id = R.drawable.iv_next),
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.Companion.size(16.dp),
                 contentDescription = "Go to Twitter profile",
                 tint = MaterialTheme.colorScheme.outline
             )
