@@ -41,7 +41,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
@@ -65,7 +65,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class NotificationsActivity : BaseActivity() {
 
-    private val viewModel: MainViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
 
     override val screenName: String
@@ -76,10 +76,17 @@ class NotificationsActivity : BaseActivity() {
         val appName: String = intent.getStringExtra("appName").toString()
         this.actionBar?.hide()
         setContent {
-            val themeMode by settingsViewModel.themeMode.collectAsState()
+            val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
+            val notificationsMap by remember { mainViewModel.notificationsGroupedByAppFlow }.collectAsStateWithLifecycle(
+                mapOf()
+            )
 
             NotificityTheme(themeMode = themeMode) {
-                NotificationSearchScreen(viewModel = viewModel, appName = appName)
+                NotificationSearchScreen(
+                    appName = appName,
+                    notificationsMap = notificationsMap,
+                    deleteNotification = mainViewModel::deleteNotification
+                )
             }
         }
     }
@@ -88,8 +95,9 @@ class NotificationsActivity : BaseActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationSearchScreen(
-    viewModel: MainViewModel,
-    appName: String?
+    appName: String?,
+    notificationsMap: Map<String, List<NotificationEntity>>,
+    deleteNotification: (NotificationEntity) -> Unit,
 ) {
     val dateRangePickerState = rememberDateRangePickerState()
     var notificationSearchQuery by remember { mutableStateOf("") }
@@ -107,10 +115,11 @@ fun NotificationSearchScreen(
                 toggleDatePicker = { showDatePicker = true }
             )
             NotificationList(
-                viewModel = viewModel,
                 appName = appName,
+                notificationsMap = notificationsMap,
                 searchQuery = notificationSearchQuery,
                 selectedDateRange = selectedDateRange,
+                deleteNotification = deleteNotification
             )
         }
 
@@ -167,10 +176,11 @@ fun SearchBar(
 
 @Composable
 fun NotificationList(
-    viewModel: MainViewModel,
     appName: String?,
+    notificationsMap: Map<String, List<NotificationEntity>>,
     searchQuery: String,
     selectedDateRange: Pair<Long?, Long?>,
+    deleteNotification: (NotificationEntity) -> Unit,
 ) {
     // Safely handle the case where appName is null
     if (appName == null) {
@@ -180,9 +190,7 @@ fun NotificationList(
     }
 
     // Get the list of notifications for the specified app
-    val notifications =
-        viewModel.notificationsGroupedByAppFlow.collectAsState(mapOf()).value[appName]
-            ?: listOf()
+    val notifications = notificationsMap[appName] ?: listOf()
 
     // Filter notifications based on the search query
     val filteredNotifications = notifications.filter { notification ->
@@ -222,7 +230,7 @@ fun NotificationList(
                 SwipeToDelete(
                     item = notification,
                     onDelete = {
-                        viewModel.deleteNotification(notification)
+                        deleteNotification(notification)
                     }
                 ) {
                     NotificationItem(notification)

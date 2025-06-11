@@ -32,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,18 +45,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.darshan.notificity.ui.theme.CardColor
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.darshan.notificity.R
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.NotificityAppBar
-import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.recommendApp
-import com.darshan.notificity.viewmodel.SettingsViewModel
+import com.darshan.notificity.ui.theme.CardColor
 import com.darshan.notificity.ui.theme.LocalIsDarkTheme
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.ui.theme.ThemeMode
+import com.darshan.notificity.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -72,209 +71,210 @@ class SettingsActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val themeMode by settingsViewModel.themeMode.collectAsState()
+            val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
 
             NotificityTheme(themeMode = themeMode) {
-                val context = LocalContext.current
-
-                SettingsScreen(settingsViewModel = settingsViewModel) {
-                    context.getActivity()?.finish()
-                }
+                SettingsScreen(
+                    currentTheme = themeMode,
+                    onBack = { finish() },
+                    themeChange = settingsViewModel::updateTheme
+                )
             }
         }
     }
+}
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun SettingsScreen(
-        settingsViewModel: SettingsViewModel,
-        onBack: () -> Unit
-    ) {
-        val currentTheme by settingsViewModel.themeMode.collectAsState()
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen(
+    currentTheme: ThemeMode,
+    themeChange: (ThemeMode) -> Unit,
+    onBack: () -> Unit,
+) {
 
-        val sheetState = rememberModalBottomSheetState()
-        val showSheet = remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
+    val showSheet = remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
-        Scaffold(
-            topBar = {
-                NotificityAppBar(
-                    title = "Settings",
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
+    Scaffold(
+        topBar = {
+            NotificityAppBar(
+                title = "Settings",
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                )
-            }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier.Companion
-                    .padding(innerPadding)
-                    .padding(16.dp)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier.Companion
+                .padding(innerPadding)
+                .padding(16.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            SettingsCard(
+                icon = painterResource(id = R.drawable.iv_theme),
+                text = "Change Theme",
+                onClick = { showSheet.value = true })
+            SettingsCard(
+                icon = rememberVectorPainter(image = Icons.Outlined.Info),
+                text = "About",
+                onClick = { context.launchActivity<AboutActivity>() })
+            SettingsCard(
+                icon = rememberVectorPainter(image = Icons.Outlined.Share),
+                text = "Recommend this app",
+                onClick = {
+                    context.recommendApp()
+
+                    AnalyticsLogger.onRecommendAppClicked()
+                }
+            )
+        }
+
+        if (showSheet.value) {
+            ModalBottomSheet(
+                onDismissRequest = { showSheet.value = false },
+                sheetState = sheetState,
+                containerColor = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             ) {
-                SettingsCard(
-                    icon = painterResource(id = R.drawable.iv_theme),
-                    text = "Change Theme",
-                    onClick = { showSheet.value = true })
-                SettingsCard(
-                    icon = rememberVectorPainter(image = Icons.Outlined.Info),
-                    text = "About",
-                    onClick = { launchActivity<AboutActivity>() })
-                SettingsCard(
-                    icon = rememberVectorPainter(image = Icons.Outlined.Share),
-                    text = "Recommend this app",
-                    onClick = {
-                        recommendApp()
-
-                        AnalyticsLogger.onRecommendAppClicked()
-                    }
-                )
-            }
-
-            if (showSheet.value) {
-                ModalBottomSheet(
-                    onDismissRequest = { showSheet.value = false },
-                    sheetState = sheetState,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                Column(
+                    Modifier.Companion
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Column(
-                        Modifier.Companion
-                            .fillMaxWidth()
-                            .padding(18.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        ThemeOptionItem(
-                            icon = painterResource(id = R.drawable.iv_settings),
-                            label = "System Default",
-                            selected = currentTheme == ThemeMode.SYSTEM,
-                            onClick = {
-                                if (currentTheme != ThemeMode.SYSTEM) {
-                                    settingsViewModel.updateTheme(ThemeMode.SYSTEM)
-                                }
-                                showSheet.value = false
-                            })
-                        ThemeOptionItem(
-                            icon = painterResource(id = R.drawable.iv_light_theme),
-                            label = "Light Theme",
-                            selected = currentTheme == ThemeMode.LIGHT,
-                            onClick = {
-                                if (currentTheme != ThemeMode.LIGHT) {
-                                    settingsViewModel.updateTheme(ThemeMode.LIGHT)
-                                }
-                                showSheet.value = false
-                            })
-                        ThemeOptionItem(
-                            icon = painterResource(id = R.drawable.iv_dark_theme),
-                            label = "Dark Theme",
-                            selected = currentTheme == ThemeMode.DARK,
-                            onClick = {
-                                if (currentTheme != ThemeMode.DARK) {
-                                    settingsViewModel.updateTheme(ThemeMode.DARK)
-                                }
-                                showSheet.value = false
-                            })
-                    }
+                    ThemeOptionItem(
+                        icon = painterResource(id = R.drawable.iv_settings),
+                        label = "System Default",
+                        selected = currentTheme == ThemeMode.SYSTEM,
+                        onClick = {
+                            if (currentTheme != ThemeMode.SYSTEM) {
+                                themeChange(ThemeMode.SYSTEM)
+                            }
+                            showSheet.value = false
+                        })
+                    ThemeOptionItem(
+                        icon = painterResource(id = R.drawable.iv_light_theme),
+                        label = "Light Theme",
+                        selected = currentTheme == ThemeMode.LIGHT,
+                        onClick = {
+                            if (currentTheme != ThemeMode.LIGHT) {
+                                themeChange(ThemeMode.LIGHT)
+                            }
+                            showSheet.value = false
+                        })
+                    ThemeOptionItem(
+                        icon = painterResource(id = R.drawable.iv_dark_theme),
+                        label = "Dark Theme",
+                        selected = currentTheme == ThemeMode.DARK,
+                        onClick = {
+                            if (currentTheme != ThemeMode.DARK) {
+                                themeChange(ThemeMode.DARK)
+                            }
+                            showSheet.value = false
+                        })
                 }
             }
         }
     }
+}
 
-    @Composable
-    fun ThemeOptionItem(
-        icon: Painter,
-        label: String,
-        selected: Boolean,
-        onClick: () -> Unit
+@Composable
+fun ThemeOptionItem(
+    icon: Painter,
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val textColor =
+        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+    val iconTint =
+        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+
+    Row(
+        modifier = Modifier.Companion
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.Companion.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        val textColor =
-            if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-        val iconTint =
-            if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+        Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+            Icon(
+                painter = icon,
+                contentDescription = label,
+                modifier = Modifier.Companion.size(24.dp),
+                tint = iconTint
+            )
+            Spacer(modifier = Modifier.Companion.width(16.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge.copy(color = textColor)
+            )
+        }
 
+        if (selected) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "Selected",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+
+@Composable
+fun SettingsCard(
+    icon: Painter, text: String, onClick: () -> Unit
+) {
+    val isDark = LocalIsDarkTheme.current
+
+    Card(
+        onClick = onClick,
+        modifier = Modifier.Companion,
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDark) CardColor else Color.Companion.White,
+        ),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
         Row(
             modifier = Modifier.Companion
-                .fillMaxWidth()
-                .clickable { onClick() }
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.Companion.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(18.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Companion.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.Companion.CenterVertically) {
                 Icon(
-                    painter = icon,
-                    contentDescription = label,
-                    modifier = Modifier.Companion.size(24.dp),
-                    tint = iconTint
+                    icon,
+                    modifier = Modifier.Companion.size(32.dp),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Spacer(modifier = Modifier.Companion.width(16.dp))
+                Spacer(modifier = Modifier.Companion.width(24.dp))
                 Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyLarge.copy(color = textColor)
+                    text,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Companion.Normal)
                 )
             }
-
-            if (selected) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "Selected",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+            Icon(
+                painterResource(id = R.drawable.iv_next),
+                modifier = Modifier.Companion.size(16.dp),
+                contentDescription = "Navigate"
+            )
         }
     }
+}
 
-
-    @Composable
-    fun SettingsCard(
-        icon: Painter, text: String, onClick: () -> Unit
-    ) {
-        val isDark = LocalIsDarkTheme.current
-
-        Card(
-            onClick = onClick,
-            modifier = Modifier.Companion,
-            colors = CardDefaults.cardColors(
-                containerColor = if (isDark) CardColor else Color.Companion.White,
-            ),
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(4.dp)
-        ) {
-            Row(
-                modifier = Modifier.Companion
-                    .padding(18.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Companion.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.Companion.CenterVertically) {
-                    Icon(
-                        icon,
-                        modifier = Modifier.Companion.size(32.dp),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(modifier = Modifier.Companion.width(24.dp))
-                    Text(
-                        text,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Companion.Normal)
-                    )
-                }
-                Icon(
-                    painterResource(id = R.drawable.iv_next),
-                    modifier = Modifier.Companion.size(16.dp),
-                    contentDescription = "Navigate"
-                )
-            }
-        }
-    }
-
-    @Composable
-    @Preview(showSystemUi = true, showBackground = true)
-    fun ShowSettingsScreen() {
-        SettingsScreen(settingsViewModel) {}
-    }
+@Composable
+@Preview(showSystemUi = true, showBackground = true)
+fun ShowSettingsScreen() {
+    SettingsScreen(currentTheme = ThemeMode.LIGHT, themeChange = {}, onBack = {})
 }

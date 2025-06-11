@@ -29,13 +29,13 @@ abstract class AppModule {
 
         @Provides
         @Singleton
-        fun getPreferenceManager(): PreferenceManager {
+        fun providesPreferenceManager(): PreferenceManager {
             return PreferenceManager()
         }
 
         @Provides
         @Singleton
-        fun getThemePreferenceManager(preferenceManager: PreferenceManager): ThemePreferenceManager {
+        fun providesThemePreferenceManager(preferenceManager: PreferenceManager): ThemePreferenceManager {
             return ThemePreferenceManager(preferenceManager)
         }
 
