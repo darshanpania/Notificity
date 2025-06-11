@@ -1,11 +1,13 @@
 package com.darshan.notificity.fcm
 
+import androidx.annotation.Keep
 import com.darshan.notificity.utils.Constants
 import com.google.firebase.messaging.RemoteMessage
 
 /**
  * Data class representing notification content extracted from a [RemoteMessage].
  */
+@Keep
 data class NotificationContent(
     val title: String,
     val body: String,

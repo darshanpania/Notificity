@@ -1,9 +1,11 @@
 package com.darshan.notificity.database
 
+import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "notification")
+@Keep
 data class NotificationEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val notificationId: Int, // sbn.id
