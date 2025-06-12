@@ -1,4 +1,4 @@
-package com.darshan.notificity.database
+package com.darshan.notificity
 
 import androidx.annotation.Keep
 import androidx.room.Entity

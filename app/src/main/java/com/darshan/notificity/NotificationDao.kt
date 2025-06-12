@@ -1,4 +1,4 @@
-package com.darshan.notificity.database
+package com.darshan.notificity
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NotificationDao {
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNotification(notification: NotificationEntity)
 
     @Query("SELECT * FROM notification ORDER BY timestamp DESC")

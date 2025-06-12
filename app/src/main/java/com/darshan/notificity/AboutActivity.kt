@@ -1,4 +1,4 @@
-package com.darshan.notificity.ui.activity
+package com.darshan.notificity
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -43,17 +43,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import com.darshan.notificity.BuildConfig
-import com.darshan.notificity.R
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.BuyMeACoffee
 import com.darshan.notificity.components.ClickableSection
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.openUrl
+import com.darshan.notificity.ui.BaseActivity
+import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
-import com.darshan.notificity.utils.Constants
-import com.darshan.notificity.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -1,4 +1,4 @@
-package com.darshan.notificity.model
+package com.darshan.notificity
 
 import androidx.annotation.Keep
 import androidx.compose.ui.graphics.ImageBitmap

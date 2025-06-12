@@ -1,4 +1,4 @@
-package com.darshan.notificity.viewmodel
+package com.darshan.notificity.main.viewmodel
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
@@ -10,9 +10,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darshan.notificity.model.AppInfo
-import com.darshan.notificity.database.NotificationEntity
-import com.darshan.notificity.data.NotificationRepository
+import com.darshan.notificity.AppInfo
+import com.darshan.notificity.NotificationEntity
+import com.darshan.notificity.main.data.NotificationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers

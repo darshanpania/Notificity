@@ -1,4 +1,4 @@
-package com.darshan.notificity.ui.activity
+package com.darshan.notificity.ui.settings
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -46,17 +46,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.darshan.notificity.CardColor
 import com.darshan.notificity.R
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.recommendApp
-import com.darshan.notificity.ui.theme.CardColor
+import com.darshan.notificity.ui.BaseActivity
+import com.darshan.notificity.AboutActivity
 import com.darshan.notificity.ui.theme.LocalIsDarkTheme
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.ui.theme.ThemeMode
-import com.darshan.notificity.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -1,4 +1,4 @@
-package com.darshan.notificity.utils
+package com.darshan.notificity.validation
 
 import android.app.Notification
 

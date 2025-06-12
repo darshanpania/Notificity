@@ -1,14 +1,13 @@
-package com.darshan.notificity.service
+package com.darshan.notificity
 
 import android.app.Notification
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
+import android.content.pm.PackageManager.NameNotFoundException
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import com.darshan.notificity.data.NotificationRepository
-import com.darshan.notificity.database.NotificationEntity
+import com.darshan.notificity.main.data.NotificationRepository
 import com.darshan.notificity.utils.Logger
-import com.darshan.notificity.utils.NotificationValidator
+import com.darshan.notificity.validation.NotificationValidator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NotificityListenerService : NotificationListenerService() {
+class NotificityListener : NotificationListenerService() {
 
     @Inject
     lateinit var repository: NotificationRepository
@@ -37,7 +36,7 @@ class NotificityListenerService : NotificationListenerService() {
         val ai: ApplicationInfo? =
             try {
                 pm.getApplicationInfo(packageName, 0)
-            } catch (_: PackageManager.NameNotFoundException) {
+            } catch (_: NameNotFoundException) {
                 null
             }
         val applicationName =

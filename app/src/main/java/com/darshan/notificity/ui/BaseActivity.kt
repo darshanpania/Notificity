@@ -1,4 +1,4 @@
-package com.darshan.notificity.ui.activity
+package com.darshan.notificity.ui
 
 import androidx.activity.ComponentActivity
 import com.darshan.notificity.analytics.AnalyticsLogger

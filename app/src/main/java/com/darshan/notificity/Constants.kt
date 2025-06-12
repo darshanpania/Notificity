@@ -1,4 +1,4 @@
-package com.darshan.notificity.utils
+package com.darshan.notificity
 
 object Constants {
     const val DB_NAME = "notification-db"

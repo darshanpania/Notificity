@@ -1,4 +1,4 @@
-package com.darshan.notificity.database
+package com.darshan.notificity
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import com.darshan.notificity.analytics.AnalyticsService
 import com.darshan.notificity.analytics.FirebaseAnalyticsTracker
-import com.darshan.notificity.utils.Constants
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
