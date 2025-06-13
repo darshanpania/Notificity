@@ -3,8 +3,14 @@ package com.darshan.notificity
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.darshan.notificity.analytics.AnalyticsService
 import com.darshan.notificity.analytics.FirebaseAnalyticsTracker
+import com.darshan.notificity.worker.CleanupWorker
+import java.util.concurrent.TimeUnit
 
 class MyApplication : Application() {
 
@@ -13,6 +19,7 @@ class MyApplication : Application() {
 
         AnalyticsService.init(FirebaseAnalyticsTracker())
         createNotificationChannels()
+        setupRecurringWork()
     }
 
     private fun createNotificationChannels() {
@@ -29,5 +36,23 @@ class MyApplication : Application() {
         }
 
         notificationManager.createNotificationChannel(defaultChannel)
+    }
+
+    private fun setupRecurringWork() {
+        val constraints = Constraints.Builder()
+            .setRequiresCharging(true)
+            .build()
+
+        val repeatingRequest = PeriodicWorkRequestBuilder<CleanupWorker>(
+            1, TimeUnit.DAYS
+        )
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
+            CleanupWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            repeatingRequest
+        )
     }
 }

@@ -15,6 +15,9 @@ interface NotificationDao {
     @Query("SELECT * FROM notification ORDER BY timestamp DESC")
     fun getAllNotificationsFlow(): Flow<List<NotificationEntity>>
 
+    @Query("DELETE FROM notification WHERE timestamp < :cutoffTimestamp")
+    suspend fun deleteNotificationsOlderThan(cutoffTimestamp: Long)
+
     @Delete
     suspend fun deleteNotification(notification: NotificationEntity)
 }

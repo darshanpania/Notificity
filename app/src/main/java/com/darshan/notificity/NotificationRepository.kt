@@ -11,5 +11,9 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
     fun getAllNotificationsFlow(): Flow<List<NotificationEntity>> =
             notificationDao.getAllNotificationsFlow()
 
+    suspend fun deleteNotificationsOlderThan(cutoffTimestamp: Long) {
+        notificationDao.deleteNotificationsOlderThan(cutoffTimestamp)
+    }
+
     suspend fun deleteNotification(notificationEntity: NotificationEntity) = notificationDao.deleteNotification(notificationEntity)
 }

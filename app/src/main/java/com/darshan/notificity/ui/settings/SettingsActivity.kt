@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -48,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.darshan.notificity.AboutActivity
 import com.darshan.notificity.CardColor
+import com.darshan.notificity.Constants
 import com.darshan.notificity.R
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
@@ -89,9 +92,16 @@ class SettingsActivity : BaseActivity() {
         onBack: () -> Unit
     ) {
         val currentTheme by settingsViewModel.themeMode.collectAsState()
+        val currentRetentionPeriod by settingsViewModel.retentionPeriod.collectAsState()
 
-        val sheetState = rememberModalBottomSheetState()
-        val showSheet = remember { mutableStateOf(false) }
+        val themeSheetState = rememberModalBottomSheetState()
+        val showThemeSheet = remember { mutableStateOf(false) }
+
+        val retentionSheetState = rememberModalBottomSheetState()
+        val showRetentionSheet = remember { mutableStateOf(false) }
+
+        val showConfirmationDialog = remember { mutableStateOf(false) }
+        val pendingRetentionPeriod = remember { mutableStateOf<Int?>(null) }
 
         Scaffold(
             topBar = {
@@ -113,14 +123,18 @@ class SettingsActivity : BaseActivity() {
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                SettingsCard(
-                    icon = painterResource(id = R.drawable.iv_theme),
-                    text = "Change Theme",
-                    onClick = { showSheet.value = true })
-                SettingsCard(
-                    icon = rememberVectorPainter(image = Icons.Outlined.Info),
-                    text = "About",
-                    onClick = { launchActivity<AboutActivity>() })
+                SettingsCardWithLabel(
+                    label = "Theme",
+                    value = currentTheme.name.lowercase().replaceFirstChar { it.uppercase() },
+                    onClick = { showThemeSheet.value = true }
+                )
+
+                SettingsCardWithLabel(
+                    label = getString(R.string.setting_retention_period),
+                    value = Constants.RetentionPeriod.getLabel(LocalContext.current, currentRetentionPeriod),
+                    onClick = { showRetentionSheet.value = true }
+                )
+
                 SettingsCard(
                     icon = rememberVectorPainter(image = Icons.Outlined.Share),
                     text = "Recommend this app",
@@ -130,12 +144,16 @@ class SettingsActivity : BaseActivity() {
                         AnalyticsLogger.onRecommendAppClicked()
                     }
                 )
+                SettingsCard(
+                    icon = rememberVectorPainter(image = Icons.Outlined.Info),
+                    text = "About",
+                    onClick = { launchActivity<AboutActivity>() })
             }
 
-            if (showSheet.value) {
+            if (showThemeSheet.value) {
                 ModalBottomSheet(
-                    onDismissRequest = { showSheet.value = false },
-                    sheetState = sheetState,
+                    onDismissRequest = { showThemeSheet.value = false },
+                    sheetState = themeSheetState,
                     containerColor = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
                 ) {
@@ -153,7 +171,7 @@ class SettingsActivity : BaseActivity() {
                                 if (currentTheme != ThemeMode.SYSTEM) {
                                     settingsViewModel.updateTheme(ThemeMode.SYSTEM)
                                 }
-                                showSheet.value = false
+                                showThemeSheet.value = false
                             })
                         ThemeOptionItem(
                             icon = painterResource(id = R.drawable.iv_light_theme),
@@ -163,7 +181,7 @@ class SettingsActivity : BaseActivity() {
                                 if (currentTheme != ThemeMode.LIGHT) {
                                     settingsViewModel.updateTheme(ThemeMode.LIGHT)
                                 }
-                                showSheet.value = false
+                                showThemeSheet.value = false
                             })
                         ThemeOptionItem(
                             icon = painterResource(id = R.drawable.iv_dark_theme),
@@ -173,9 +191,63 @@ class SettingsActivity : BaseActivity() {
                                 if (currentTheme != ThemeMode.DARK) {
                                     settingsViewModel.updateTheme(ThemeMode.DARK)
                                 }
-                                showSheet.value = false
+                                showThemeSheet.value = false
                             })
                     }
+                }
+            }
+
+            if (showRetentionSheet.value) {
+                ModalBottomSheet(
+                    onDismissRequest = { showRetentionSheet.value = false },
+                    sheetState = retentionSheetState
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Select Retention Period", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 16.dp))
+                        val options = listOf(Constants.RetentionPeriod.DAYS_7, Constants.RetentionPeriod.DAYS_30, Constants.RetentionPeriod.UNLIMITED)
+                        options.forEach { period ->
+                            RetentionOption(
+                                text = Constants.RetentionPeriod.getLabel(LocalContext.current, period),
+                                isSelected = currentRetentionPeriod == period,
+                                onClick = {
+                                    // A smaller positive number is stricter. Unlimited (-1) is least strict.
+                                    val isStricter = period != Constants.RetentionPeriod.UNLIMITED && (currentRetentionPeriod == Constants.RetentionPeriod.UNLIMITED || period < currentRetentionPeriod)
+
+                                    if (isStricter) {
+                                        pendingRetentionPeriod.value = period
+                                        showConfirmationDialog.value = true
+                                    } else {
+                                        settingsViewModel.updateRetentionPeriod(period)
+                                    }
+                                    showRetentionSheet.value = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (showConfirmationDialog.value) {
+                val newPeriod = pendingRetentionPeriod.value
+                if (newPeriod != null) {
+                    AlertDialog(
+                        onDismissRequest = { showConfirmationDialog.value = false },
+                        title = { Text(getString(R.string.dialog_title_confirm_retention_change)) },
+                        text = { Text(getString(R.string.dialog_message_confirm_retention_change, Constants.RetentionPeriod.getLabel(LocalContext.current, newPeriod))) },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                settingsViewModel.updateRetentionPeriod(newPeriod)
+                                showConfirmationDialog.value = false
+                            }) {
+                                Text(getString(R.string.dialog_button_confirm))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showConfirmationDialog.value = false }) {
+                                Text(getString(R.string.dialog_button_cancel))
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -223,6 +295,32 @@ class SettingsActivity : BaseActivity() {
         }
     }
 
+    @Composable
+    fun SettingsCardWithLabel(
+        label: String,
+        value: String,
+        onClick: () -> Unit
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+                .clickable { onClick() },
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = CardColor)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = label, style = MaterialTheme.typography.bodyLarge)
+                Text(text = value, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
 
     @Composable
     fun SettingsCard(
@@ -252,7 +350,7 @@ class SettingsActivity : BaseActivity() {
                         modifier = Modifier.size(32.dp),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    )
                     Spacer(modifier = Modifier.width(24.dp))
                     Text(
                         text,
@@ -265,6 +363,60 @@ class SettingsActivity : BaseActivity() {
                     contentDescription = "Navigate"
                 )
             }
+        }
+    }
+
+    @Composable
+    fun ThemeOption(
+        text: String,
+        isSelected: Boolean,
+        onClick: () -> Unit
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Selected",
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Spacer(modifier = Modifier.width(24.dp))
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = text, style = MaterialTheme.typography.bodyLarge)
+        }
+    }
+
+    @Composable
+    fun RetentionOption(
+        text: String,
+        isSelected: Boolean,
+        onClick: () -> Unit
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Selected",
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Spacer(modifier = Modifier.width(24.dp))
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text = text, style = MaterialTheme.typography.bodyLarge)
         }
     }
 
