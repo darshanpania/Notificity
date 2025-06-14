@@ -4,16 +4,23 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
+
+private val Context.dataStore by preferencesDataStore(name = "settings")
 
 /**
  * Generic PreferenceManager using DataStore to save and retrieve preferences by key.
  */
-object PreferenceManager {
-    private val Context.dataStore by preferencesDataStore(
-        name = "settings"
-    )
+@Singleton
+class PreferenceManager
+@Inject
+constructor(
+    @ApplicationContext private val context: Context,
+) {
 
     /**
      * Save a String preference by key.
@@ -22,7 +29,7 @@ object PreferenceManager {
      * @param key The key for the preference
      * @param value The string value to save
      */
-    suspend fun saveString(context: Context, key: String, value: String) {
+    suspend fun saveString(key: String, value: String) {
         val preferencesKey = stringPreferencesKey(key)
         context.dataStore.edit { preferences ->
             preferences[preferencesKey] = value
@@ -37,7 +44,7 @@ object PreferenceManager {
      * @param defaultValue The default value if preference is not set
      * @return Flow emitting the preference value
      */
-    fun getStringFlow(context: Context, key: String, defaultValue: String): Flow<String> {
+    fun getStringFlow(key: String, defaultValue: String): Flow<String> {
         val preferencesKey = stringPreferencesKey(key)
         return context.dataStore.data
             .map { preferences -> preferences[preferencesKey] ?: defaultValue }

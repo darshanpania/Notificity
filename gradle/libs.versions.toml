@@ -17,6 +17,7 @@ glide = "4.16.0"
 glide-compose = "1.0.0-beta01"
 datastore = "1.1.7"
 lottie-compose = "6.1.0"
+hilt = "2.56.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,12 +45,15 @@ glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "gl
 glide-compose = { group = "com.github.bumptech.glide", name = "compose", version.ref = "glide-compose" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie-compose" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-androidx-room = { id="androidx.room", version.ref="androidxRoomDB"}
-ksp = {id="com.google.devtools.ksp", version.ref="ksp"}
-google-services = {id="com.google.gms.google-services", version.ref="googleServices"}
-crashlytics = { id="com.google.firebase.crashlytics", version.ref="crashlytics"}
+androidx-room = { id = "androidx.room", version.ref = "androidxRoomDB" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }

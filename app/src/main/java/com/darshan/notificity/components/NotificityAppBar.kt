@@ -25,7 +25,8 @@ fun NotificityAppBar(
     actions: @Composable (RowScope.() -> Unit)? = null,
     navigationIcon: @Composable (() -> Unit)? = null
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     val isDark = LocalIsDarkTheme.current
 
@@ -41,11 +42,12 @@ fun NotificityAppBar(
         TopAppBar(
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                if (navigationIcon != null) {
-                    Spacer(modifier = Modifier.width(16.dp))
+                    if (navigationIcon != null) {
+                        Spacer(modifier = Modifier.width(16.dp))
+                    }
+                    Text(text = title)
                 }
-                Text(text = title)
-            } },
+            },
             navigationIcon = {
                 navigationIcon?.invoke()
             },

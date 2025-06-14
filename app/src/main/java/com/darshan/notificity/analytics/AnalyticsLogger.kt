@@ -55,7 +55,10 @@ object AnalyticsLogger {
      * Enables filtering or segmentation based on permission status in analytics.
      */
     fun setNotificationPermissionProperty(status: NotificationPermissionStatus) {
-        AnalyticsService.setUserProperty(AnalyticsConstants.Params.PERMISSION_STATUS, status.code.toString())
+        AnalyticsService.setUserProperty(
+            AnalyticsConstants.Params.PERMISSION_STATUS,
+            status.code.toString()
+        )
     }
 
     /** Logs notification list viewed event with app name and total notifications. */
