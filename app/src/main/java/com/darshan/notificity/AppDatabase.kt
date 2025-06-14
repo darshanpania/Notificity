@@ -9,7 +9,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 abstract class AppDatabase : RoomDatabase() {
     abstract fun notificationDao(): NotificationDao
 
-    // Singleton instance of the DB
     companion object {
         /**
          * MIGRATION 1 -> 2

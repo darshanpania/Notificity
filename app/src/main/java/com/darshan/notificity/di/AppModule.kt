@@ -29,13 +29,15 @@ abstract class AppModule {
 
         @Provides
         @Singleton
-        fun providesPreferenceManager(): PreferenceManager {
-            return PreferenceManager()
+        fun providesPreferenceManager(@ApplicationContext context: Context): PreferenceManager {
+            return PreferenceManager(context)
         }
 
         @Provides
         @Singleton
-        fun providesThemePreferenceManager(preferenceManager: PreferenceManager): ThemePreferenceManager {
+        fun providesThemePreferenceManager(
+            preferenceManager: PreferenceManager
+        ): ThemePreferenceManager {
             return ThemePreferenceManager(preferenceManager)
         }
 
@@ -49,12 +51,13 @@ abstract class AppModule {
         @Singleton
         fun provideDatabase(
             @ApplicationContext context: Context,
+            migrations: Array<Migration>,
         ): AppDatabase {
             return Room.databaseBuilder(
                 context,
                 AppDatabase::class.java,
                 Constants.DB_NAME
-            ).addMigrations(*provideMigrations())
+            ).addMigrations(*migrations)
                 .setJournalMode(JournalMode.AUTOMATIC)
                 .fallbackToDestructiveMigration()
                 .enableMultiInstanceInvalidation()

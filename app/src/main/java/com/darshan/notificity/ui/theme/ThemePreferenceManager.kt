@@ -1,6 +1,5 @@
 package com.darshan.notificity.ui.theme
 
-import android.content.Context
 import com.darshan.notificity.utils.PreferenceManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -22,12 +21,12 @@ constructor(
         private const val THEME_KEY = "app_theme"
     }
 
-    suspend fun saveTheme(context: Context, theme: ThemeMode) {
-        preferenceManager.saveString(context, THEME_KEY, theme.value)
+    suspend fun saveTheme(theme: ThemeMode) {
+        preferenceManager.saveString(THEME_KEY, theme.value)
     }
 
-    fun getThemeFlow(context: Context): Flow<ThemeMode> {
-        return preferenceManager.getStringFlow(context, THEME_KEY, ThemeMode.SYSTEM.value)
+    fun getThemeFlow(): Flow<ThemeMode> {
+        return preferenceManager.getStringFlow(THEME_KEY, ThemeMode.SYSTEM.value)
             .map { ThemeMode.Companion.fromValue(it) }
     }
 }
