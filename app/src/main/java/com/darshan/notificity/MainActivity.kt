@@ -65,7 +65,6 @@ import com.darshan.notificity.extensions.isLaunchedFromLauncher
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.ui.BaseActivity
-import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.ui.settings.SettingsActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
@@ -97,7 +96,9 @@ class MainActivity : BaseActivity() {
         logNotificationPermissionStatus(updatedStatus)
     }
 
-    private val settingsViewModel: SettingsViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels {
+        NotificationViewModelFactory(application, repository)
+    }
 
     override val screenName: String
         get() = AnalyticsConstants.Screens.MAIN

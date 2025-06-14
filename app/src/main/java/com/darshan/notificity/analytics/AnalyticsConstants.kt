@@ -17,6 +17,23 @@ object AnalyticsConstants {
         const val LOGIN = "login"
         const val NOTIFICATION_PERMISSION_REQUESTED = "notification_permission_requested"
         const val NOTIFICATION_PERMISSION_CHANGED = "notification_permission_changed"
+        const val THEME_CHANGED = "theme_changed"
+        const val NOTIFICATION_PERMISSION_STATUS = "notification_permission_status"
+        const val CARD_COLOR_CHANGED = "card_color_changed"
+        const val RATE_APP = "rate_app"
+        const val RECOMMEND_APP = "recommend_app"
+        const val SHARE_APP = "share_app"
+        const val EXPORT_DATA_INITIATED = "export_data_initiated"
+        const val EXPORT_DATA_COMPLETED = "export_data_completed"
+
+        object Param {
+            const val THEME_MODE = "theme_mode"
+            const val PERMISSION_STATUS = "permission_status"
+            const val CARD_COLOR = "card_color"
+            const val EXPORT_FORMAT = "export_format"
+            const val EXPORT_SUCCESS = "export_success"
+            const val EXPORT_ERROR = "export_error"
+        }
     }
 
     // Parameter keys used with analytics events.

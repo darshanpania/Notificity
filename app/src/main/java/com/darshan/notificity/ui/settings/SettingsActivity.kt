@@ -21,8 +21,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,12 +33,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,8 +51,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import android.widget.Toast
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.mutableStateOf
 import com.darshan.notificity.AboutActivity
+import com.darshan.notificity.AppDatabase
 import com.darshan.notificity.CardColor
+import com.darshan.notificity.NotificationRepository
+import com.darshan.notificity.NotificationViewModelFactory
 import com.darshan.notificity.R
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
@@ -62,7 +73,13 @@ import com.darshan.notificity.ui.theme.ThemeMode
 
 class SettingsActivity : BaseActivity() {
 
-    private val settingsViewModel: SettingsViewModel by viewModels()
+    private val repository: NotificationRepository by lazy {
+        NotificationRepository(AppDatabase.getInstance(application).notificationDao())
+    }
+
+    private val settingsViewModel: SettingsViewModel by viewModels {
+        NotificationViewModelFactory(application, repository)
+    }
     override val screenName: String
         get() = AnalyticsConstants.Screens.SETTINGS
 
@@ -89,9 +106,15 @@ class SettingsActivity : BaseActivity() {
         onBack: () -> Unit
     ) {
         val currentTheme by settingsViewModel.themeMode.collectAsState()
+        val exportState by settingsViewModel.exportState.collectAsState()
+        val context = LocalContext.current
 
-        val sheetState = rememberModalBottomSheetState()
-        val showSheet = remember { mutableStateOf(false) }
+        val themeSheetState = rememberModalBottomSheetState()
+        var showThemeSheet by remember { mutableStateOf(false) }
+
+        val exportSheetState = rememberModalBottomSheetState()
+        var showExportSheet by remember { mutableStateOf(false) }
+        var selectedExportFormat by remember { mutableStateOf<ExportFormat?>(null) }
 
         Scaffold(
             topBar = {
@@ -116,7 +139,12 @@ class SettingsActivity : BaseActivity() {
                 SettingsCard(
                     icon = painterResource(id = R.drawable.iv_theme),
                     text = "Change Theme",
-                    onClick = { showSheet.value = true })
+                    onClick = { showThemeSheet = true })
+                SettingsCard(
+                    icon = painterResource(id = R.drawable.ic_export_data),
+                    text = "Export Data",
+                    onClick = { showExportSheet = true }
+                )
                 SettingsCard(
                     icon = rememberVectorPainter(image = Icons.Outlined.Info),
                     text = "About",
@@ -132,15 +160,15 @@ class SettingsActivity : BaseActivity() {
                 )
             }
 
-            if (showSheet.value) {
+            if (showThemeSheet) {
                 ModalBottomSheet(
-                    onDismissRequest = { showSheet.value = false },
-                    sheetState = sheetState,
+                    onDismissRequest = { showThemeSheet = false },
+                    sheetState = themeSheetState,
                     containerColor = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
                 ) {
                     Column(
-                        Modifier.Companion
+                        Modifier
                             .fillMaxWidth()
                             .padding(18.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -153,7 +181,7 @@ class SettingsActivity : BaseActivity() {
                                 if (currentTheme != ThemeMode.SYSTEM) {
                                     settingsViewModel.updateTheme(ThemeMode.SYSTEM)
                                 }
-                                showSheet.value = false
+                                showThemeSheet = false
                             })
                         ThemeOptionItem(
                             icon = painterResource(id = R.drawable.iv_light_theme),
@@ -163,7 +191,7 @@ class SettingsActivity : BaseActivity() {
                                 if (currentTheme != ThemeMode.LIGHT) {
                                     settingsViewModel.updateTheme(ThemeMode.LIGHT)
                                 }
-                                showSheet.value = false
+                                showThemeSheet = false
                             })
                         ThemeOptionItem(
                             icon = painterResource(id = R.drawable.iv_dark_theme),
@@ -173,11 +201,83 @@ class SettingsActivity : BaseActivity() {
                                 if (currentTheme != ThemeMode.DARK) {
                                     settingsViewModel.updateTheme(ThemeMode.DARK)
                                 }
-                                showSheet.value = false
+                                showThemeSheet = false
                             })
                     }
                 }
             }
+
+            if (showExportSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showExportSheet = false },
+                    sheetState = exportSheetState,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text("Select Export Format", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 8.dp))
+                        Button(
+                            onClick = {
+                                selectedExportFormat = ExportFormat.CSV
+                                AnalyticsLogger.onExportInitiated(ExportFormat.CSV.name)
+                                settingsViewModel.exportData(ExportFormat.CSV, context)
+                                showExportSheet = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Export as CSV")
+                        }
+                        Button(
+                            onClick = {
+                                selectedExportFormat = ExportFormat.JSON
+                                AnalyticsLogger.onExportInitiated(ExportFormat.JSON.name)
+                                settingsViewModel.exportData(ExportFormat.JSON, context)
+                                showExportSheet = false
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Export as JSON")
+                        }
+                    }
+                }
+            }
+        }
+
+        when (val state = exportState) {
+            is ExportState.Loading -> {
+                AlertDialog(
+                    onDismissRequest = { /* Optionally allow dismissing loading, or do nothing */ },
+                    title = { Text("Exporting Data") },
+                    text = {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                            CircularProgressIndicator()
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text("Please wait...")
+                        }
+                    },
+                    confirmButton = { }
+                )
+            }
+            is ExportState.Success -> {
+                LaunchedEffect(state) { 
+                    Toast.makeText(context, "Exported to: ${state.filePath}", Toast.LENGTH_LONG).show()
+                    AnalyticsLogger.onExportCompleted(selectedExportFormat?.name ?: "UNKNOWN", success = true)
+                    settingsViewModel.resetExportState() 
+                }
+            }
+            is ExportState.Error -> {
+                LaunchedEffect(state) { 
+                    Toast.makeText(context, "Error: ${state.message}", Toast.LENGTH_LONG).show()
+                    AnalyticsLogger.onExportCompleted(selectedExportFormat?.name ?: "UNKNOWN", success = false, error = state.message)
+                    settingsViewModel.resetExportState() 
+                }
+            }
+            is ExportState.Idle -> { /* Do nothing */ }
         }
     }
 
@@ -223,7 +323,6 @@ class SettingsActivity : BaseActivity() {
         }
     }
 
-
     @Composable
     fun SettingsCard(
         icon: Painter, text: String, onClick: () -> Unit
@@ -252,7 +351,7 @@ class SettingsActivity : BaseActivity() {
                         modifier = Modifier.size(32.dp),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    )
                     Spacer(modifier = Modifier.width(24.dp))
                     Text(
                         text,

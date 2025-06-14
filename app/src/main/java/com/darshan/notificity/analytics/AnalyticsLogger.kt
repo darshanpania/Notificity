@@ -1,12 +1,20 @@
 package com.darshan.notificity.analytics
 
+import android.os.Bundle
 import com.darshan.notificity.enums.NotificationPermissionStatus
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 
 /**
  * Wrapper around [AnalyticsService] to log analytics events.
  * Simplifies event logging by providing easy-to-use functions for typical app actions.
  */
 object AnalyticsLogger {
+
+    private val firebaseAnalytics: FirebaseAnalytics by lazy {
+        Firebase.analytics
+    }
 
     /** Logs app launch event with the source of launch. */
     fun onAppLaunch(source: String) {
@@ -127,5 +135,22 @@ object AnalyticsLogger {
                 AnalyticsConstants.Params.USER_ID to userId
             )
         })
+    }
+
+    // Export Data Events
+    fun onExportInitiated(format: String) {
+        val bundle = Bundle().apply {
+            putString(AnalyticsConstants.Events.Param.EXPORT_FORMAT, format)
+        }
+        firebaseAnalytics.logEvent(AnalyticsConstants.Events.EXPORT_DATA_INITIATED, bundle)
+    }
+
+    fun onExportCompleted(format: String, success: Boolean, error: String? = null) {
+        val bundle = Bundle().apply {
+            putString(AnalyticsConstants.Events.Param.EXPORT_FORMAT, format)
+            putBoolean(AnalyticsConstants.Events.Param.EXPORT_SUCCESS, success)
+            error?.let { putString(AnalyticsConstants.Events.Param.EXPORT_ERROR, it.take(100)) } // Firebase param length limit
+        }
+        firebaseAnalytics.logEvent(AnalyticsConstants.Events.EXPORT_DATA_COMPLETED, bundle)
     }
 }
