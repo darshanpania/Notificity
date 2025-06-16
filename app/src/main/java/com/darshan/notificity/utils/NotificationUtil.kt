@@ -8,7 +8,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import androidx.core.app.NotificationCompat
 import com.bumptech.glide.Glide
-import com.darshan.notificity.MainActivity
+import com.darshan.notificity.main.ui.MainActivity
 import com.darshan.notificity.R
 
 object NotificationUtil {

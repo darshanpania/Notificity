@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.crashlytics) apply false
+    alias(libs.plugins.hilt) apply false
     id("com.diffplug.spotless") version "6.25.0" apply false
 }
 
@@ -18,9 +19,7 @@ subprojects {
     extensions.configure<SpotlessExtension> {
         kotlin {
             target("**/*.kt")
-            targetExclude(// Build directory
-                "**/build/**/*.kt",
-            )
+            targetExclude("**/build/**/*.kt")
             ktfmt("0.49").dropboxStyle()
             trimTrailingWhitespace()
             endWithNewline()
