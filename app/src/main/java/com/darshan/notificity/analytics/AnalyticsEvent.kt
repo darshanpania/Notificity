@@ -1,8 +1,6 @@
 package com.darshan.notificity.analytics
 
-/**
- * Represents a generic analytics event.
- */
+/** Represents a generic analytics event. */
 interface AnalyticsEvent {
 
     /** Name of the event to be logged. */

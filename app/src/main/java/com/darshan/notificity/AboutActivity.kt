@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -40,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
@@ -48,13 +48,15 @@ import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.BuyMeACoffee
 import com.darshan.notificity.components.ClickableSection
 import com.darshan.notificity.components.NotificityAppBar
-import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.openUrl
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AboutActivity : BaseActivity() {
+
     private val settingsViewModel: SettingsViewModel by viewModels()
 
     override val screenName: String
@@ -64,121 +66,111 @@ class AboutActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val themeMode by settingsViewModel.themeMode.collectAsState()
+            val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
 
-            NotificityTheme(themeMode = themeMode) {
-                val context = LocalContext.current
-
-                AboutScreen {
-                    context.getActivity()?.finish()
-                }
-            }
+            NotificityTheme(themeMode = themeMode) { AboutScreen(onBack = { finish() }) }
         }
     }
+}
 
-    @Composable
-    fun AboutScreen(onBack: () -> Unit) {
-        val scrollState = rememberScrollState()
-        val showButton by remember {
-            derivedStateOf {
-                scrollState.maxValue == 0 || scrollState.maxValue != scrollState.value
-            }
-        }
-        Scaffold(
-            topBar = {
-                NotificityAppBar(
-                    title = "About",
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    })
-            }) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
+@Composable
+fun AboutScreen(onBack: () -> Unit) {
+    val context = LocalContext.current
+    val scrollState = rememberScrollState()
+    val showButton by remember {
+        derivedStateOf { scrollState.maxValue == 0 || scrollState.maxValue != scrollState.value }
+    }
+    Scaffold(
+        topBar = {
+            NotificityAppBar(
+                title = "About",
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                })
+        }) { innerPadding ->
+            Box(modifier = Modifier.Companion.padding(innerPadding)) {
                 Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxSize()
-                        .verticalScroll(scrollState),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = "An app designed to capture and categorizes your notifications, so you never miss or lose important messages.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    modifier =
+                        Modifier.Companion.padding(16.dp).fillMaxSize().verticalScroll(scrollState),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text(
+                            text =
+                                "An app designed to capture and categorizes your notifications, so you never miss or lose important messages.",
+                            style = MaterialTheme.typography.bodyMedium)
 
-                    ClickableSection(
-                        title = "App Version", description = BuildConfig.VERSION_NAME
-                    )
+                        ClickableSection(
+                            title = "App Version", description = BuildConfig.VERSION_NAME)
 
-                    HorizontalDivider()
+                        HorizontalDivider()
 
-                    ClickableSection(
-                        title = "Privacy Policy",
-                        description = "Learn more about how the app manages your data",
-                        onClick = {
-                            openUrl("https://github.com/darshanpania/Notificity/blob/main/PRIVACY.md")
+                        ClickableSection(
+                            title = "Privacy Policy",
+                            description = "Learn more about how the app manages your data",
+                            onClick = {
+                                context.openUrl(
+                                    "https://github.com/darshanpania/Notificity/blob/main/PRIVACY.md")
 
-                            AnalyticsLogger.onPrivacyPolicyClicked()
-                        })
+                                AnalyticsLogger.onPrivacyPolicyClicked()
+                            })
 
-                    HorizontalDivider()
+                        HorizontalDivider()
 
-                    Text(
-                        text = "Contributors",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Contributor("Darshan Pania", "i_m_Pania")
-                    Contributor("Shivam Sharma", "ShivamS707")
-                    Contributor("Shrinath Gupta", "gupta_shrinath")
-                    Contributor("William John", "goonerdroid11")
-                    Contributor("Jay Rathod", "zzjjaayy")
-                    Contributor("Avadhut", "mr_whoknows55")
-                    Contributor("Md Anas Shikoh", "ansiili_billi")
-                }
+                        Text(
+                            text = "Contributors",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary)
+                        Contributor("Darshan Pania", "i_m_Pania")
+                        Contributor("Shivam Sharma", "ShivamS707")
+                        Contributor("Shrinath Gupta", "gupta_shrinath")
+                        Contributor("William John", "goonerdroid11")
+                        Contributor("Jay Rathod", "zzjjaayy")
+                        Contributor("Avadhut", "mr_whoknows55")
+                        Contributor("Md Anas Shikoh", "ansiili_billi")
+                    }
                 AnimatedVisibility(
-                    visible = showButton, enter = fadeIn(), exit = fadeOut(),
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                ) {
-                    BuyMeACoffee(onClick = {
-                        openUrl(Constants.BUY_ME_A_COFFEE_LINK)
+                    visible = showButton,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                    modifier = Modifier.Companion.align(Alignment.Companion.BottomCenter)) {
+                        BuyMeACoffee(
+                            onClick = {
+                                context.openUrl(Constants.BUY_ME_A_COFFEE_LINK)
 
-                        AnalyticsLogger.onBuyMeCoffeeClicked()
-                    })
-                }
+                                AnalyticsLogger.onBuyMeCoffeeClicked()
+                            })
+                    }
             }
         }
-    }
+}
 
-    @OptIn(ExperimentalGlideComposeApi::class)
-    @Composable
-    fun Contributor(name: String, twitterUsername: String) {
-        val twitterProfileUrl = "https://twitter.com/$twitterUsername"
-        val profilePicUrl = "https://unavatar.io/twitter/$twitterUsername"
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun Contributor(name: String, twitterUsername: String) {
+    val context = LocalContext.current
+    val twitterProfileUrl = "https://twitter.com/$twitterUsername"
+    val profilePicUrl = "https://unavatar.io/twitter/$twitterUsername"
 
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                openUrl(twitterProfileUrl)
+    Row(
+        modifier =
+            Modifier.Companion.fillMaxWidth()
+                .clickable {
+                    context.openUrl(twitterProfileUrl)
 
-                AnalyticsLogger.onContributorProfileClicked(name)
-            }
-            .padding(vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+                    AnalyticsLogger.onContributorProfileClicked(name)
+                }
+                .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.Companion.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(verticalAlignment = Alignment.Companion.CenterVertically) {
                 GlideImage(
                     model = profilePicUrl,
                     contentDescription = "$name profile picture",
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape),
+                    modifier = Modifier.Companion.size(36.dp).clip(CircleShape),
                     loading = placeholder(R.drawable.iv_profile),
-                    failure = placeholder(R.drawable.iv_profile)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
+                    failure = placeholder(R.drawable.iv_profile))
+                Spacer(modifier = Modifier.Companion.width(8.dp))
                 Text(
                     text = name,
                     style = MaterialTheme.typography.bodyMedium,
@@ -187,16 +179,14 @@ class AboutActivity : BaseActivity() {
 
             Icon(
                 painterResource(id = R.drawable.iv_next),
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.Companion.size(16.dp),
                 contentDescription = "Go to Twitter profile",
-                tint = MaterialTheme.colorScheme.outline
-            )
+                tint = MaterialTheme.colorScheme.outline)
         }
-    }
+}
 
-    @Composable
-    @Preview(showSystemUi = true, showBackground = true)
-    fun ShowAboutScreen() {
-        AboutScreen {}
-    }
+@Composable
+@Preview(showSystemUi = true, showBackground = true)
+fun ShowAboutScreen() {
+    AboutScreen {}
 }

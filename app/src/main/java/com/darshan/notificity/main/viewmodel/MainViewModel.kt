@@ -1,6 +1,6 @@
-package com.darshan.notificity
+package com.darshan.notificity.main.viewmodel
 
-import android.app.Application
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.NameNotFoundException
@@ -8,22 +8,43 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.darshan.notificity.AppInfo
+import com.darshan.notificity.NotificationEntity
+import com.darshan.notificity.main.data.NotificationRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class MainViewModel(private val application: Application, private val repository: NotificationRepository) :
-    AndroidViewModel(application) {
+@HiltViewModel
+class MainViewModel
+@Inject
+constructor(
+    @ApplicationContext private val context: Context,
+    val repository: NotificationRepository
+) : ViewModel() {
 
-    private val packageManager = application.packageManager
+    private val packageManager = context.packageManager
 
-    val notificationsFlow: Flow<List<NotificationEntity>> = repository.getAllNotificationsFlow()
+    private val _notificationsFlow = MutableStateFlow<List<NotificationEntity>>(emptyList())
+    val notificationsFlow: StateFlow<List<NotificationEntity>> = _notificationsFlow.asStateFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getAllNotificationsFlow().collect { notifications ->
+                _notificationsFlow.value = notifications
+            }
+        }
+    }
 
     val appInfoFromFlow: Flow<List<AppInfo>> =
         notificationsFlow.map { notifications ->
@@ -34,8 +55,7 @@ class MainViewModel(private val application: Application, private val repository
                         appName = loadAppNameFromPackageName(packageManager, entry.key),
                         icon = loadIconFromPackageName(packageManager, entry.key),
                         notificationCount = entry.value.size,
-                        packageName = entry.key
-                    )
+                        packageName = entry.key)
                 }
         }
 
@@ -46,19 +66,16 @@ class MainViewModel(private val application: Application, private val repository
     val isNotificationPermissionGranted = _isNotificationPermissionGranted.asStateFlow()
 
     private val _showNotificationPermissionBlockedDialog = MutableStateFlow(false)
-    val showNotificationPermissionBlockedDialog = _showNotificationPermissionBlockedDialog.asStateFlow()
+    val showNotificationPermissionBlockedDialog =
+        _showNotificationPermissionBlockedDialog.asStateFlow()
 
     fun refreshNotificationPermission() {
-        val enabledListeners = NotificationManagerCompat.getEnabledListenerPackages(application)
-        _isNotificationPermissionGranted.update {
-            enabledListeners.contains(application.packageName)
-        }
+        val enabledListeners = NotificationManagerCompat.getEnabledListenerPackages(context)
+        _isNotificationPermissionGranted.update { enabledListeners.contains(context.packageName) }
     }
 
     fun showNotificationPermissionBlockedDialog(show: Boolean) {
-        _showNotificationPermissionBlockedDialog.update {
-            show
-        }
+        _showNotificationPermissionBlockedDialog.update { show }
     }
 
     init {
@@ -66,11 +83,8 @@ class MainViewModel(private val application: Application, private val repository
     }
 
     fun deleteNotification(notificationEntity: NotificationEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteNotification(notificationEntity)
-        }
+        viewModelScope.launch(Dispatchers.IO) { repository.deleteNotification(notificationEntity) }
     }
-
 }
 
 fun loadAppNameFromPackageName(packageManager: PackageManager, packageName: String): String {

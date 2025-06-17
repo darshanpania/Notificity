@@ -5,24 +5,21 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager.NameNotFoundException
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import com.darshan.notificity.main.data.NotificationRepository
 import com.darshan.notificity.utils.Logger
 import com.darshan.notificity.validation.NotificationValidator
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class NotificityListener : NotificationListenerService() {
 
-    private lateinit var database: AppDatabase
-    private lateinit var repository: NotificationRepository
-    val TAG = this::class.java.simpleName
+    @Inject lateinit var repository: NotificationRepository
 
-    override fun onCreate() {
-        super.onCreate()
-        // Initialize the Room database
-        database = AppDatabase.getInstance(applicationContext)
-        repository = NotificationRepository(database.notificationDao())
-    }
+    val TAG = this::class.java.simpleName
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val packageName = sbn.packageName
@@ -70,9 +67,7 @@ class NotificityListener : NotificationListenerService() {
 
         if (NotificationValidator.isValidContent(newNotification.title, newNotification.content)) {
             // Insert the notification into the database using coroutines
-            CoroutineScope(Dispatchers.IO).launch {
-                repository.insertNotification(newNotification)
-            }
+            CoroutineScope(Dispatchers.IO).launch { repository.insertNotification(newNotification) }
         }
     }
 

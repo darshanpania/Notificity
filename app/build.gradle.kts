@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -63,13 +64,14 @@ dependencies {
     implementation(libs.glide.compose)
     implementation(libs.datastore.preferences)
     implementation(libs.lottie.compose)
+    implementation(libs.androidx.hilt.common)
+    implementation(libs.androidx.hilt.work)
 
     testImplementation(libs.junit)
     // Added test dependencies
     testImplementation(libs.androidx.arch.core.testing)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.inline)
+    testImplementation(libs.mockk)
     testImplementation(libs.androidx.room.testing)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core.ktx)
@@ -81,6 +83,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
 
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
@@ -88,10 +92,19 @@ dependencies {
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
 
     //Firebase Dependencies
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.messaging)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

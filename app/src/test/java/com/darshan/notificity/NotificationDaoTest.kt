@@ -3,6 +3,7 @@ package com.darshan.notificity
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import java.io.IOException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -13,7 +14,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.io.IOException
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.OLDEST_SDK]) // Configure for a specific SDK if needed
@@ -25,10 +25,10 @@ class NotificationDaoTest {
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(
-            context, AppDatabase::class.java)
-            .allowMainThreadQueries() // Allowing main thread queries for simplicity in tests
-            .build()
+        db =
+            Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+                .allowMainThreadQueries() // Allowing main thread queries for simplicity in tests
+                .build()
         notificationDao = db.notificationDao()
     }
 
@@ -41,7 +41,16 @@ class NotificationDaoTest {
     @Test
     @Throws(Exception::class)
     fun insertAndGetNotification() = runBlocking {
-        val notification = NotificationEntity(notificationId = 1, packageName = "com.test", timestamp = System.currentTimeMillis(), appName = "Test App", title = "Test Title", content = "Test Content", imageUrl = null, extras = null)
+        val notification =
+            NotificationEntity(
+                notificationId = 1,
+                packageName = "com.test",
+                timestamp = System.currentTimeMillis(),
+                appName = "Test App",
+                title = "Test Title",
+                content = "Test Content",
+                imageUrl = null,
+                extras = null)
         notificationDao.insertNotification(notification)
         val allNotifications = notificationDao.getAllNotificationsFlow().first()
         assertEquals(allNotifications[0].packageName, notification.packageName)
@@ -51,8 +60,28 @@ class NotificationDaoTest {
     @Throws(Exception::class)
     fun deleteNotificationsOlderThan() = runBlocking {
         val currentTime = System.currentTimeMillis()
-        val oldNotification = NotificationEntity(id = 1, notificationId = 1, packageName = "com.old", timestamp = currentTime - (2 * 24 * 60 * 60 * 1000), appName = "Old App", title = "Old Title", content = "Old Content", null, null) // 2 days old
-        val newNotification = NotificationEntity(id = 2, notificationId = 2, packageName = "com.new", timestamp = currentTime, appName = "New App", title = "New Title", content = "New Content", null, null) // Today
+        val oldNotification =
+            NotificationEntity(
+                id = 1,
+                notificationId = 1,
+                packageName = "com.old",
+                timestamp = currentTime - (2 * 24 * 60 * 60 * 1000),
+                appName = "Old App",
+                title = "Old Title",
+                content = "Old Content",
+                null,
+                null) // 2 days old
+        val newNotification =
+            NotificationEntity(
+                id = 2,
+                notificationId = 2,
+                packageName = "com.new",
+                timestamp = currentTime,
+                appName = "New App",
+                title = "New Title",
+                content = "New Content",
+                null,
+                null) // Today
 
         notificationDao.insertNotification(oldNotification)
         notificationDao.insertNotification(newNotification)
@@ -73,8 +102,28 @@ class NotificationDaoTest {
     @Throws(Exception::class)
     fun deleteNotificationsOlderThan_noNotificationsDeleted() = runBlocking {
         val currentTime = System.currentTimeMillis()
-        val notification1 = NotificationEntity(id = 1, notificationId = 1, packageName = "com.test1", timestamp = currentTime - (1 * 24 * 60 * 60 * 1000), appName = "App1", title = "T1", content = "C1", null, null) // 1 day old
-        val notification2 = NotificationEntity(id = 2, notificationId = 2, packageName = "com.test2", timestamp = currentTime, appName = "App2", title = "T2", content = "C2", null, null) // Today
+        val notification1 =
+            NotificationEntity(
+                id = 1,
+                notificationId = 1,
+                packageName = "com.test1",
+                timestamp = currentTime - (1 * 24 * 60 * 60 * 1000),
+                appName = "App1",
+                title = "T1",
+                content = "C1",
+                null,
+                null) // 1 day old
+        val notification2 =
+            NotificationEntity(
+                id = 2,
+                notificationId = 2,
+                packageName = "com.test2",
+                timestamp = currentTime,
+                appName = "App2",
+                title = "T2",
+                content = "C2",
+                null,
+                null) // Today
 
         notificationDao.insertNotification(notification1)
         notificationDao.insertNotification(notification2)
@@ -87,12 +136,32 @@ class NotificationDaoTest {
         assertEquals(2, allNotifications.size)
     }
 
-     @Test
+    @Test
     @Throws(Exception::class)
     fun deleteNotificationsOlderThan_allNotificationsDeleted() = runBlocking {
         val currentTime = System.currentTimeMillis()
-        val notification1 = NotificationEntity(id = 1, notificationId = 1, packageName = "com.test1", timestamp = currentTime - (2 * 24 * 60 * 60 * 1000), appName = "App1", title = "T1", content = "C1", null, null) // 2 days old
-        val notification2 = NotificationEntity(id = 2, notificationId = 2, packageName = "com.test2", timestamp = currentTime - (3 * 24 * 60 * 60 * 1000), appName = "App2", title = "T2", content = "C2", null, null) // 3 days old
+        val notification1 =
+            NotificationEntity(
+                id = 1,
+                notificationId = 1,
+                packageName = "com.test1",
+                timestamp = currentTime - (2 * 24 * 60 * 60 * 1000),
+                appName = "App1",
+                title = "T1",
+                content = "C1",
+                null,
+                null) // 2 days old
+        val notification2 =
+            NotificationEntity(
+                id = 2,
+                notificationId = 2,
+                packageName = "com.test2",
+                timestamp = currentTime - (3 * 24 * 60 * 60 * 1000),
+                appName = "App2",
+                title = "T2",
+                content = "C2",
+                null,
+                null) // 3 days old
 
         notificationDao.insertNotification(notification1)
         notificationDao.insertNotification(notification2)

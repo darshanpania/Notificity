@@ -15,15 +15,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.darshan.notificity.enums.NotificationPermissionStatus
 
-
-
-/**
- * Launches the app settings screen
- */
+/** Launches the app settings screen */
 fun Context.openAppSettings(appSettingsLauncher: ActivityResultLauncher<Intent>) {
-    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        data = Uri.fromParts("package", packageName, null)
-    }
+    val intent =
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", packageName, null)
+        }
     appSettingsLauncher.launch(intent)
 }
 
@@ -31,15 +28,18 @@ fun Context.recommendApp() {
     val appName = "Notificity"
     val appPackageName = packageName
     val playStoreUrl = "https://play.google.com/store/apps/details?id=$appPackageName"
-    val shareText = """
+    val shareText =
+        """
         Try $appName – the smart notification tracker!
         $playStoreUrl
-    """.trimIndent()
-    val intent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/plain"
-        putExtra(Intent.EXTRA_SUBJECT, appName)
-        putExtra(Intent.EXTRA_TEXT, shareText)
-    }
+    """
+            .trimIndent()
+    val intent =
+        Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, appName)
+            putExtra(Intent.EXTRA_TEXT, shareText)
+        }
 
     val chooser = Intent.createChooser(intent, "Share $appName via")
     if (intent.resolveActivity(packageManager) != null) {
@@ -47,12 +47,12 @@ fun Context.recommendApp() {
     }
 }
 
-fun Context.getActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.getActivity()
-    else -> null
-}
-
+fun Context.getActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.getActivity()
+        else -> null
+    }
 
 inline fun <reified T : Activity> Context.launchActivity(
     noinline extras: (Intent.() -> Unit)? = null
@@ -74,14 +74,14 @@ fun Intent?.isLaunchedFromLauncher(): Boolean {
 
 fun Context.getNotificationPermissionStatus(): NotificationPermissionStatus {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val granted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
+        val granted =
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
         if (granted) NotificationPermissionStatus.GRANTED else NotificationPermissionStatus.DENIED
     } else {
         // For below Android 13, check if notifications are enabled at system level
         val notificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled()
-        if (notificationsEnabled) NotificationPermissionStatus.GRANTED else NotificationPermissionStatus.DENIED
+        if (notificationsEnabled) NotificationPermissionStatus.GRANTED
+        else NotificationPermissionStatus.DENIED
     }
 }

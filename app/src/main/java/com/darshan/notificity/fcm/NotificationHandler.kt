@@ -28,11 +28,8 @@ class NotificationHandler(private val context: Context) {
 
         // Launch a separate coroutine for image download & update the notification
         CoroutineScope(Dispatchers.IO).launch {
-            val largeIcon = NotificationUtil.getLargeIcon(
-                context,
-                notificationContent.imageUrl!!,
-                timeout = 5
-            )
+            val largeIcon =
+                NotificationUtil.getLargeIcon(context, notificationContent.imageUrl!!, timeout = 5)
 
             if (largeIcon != null) {
                 withContext(Dispatchers.Main) {
@@ -51,14 +48,17 @@ class NotificationHandler(private val context: Context) {
         }
     }
 
-    private fun showNotification(notificationContent: NotificationContent, largeIcon: Bitmap?, notificationId: Int) {
+    private fun showNotification(
+        notificationContent: NotificationContent,
+        largeIcon: Bitmap?,
+        notificationId: Int
+    ) {
         NotificationUtil.showNotification(
             context = context,
             title = notificationContent.title,
             message = notificationContent.body,
             channelId = notificationContent.channelId,
             largeIcon = largeIcon,
-            notificationId = notificationId
-        )
+            notificationId = notificationId)
     }
 }
