@@ -9,16 +9,15 @@ import com.darshan.notificity.main.data.NotificationRepository
 import com.darshan.notificity.utils.Logger
 import com.darshan.notificity.validation.NotificationValidator
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class NotificityListener : NotificationListenerService() {
 
-    @Inject
-    lateinit var repository: NotificationRepository
+    @Inject lateinit var repository: NotificationRepository
 
     val TAG = this::class.java.simpleName
 
@@ -64,14 +63,11 @@ class NotificityListener : NotificationListenerService() {
                 title = title,
                 content = text,
                 imageUrl = image,
-                extras = extras.toString()
-            )
+                extras = extras.toString())
 
         if (NotificationValidator.isValidContent(newNotification.title, newNotification.content)) {
             // Insert the notification into the database using coroutines
-            CoroutineScope(Dispatchers.IO).launch {
-                repository.insertNotification(newNotification)
-            }
+            CoroutineScope(Dispatchers.IO).launch { repository.insertNotification(newNotification) }
         }
     }
 

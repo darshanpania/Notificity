@@ -30,10 +30,11 @@ fun NotificityAppBar(
 
     val isDark = LocalIsDarkTheme.current
 
-    val topBarColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = if (isDark) DarkGrey else Color.White,
-        titleContentColor = if (isDark) Color.White else DarkGrey,
-    )
+    val topBarColors =
+        TopAppBarDefaults.topAppBarColors(
+            containerColor = if (isDark) DarkGrey else Color.White,
+            titleContentColor = if (isDark) Color.White else DarkGrey,
+        )
 
     Surface(
         tonalElevation = 4.dp,
@@ -48,16 +49,9 @@ fun NotificityAppBar(
                     Text(text = title)
                 }
             },
-            navigationIcon = {
-                navigationIcon?.invoke()
-            },
-            actions = {
-                actions?.invoke(this)
-            },
+            navigationIcon = { navigationIcon?.invoke() },
+            actions = { actions?.invoke(this) },
             scrollBehavior = scrollBehavior,
-            colors = topBarColors
-        )
+            colors = topBarColors)
     }
 }
-
-

@@ -80,16 +80,16 @@ class MainActivity : BaseActivity() {
     private val mainViewModel: MainViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        val status = if (isGranted) {
-            NotificationPermissionStatus.GRANTED
-        } else {
-            NotificationPermissionStatus.DENIED
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            val status =
+                if (isGranted) {
+                    NotificationPermissionStatus.GRANTED
+                } else {
+                    NotificationPermissionStatus.DENIED
+                }
+            logNotificationPermissionStatus(status)
         }
-        logNotificationPermissionStatus(status)
-    }
 
     private val appSettingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -107,24 +107,30 @@ class MainActivity : BaseActivity() {
 
         setContent {
             val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
-            val isPermissionGranted by remember { mainViewModel.isNotificationPermissionGranted }.collectAsStateWithLifecycle()
-            val showNotificationPermissionBlockedDialog by remember { mainViewModel.showNotificationPermissionBlockedDialog }.collectAsStateWithLifecycle()
-            val notifications by remember { mainViewModel.notificationsFlow }.collectAsStateWithLifecycle()
-            val apps by remember { mainViewModel.appInfoFromFlow }.collectAsStateWithLifecycle(
-                initialValue = emptyList()
-            )
+            val isPermissionGranted by
+                remember { mainViewModel.isNotificationPermissionGranted }
+                    .collectAsStateWithLifecycle()
+            val showNotificationPermissionBlockedDialog by
+                remember { mainViewModel.showNotificationPermissionBlockedDialog }
+                    .collectAsStateWithLifecycle()
+            val notifications by
+                remember { mainViewModel.notificationsFlow }.collectAsStateWithLifecycle()
+            val apps by
+                remember { mainViewModel.appInfoFromFlow }
+                    .collectAsStateWithLifecycle(initialValue = emptyList())
 
             NotificityTheme(themeMode = themeMode) {
                 MainScreen(
                     isPermissionGranted = isPermissionGranted,
-                    showNotificationPermissionBlockedDialog = showNotificationPermissionBlockedDialog,
+                    showNotificationPermissionBlockedDialog =
+                        showNotificationPermissionBlockedDialog,
                     notifications = notifications,
                     apps = apps,
                     appSettingsLauncher = appSettingsLauncher,
                     openNotificationAccessSettings = { openNotificationAccessSettings() },
                     requestPermissionLauncher = { requestPermissionLauncher.launch(it) },
-                    toggleNotificationPermissionDialog = mainViewModel::showNotificationPermissionBlockedDialog
-                )
+                    toggleNotificationPermissionDialog =
+                        mainViewModel::showNotificationPermissionBlockedDialog)
             }
         }
     }
@@ -179,28 +185,24 @@ fun MainScreen(
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = "Open settings screen",
-                        modifier = Modifier.Companion
-                            .padding(end = 16.dp)
-                            .clickable {
+                        modifier =
+                            Modifier.Companion.padding(end = 16.dp).clickable {
                                 context.launchActivity<SettingsActivity>()
-                            }
-                    )
+                            })
+                })
+        }) { innerPadding ->
+            Box(modifier = Modifier.Companion.padding(innerPadding)) {
+                if (isPermissionGranted) {
+                    AppSearchScreen(notifications = notifications, allApps = apps)
+                    AskNotificationPermission(
+                        requestPermissionLauncher = requestPermissionLauncher,
+                        toggleNotificationPermissionDialog = toggleNotificationPermissionDialog)
+                } else {
+                    RequestAccessScreen(
+                        openNotificationAccessSettings = openNotificationAccessSettings)
                 }
-            )
-        }
-    ) { innerPadding ->
-        Box(modifier = Modifier.Companion.padding(innerPadding)) {
-            if (isPermissionGranted) {
-                AppSearchScreen(notifications = notifications, allApps = apps)
-                AskNotificationPermission(
-                    requestPermissionLauncher = requestPermissionLauncher,
-                    toggleNotificationPermissionDialog = toggleNotificationPermissionDialog
-                )
-            } else {
-                RequestAccessScreen(openNotificationAccessSettings = openNotificationAccessSettings)
             }
         }
-    }
 
     if (showNotificationPermissionBlockedDialog) {
         PermissionBlockedDialog(
@@ -208,8 +210,7 @@ fun MainScreen(
             onGoToSettings = {
                 toggleNotificationPermissionDialog(false)
                 context.openAppSettings(appSettingsLauncher)
-            }
-        )
+            })
     }
 }
 
@@ -218,56 +219,45 @@ fun AppGridView(apps: List<AppInfo>, onAppSelected: (String) -> Unit) {
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Adjust based on screen size or preference
-        contentPadding = PaddingValues(8.dp)
-    ) {
-        items(items = apps, key = { it.packageName }) { app ->
-            AppGridItem(appInfo = app, onClick = { onAppSelected(app.appName) })
+        contentPadding = PaddingValues(8.dp)) {
+            items(items = apps, key = { it.packageName }) { app ->
+                AppGridItem(appInfo = app, onClick = { onAppSelected(app.appName) })
+            }
         }
-    }
 }
 
 @Composable
 fun AppGridItem(appInfo: AppInfo, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.Companion
-            .padding(8.dp)
-            .clickable(onClick = onClick),
+        modifier = Modifier.Companion.padding(8.dp).clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(4.dp),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.Companion.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.Companion
-                .padding(16.dp)
-                .fillMaxWidth()
-                .aspectRatio(1f)
-        ) {
-            // Assume you have a way to load the app icon from packageName
-            appInfo.icon?.let {
-                Image(
-                    bitmap = it,
-                    contentDescription = "App Icon",
-                    modifier = Modifier.Companion.size(50.dp)
-                )
-            } ?: run { Box(Modifier.Companion.size(50.dp)) }
-            Spacer(modifier = Modifier.Companion.size(2.dp))
-            Text(
-                text = appInfo.appName,
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Companion.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Companion.Ellipsis,
-                letterSpacing = 0.04.sp
-            )
-            Spacer(modifier = Modifier.Companion.size(2.dp))
-            Text(
-                text = "${appInfo.notificationCount} Notifications",
-                textAlign = TextAlign.Companion.Center,
-                letterSpacing = 0.04.sp
-            )
+        shape = RoundedCornerShape(8.dp)) {
+            Column(
+                horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.Companion.padding(16.dp).fillMaxWidth().aspectRatio(1f)) {
+                    // Assume you have a way to load the app icon from packageName
+                    appInfo.icon?.let {
+                        Image(
+                            bitmap = it,
+                            contentDescription = "App Icon",
+                            modifier = Modifier.Companion.size(50.dp))
+                    } ?: run { Box(Modifier.Companion.size(50.dp)) }
+                    Spacer(modifier = Modifier.Companion.size(2.dp))
+                    Text(
+                        text = appInfo.appName,
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Companion.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Companion.Ellipsis,
+                        letterSpacing = 0.04.sp)
+                    Spacer(modifier = Modifier.Companion.size(2.dp))
+                    Text(
+                        text = "${appInfo.notificationCount} Notifications",
+                        textAlign = TextAlign.Companion.Center,
+                        letterSpacing = 0.04.sp)
+                }
         }
-    }
 }
 
 @Composable
@@ -280,22 +270,17 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
             searchQuery = it
             onSearchQueryChanged(it)
         },
-        modifier = Modifier.Companion
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.Companion.fillMaxWidth().padding(16.dp),
         placeholder = { Text(hint) },
         leadingIcon = { Icon(Icons.Filled.Search, contentDescription = "Search Icon") },
-        singleLine = true
-    )
+        singleLine = true)
 }
 
 @Composable
 fun AppSearchScreen(notifications: List<NotificationEntity>, allApps: List<AppInfo>) {
     val context = LocalContext.current
     var appSearchQuery by remember { mutableStateOf("") }
-    val filteredApps = allApps.filter {
-        it.appName.contains(appSearchQuery, ignoreCase = true)
-    }
+    val filteredApps = allApps.filter { it.appName.contains(appSearchQuery, ignoreCase = true) }
 
     Column {
         SearchBar("Search Apps... ", onSearchQueryChanged = { appSearchQuery = it })
@@ -303,18 +288,14 @@ fun AppSearchScreen(notifications: List<NotificationEntity>, allApps: List<AppIn
             when {
                 list.isEmpty() -> {
                     // No notifications collected at all
-                    EmptyContentState(
-                        text = "No Notifications yet"
-                    )
+                    EmptyContentState(text = "No Notifications yet")
                 }
-
                 filteredApps.isEmpty() && appSearchQuery.isNotBlank() -> {
                     // Search active, but no matching app
                     EmptyContentState(
                         text = "No apps found matching \"$appSearchQuery\"",
                     )
                 }
-
                 else -> {
                     AppGridView(
                         apps = filteredApps,
@@ -322,8 +303,7 @@ fun AppSearchScreen(notifications: List<NotificationEntity>, allApps: List<AppIn
                             context.launchActivity<NotificationsActivity> {
                                 putExtra("appName", appName)
                             }
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -333,21 +313,18 @@ fun AppSearchScreen(notifications: List<NotificationEntity>, allApps: List<AppIn
 @Composable
 fun RequestAccessScreen(openNotificationAccessSettings: () -> Unit) {
     Column(
-        modifier = Modifier.Companion
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.Companion.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.Companion.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text =
-                "We need access to your notifications to manage and search them effectively.",
-            textAlign = TextAlign.Companion.Center,
-            style = MaterialTheme.typography.displaySmall,
-        )
-        Spacer(modifier = Modifier.Companion.height(16.dp))
-        Button(onClick = openNotificationAccessSettings) { Text("Grant Access") }
-    }
+        verticalArrangement = Arrangement.Center) {
+            Text(
+                text =
+                    "We need access to your notifications to manage and search them effectively.",
+                textAlign = TextAlign.Companion.Center,
+                style = MaterialTheme.typography.displaySmall,
+            )
+            Spacer(modifier = Modifier.Companion.height(16.dp))
+            Button(onClick = openNotificationAccessSettings) { Text("Grant Access") }
+        }
 }
 
 @Composable
@@ -365,7 +342,8 @@ private fun AskNotificationPermission(
         alreadyAsked = true
 
         if (permissionStatus == NotificationPermissionStatus.DENIED) {
-            if (activity?.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) == true) {
+            if (activity?.shouldShowRequestPermissionRationale(
+                Manifest.permission.POST_NOTIFICATIONS) == true) {
                 toggleNotificationPermissionDialog(true)
             } else {
                 AnalyticsLogger.onNotificationPermissionRequested()
@@ -376,23 +354,11 @@ private fun AskNotificationPermission(
 }
 
 @Composable
-fun PermissionBlockedDialog(
-    onDismiss: () -> Unit,
-    onGoToSettings: () -> Unit
-) {
+fun PermissionBlockedDialog(onDismiss: () -> Unit, onGoToSettings: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Permission needed") },
         text = { Text("Notification permission is blocked. Please enable it in app settings.") },
-        confirmButton = {
-            TextButton(onClick = { onGoToSettings() }) {
-                Text("Go to Settings")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { onDismiss() }) {
-                Text("Later")
-            }
-        }
-    )
+        confirmButton = { TextButton(onClick = { onGoToSettings() }) { Text("Go to Settings") } },
+        dismissButton = { TextButton(onClick = { onDismiss() }) { Text("Later") } })
 }

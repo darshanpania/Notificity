@@ -19,15 +19,11 @@ fun BuyMeACoffee(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Image(
         painter = painterResource(R.drawable.buy_me_a_coffee),
         contentDescription = "Buy me a coffee",
-        modifier = modifier.then(
-            Modifier
-                .width(width = 150.dp)
-                .clickable(
-                    onClick = onClick,
-                    interactionSource = interactionSource,
-                    indication = null
-                )
-                .padding(bottom = 20.dp)
-        ),
+        modifier =
+            modifier.then(
+                Modifier.width(width = 150.dp)
+                    .clickable(
+                        onClick = onClick, interactionSource = interactionSource, indication = null)
+                    .padding(bottom = 20.dp)),
     )
 }

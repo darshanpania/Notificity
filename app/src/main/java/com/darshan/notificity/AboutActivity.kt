@@ -68,9 +68,7 @@ class AboutActivity : BaseActivity() {
         setContent {
             val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
 
-            NotificityTheme(themeMode = themeMode) {
-                AboutScreen(onBack = { finish() })
-            }
+            NotificityTheme(themeMode = themeMode) { AboutScreen(onBack = { finish() }) }
         }
     }
 }
@@ -80,9 +78,7 @@ fun AboutScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val showButton by remember {
-        derivedStateOf {
-            scrollState.maxValue == 0 || scrollState.maxValue != scrollState.value
-        }
+        derivedStateOf { scrollState.maxValue == 0 || scrollState.maxValue != scrollState.value }
     }
     Scaffold(
         topBar = {
@@ -94,61 +90,59 @@ fun AboutScreen(onBack: () -> Unit) {
                     }
                 })
         }) { innerPadding ->
-        Box(modifier = Modifier.Companion.padding(innerPadding)) {
-            Column(
-                modifier = Modifier.Companion
-                    .padding(16.dp)
-                    .fillMaxSize()
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "An app designed to capture and categorizes your notifications, so you never miss or lose important messages.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            Box(modifier = Modifier.Companion.padding(innerPadding)) {
+                Column(
+                    modifier =
+                        Modifier.Companion.padding(16.dp).fillMaxSize().verticalScroll(scrollState),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text(
+                            text =
+                                "An app designed to capture and categorizes your notifications, so you never miss or lose important messages.",
+                            style = MaterialTheme.typography.bodyMedium)
 
-                ClickableSection(
-                    title = "App Version", description = BuildConfig.VERSION_NAME
-                )
+                        ClickableSection(
+                            title = "App Version", description = BuildConfig.VERSION_NAME)
 
-                HorizontalDivider()
+                        HorizontalDivider()
 
-                ClickableSection(
-                    title = "Privacy Policy",
-                    description = "Learn more about how the app manages your data",
-                    onClick = {
-                        context.openUrl("https://github.com/darshanpania/Notificity/blob/main/PRIVACY.md")
+                        ClickableSection(
+                            title = "Privacy Policy",
+                            description = "Learn more about how the app manages your data",
+                            onClick = {
+                                context.openUrl(
+                                    "https://github.com/darshanpania/Notificity/blob/main/PRIVACY.md")
 
-                        AnalyticsLogger.onPrivacyPolicyClicked()
-                    })
+                                AnalyticsLogger.onPrivacyPolicyClicked()
+                            })
 
-                HorizontalDivider()
+                        HorizontalDivider()
 
-                Text(
-                    text = "Contributors",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Contributor("Darshan Pania", "i_m_Pania")
-                Contributor("Shivam Sharma", "ShivamS707")
-                Contributor("Shrinath Gupta", "gupta_shrinath")
-                Contributor("William John", "goonerdroid11")
-                Contributor("Jay Rathod", "zzjjaayy")
-                Contributor("Avadhut", "mr_whoknows55")
-                Contributor("Md Anas Shikoh", "ansiili_billi")
-            }
-            AnimatedVisibility(
-                visible = showButton, enter = fadeIn(), exit = fadeOut(),
-                modifier = Modifier.Companion.align(Alignment.Companion.BottomCenter)
-            ) {
-                BuyMeACoffee(onClick = {
-                    context.openUrl(Constants.BUY_ME_A_COFFEE_LINK)
+                        Text(
+                            text = "Contributors",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary)
+                        Contributor("Darshan Pania", "i_m_Pania")
+                        Contributor("Shivam Sharma", "ShivamS707")
+                        Contributor("Shrinath Gupta", "gupta_shrinath")
+                        Contributor("William John", "goonerdroid11")
+                        Contributor("Jay Rathod", "zzjjaayy")
+                        Contributor("Avadhut", "mr_whoknows55")
+                        Contributor("Md Anas Shikoh", "ansiili_billi")
+                    }
+                AnimatedVisibility(
+                    visible = showButton,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                    modifier = Modifier.Companion.align(Alignment.Companion.BottomCenter)) {
+                        BuyMeACoffee(
+                            onClick = {
+                                context.openUrl(Constants.BUY_ME_A_COFFEE_LINK)
 
-                    AnalyticsLogger.onBuyMeCoffeeClicked()
-                })
+                                AnalyticsLogger.onBuyMeCoffeeClicked()
+                            })
+                    }
             }
         }
-    }
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -159,41 +153,36 @@ fun Contributor(name: String, twitterUsername: String) {
     val profilePicUrl = "https://unavatar.io/twitter/$twitterUsername"
 
     Row(
-        modifier = Modifier.Companion
-            .fillMaxWidth()
-            .clickable {
-                context.openUrl(twitterProfileUrl)
+        modifier =
+            Modifier.Companion.fillMaxWidth()
+                .clickable {
+                    context.openUrl(twitterProfileUrl)
 
-                AnalyticsLogger.onContributorProfileClicked(name)
-            }
-            .padding(vertical = 6.dp),
+                    AnalyticsLogger.onContributorProfileClicked(name)
+                }
+                .padding(vertical = 6.dp),
         verticalAlignment = Alignment.Companion.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(verticalAlignment = Alignment.Companion.CenterVertically) {
-            GlideImage(
-                model = profilePicUrl,
-                contentDescription = "$name profile picture",
-                modifier = Modifier.Companion
-                    .size(36.dp)
-                    .clip(CircleShape),
-                loading = placeholder(R.drawable.iv_profile),
-                failure = placeholder(R.drawable.iv_profile)
-            )
-            Spacer(modifier = Modifier.Companion.width(8.dp))
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
+        horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+                GlideImage(
+                    model = profilePicUrl,
+                    contentDescription = "$name profile picture",
+                    modifier = Modifier.Companion.size(36.dp).clip(CircleShape),
+                    loading = placeholder(R.drawable.iv_profile),
+                    failure = placeholder(R.drawable.iv_profile))
+                Spacer(modifier = Modifier.Companion.width(8.dp))
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
 
-        Icon(
-            painterResource(id = R.drawable.iv_next),
-            modifier = Modifier.Companion.size(16.dp),
-            contentDescription = "Go to Twitter profile",
-            tint = MaterialTheme.colorScheme.outline
-        )
-    }
+            Icon(
+                painterResource(id = R.drawable.iv_next),
+                modifier = Modifier.Companion.size(16.dp),
+                contentDescription = "Go to Twitter profile",
+                tint = MaterialTheme.colorScheme.outline)
+        }
 }
 
 @Composable
