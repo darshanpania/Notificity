@@ -83,3 +83,6 @@ fun Context.getNotificationPermissionStatus(): NotificationPermissionStatus {
         if (notificationsEnabled) NotificationPermissionStatus.GRANTED else NotificationPermissionStatus.DENIED
     }
 }
+
+fun String.toTitleCase(): String =
+    lowercase().split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercaseChar() } }

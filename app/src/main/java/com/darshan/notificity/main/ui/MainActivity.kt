@@ -62,12 +62,14 @@ import com.darshan.notificity.NotificationsActivity
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
+import com.darshan.notificity.components.LoadingScreen
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.enums.NotificationPermissionStatus
 import com.darshan.notificity.extensions.getNotificationPermissionStatus
 import com.darshan.notificity.extensions.isLaunchedFromLauncher
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.openAppSettings
+import com.darshan.notificity.extensions.toTitleCase
 import com.darshan.notificity.main.viewmodel.MainViewModel
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsActivity
@@ -110,8 +112,16 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        handleAppLaunchAnalytics(savedInstanceState)
 
+        setContent {
+            LoadingScreen()
+        }
+
+        handleAppLaunchAnalytics(savedInstanceState)
+        checkAuthenticationAndRenderUI()
+    }
+
+    private fun checkAuthenticationAndRenderUI() {
         authViewModel.checkAuthState()
 
         lifecycleScope.launch {
@@ -122,21 +132,24 @@ class MainActivity : BaseActivity() {
                     if (!uiState.isAuthenticated) {
                         finish()
                         launchActivity<SignInActivity>()
+                    } else {
+                        renderMainContent(uiState.currentUser?.name)
                     }
                 }
         }
+    }
 
+    private fun renderMainContent(userName: String?) {
         setContent {
             val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
             val isPermissionGranted by remember { mainViewModel.isNotificationPermissionGranted }.collectAsStateWithLifecycle()
             val showNotificationPermissionBlockedDialog by remember { mainViewModel.showNotificationPermissionBlockedDialog }.collectAsStateWithLifecycle()
             val notifications by remember { mainViewModel.notificationsFlow }.collectAsStateWithLifecycle()
-            val apps by remember { mainViewModel.appInfoFromFlow }.collectAsStateWithLifecycle(
-                initialValue = emptyList()
-            )
+            val apps by remember { mainViewModel.appInfoFromFlow }.collectAsStateWithLifecycle(initialValue = emptyList())
 
             NotificityTheme(themeMode = themeMode) {
                 MainScreen(
+                    userName = userName,
                     isPermissionGranted = isPermissionGranted,
                     showNotificationPermissionBlockedDialog = showNotificationPermissionBlockedDialog,
                     notifications = notifications,
@@ -182,6 +195,7 @@ class MainActivity : BaseActivity() {
 
 @Composable
 fun MainScreen(
+    userName: String?,
     isPermissionGranted: Boolean,
     showNotificationPermissionBlockedDialog: Boolean,
     notifications: List<NotificationEntity>,
@@ -195,7 +209,7 @@ fun MainScreen(
     Scaffold(
         topBar = {
             NotificityAppBar(
-                title = "Notificity",
+                title = (userName?.let { "Hi, ${userName.toTitleCase()}" } ?:  "Notification"),
                 actions = {
                     Icon(
                         imageVector = Icons.Default.Settings,
