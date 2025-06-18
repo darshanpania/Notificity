@@ -1,5 +1,6 @@
 package com.darshan.notificity.ui.signin
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,6 +37,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -51,17 +55,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.darshan.notificity.R
+import com.darshan.notificity.extensions.getActivity
+import com.darshan.notificity.main.ui.MainActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SignInActivity : ComponentActivity() {
+
+    private val authViewModel: AuthViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,23 +79,43 @@ class SignInActivity : ComponentActivity() {
 
         setContent {
             val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
-
             NotificityTheme(themeMode = themeMode) {
                 SignInScreen(
-                    onGoogleSignIn = { /* TODO: Implement Google Sign In */ },
-                    onSkipSignIn = { /* TODO: Implement Skip Sign In */ },
-                    isLoading = false // TODO: Connect to ViewModel state
+                    viewModel = authViewModel,
+                    onNavigateToMain = { navigateToMain() }
                 )
+            }
+        }
+
+        // Observe authentication state
+        lifecycleScope.launch {
+            authViewModel.uiState.collect { uiState ->
+                if (uiState.isAuthenticated) {
+                    navigateToMain()
+                }
             }
         }
     }
 
+    private fun navigateToMain() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
+
     @Composable
     fun SignInScreen(
-        onGoogleSignIn: () -> Unit,
-        onSkipSignIn: () -> Unit,
-        isLoading: Boolean
+        viewModel: AuthViewModel,
+        onNavigateToMain: () -> Unit
     ) {
+        val uiState by viewModel.uiState.collectAsState()
+        val context = LocalContext.current
+
+        LaunchedEffect(uiState.isAuthenticated) {
+            if (uiState.isAuthenticated) {
+                onNavigateToMain()
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -142,8 +172,11 @@ class SignInActivity : ComponentActivity() {
                         .padding(horizontal = 24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // Google Sign In Button
                     Button(
-                        onClick = onGoogleSignIn,
+                        onClick = {
+                            viewModel.signInWithGoogle(context.getActivity() as SignInActivity)
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
@@ -152,9 +185,8 @@ class SignInActivity : ComponentActivity() {
                         border = BorderStroke(1.dp, Color.Black),
                         interactionSource = remember { MutableInteractionSource() },
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp),
-                        enabled = !isLoading
                     ) {
-                        if (isLoading) {
+                        if (uiState.isLoading) {
                             CircularProgressIndicator(
                                 color = MaterialTheme.colorScheme.primary,
                                 strokeWidth = 2.dp,
@@ -165,7 +197,7 @@ class SignInActivity : ComponentActivity() {
                                 painter = painterResource(id = R.drawable.ic_google),
                                 contentDescription = "Google icon",
                                 modifier = Modifier.size(20.dp),
-                                tint = Color.Unspecified
+                                tint = Color.Unspecified // prevent tinting
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
@@ -180,8 +212,10 @@ class SignInActivity : ComponentActivity() {
 
                     // Skip button
                     TextButton(
-                        onClick = onSkipSignIn,
-                        enabled = !isLoading,
+                        onClick = {
+                            viewModel.signInAnonymously()
+                        },
+                        enabled = !uiState.isLoading,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
