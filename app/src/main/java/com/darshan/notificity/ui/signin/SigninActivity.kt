@@ -1,8 +1,6 @@
 package com.darshan.notificity.ui.signin
 
-import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.core.LinearEasing
@@ -42,8 +40,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import com.darshan.notificity.R
+import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.components.AppTitle
 import com.darshan.notificity.components.HeadlineWithDescription
 import com.darshan.notificity.components.LottieCenteredAnimation
@@ -52,16 +50,19 @@ import com.darshan.notificity.components.SecondaryTextButton
 import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.main.ui.MainActivity
+import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SignInActivity : ComponentActivity() {
+class SignInActivity : BaseActivity() {
 
     private val authViewModel: AuthViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
+
+    override val screenName: String
+        get() = AnalyticsConstants.Screens.SIGNIN
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

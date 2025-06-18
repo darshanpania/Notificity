@@ -35,6 +35,7 @@ object AnalyticsConstants {
     // Names of screens for screen view tracking.
     object Screens {
         const val MAIN = "Main"
+        const val SIGNIN = "Signin"
         const val SETTINGS = "Settings"
         const val NOTIFICATION_LIST = "Notification List"
         const val ABOUT = "About"
