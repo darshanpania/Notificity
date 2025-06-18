@@ -3,7 +3,6 @@ package com.darshan.notificity.ui.signin
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darshan.notificity.auth.AuthType
 import com.darshan.notificity.auth.models.AuthResult
 import com.darshan.notificity.auth.models.AuthUiState
 import com.darshan.notificity.auth.repository.AuthRepository
@@ -11,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,18 +26,37 @@ class AuthViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    init {
-        checkAuthState()
-    }
-
-    private fun checkAuthState() {
+    fun checkAuthState() {
         viewModelScope.launch {
-            if (authRepository.isSignedIn()) {
-                val userData = authRepository.getCurrentUserData()
-                _uiState.value = _uiState.value.copy(
-                    currentUser = userData,
-                    isAuthenticated = true
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                    isAuthChecked = false
                 )
+            }
+
+            try {
+                val isLoggedIn = authRepository.isSignedIn()
+                val userData = authRepository.getCurrentUserData()
+
+                _uiState.update {
+                    it.copy(
+                        currentUser = userData,
+                        isAuthenticated = isLoggedIn,
+                        isAuthChecked = true,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isAuthenticated = false,
+                        isAuthChecked = true,
+                        isLoading = false,
+                        error = e.message
+                    )
+                }
             }
         }
     }
@@ -54,31 +73,36 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun signOut(authType: AuthType) {
+    fun signOut() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.update { it.copy(isLoading = true) }
 
             when (val result = authRepository.signOut()) {
                 is AuthResult.Success -> {
-                    _uiState.value = AuthUiState()
+                    _uiState.update {
+                        AuthUiState().copy(
+                            isAuthChecked = true,
+                            isAuthenticated = false
+                        )
+                    }
                 }
                 is AuthResult.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        error = result.exception.message ?: "Sign out failed"
-                    )
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = result.exception.message ?: "Sign out failed"
+                        )
+                    }
                 }
             }
         }
     }
 
-    fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
-    }
-
     private fun performAuthOperation(operation: suspend () -> AuthResult) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.update {
+                it.copy(isLoading = true, error = null)
+            }
 
             when (val result = operation()) {
                 is AuthResult.Success -> {
@@ -92,13 +116,25 @@ class AuthViewModel @Inject constructor(
     }
 
     private suspend fun handleAuthSuccess() {
-        val userData = authRepository.getCurrentUserData()
-        _uiState.value = _uiState.value.copy(
-            isLoading = false,
-            currentUser = userData,
-            isAuthenticated = true,
-            error = null
-        )
+        try {
+            val userData = authRepository.getCurrentUserData()
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    currentUser = userData,
+                    isAuthenticated = true,
+                    isAuthChecked = true,
+                    error = null
+                )
+            }
+        } catch (e: Exception) {
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    error = "Failed to get user data: ${e.message}"
+                )
+            }
+        }
     }
 
     private fun handleAuthError(errorMessage: String) {
@@ -106,5 +142,9 @@ class AuthViewModel @Inject constructor(
             isLoading = false,
             error = errorMessage
         )
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
     }
 }

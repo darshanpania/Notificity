@@ -50,6 +50,7 @@ import com.darshan.notificity.components.LottieCenteredAnimation
 import com.darshan.notificity.components.PrimaryActionButton
 import com.darshan.notificity.components.SecondaryTextButton
 import com.darshan.notificity.extensions.getActivity
+import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.main.ui.MainActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
@@ -69,25 +70,13 @@ class SignInActivity : ComponentActivity() {
             val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
             NotificityTheme(themeMode = themeMode) {
                 SignInScreen(
-                    viewModel = authViewModel,
-                    onNavigateToMain = { navigateToMain() }
+                    viewModel = authViewModel, onNavigateToMain = {
+                        launchActivity<MainActivity>()
+                        finish()
+                    }
                 )
             }
         }
-
-        // Observe authentication state
-        lifecycleScope.launch {
-            authViewModel.uiState.collect { uiState ->
-                if (uiState.isAuthenticated) {
-                    navigateToMain()
-                }
-            }
-        }
-    }
-
-    private fun navigateToMain() {
-        startActivity(Intent(this, MainActivity::class.java))
-        finish()
     }
 
     @Composable
@@ -118,7 +107,8 @@ class SignInActivity : ComponentActivity() {
                     .padding(horizontal = 24.dp, vertical = 16.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
-                val infiniteTransition = rememberInfiniteTransition(label = "Notification Animation")
+                val infiniteTransition =
+                    rememberInfiniteTransition(label = "Notification Animation")
                 val rotation by infiniteTransition.animateFloat(
                     initialValue = -15f,
                     targetValue = 15f,

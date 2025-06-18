@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.darshan.notificity.AppInfo
 import com.darshan.notificity.NotificationEntity
 import com.darshan.notificity.NotificationsActivity
@@ -71,14 +72,20 @@ import com.darshan.notificity.main.viewmodel.MainViewModel
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
+import com.darshan.notificity.ui.signin.AuthViewModel
+import com.darshan.notificity.ui.signin.SignInActivity
 import com.darshan.notificity.ui.theme.NotificityTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
 
     private val mainViewModel: MainViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -104,6 +111,20 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleAppLaunchAnalytics(savedInstanceState)
+
+        authViewModel.checkAuthState()
+
+        lifecycleScope.launch {
+            authViewModel.uiState
+                .filter { it.isAuthChecked }
+                .first()
+                .let { uiState ->
+                    if (!uiState.isAuthenticated) {
+                        finish()
+                        launchActivity<SignInActivity>()
+                    }
+                }
+        }
 
         setContent {
             val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
