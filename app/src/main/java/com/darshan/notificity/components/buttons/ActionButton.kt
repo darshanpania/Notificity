@@ -1,4 +1,4 @@
-package com.darshan.notificity.components
+package com.darshan.notificity.components.buttons
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource

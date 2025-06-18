@@ -45,8 +45,8 @@ import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.components.AppTitle
 import com.darshan.notificity.components.HeadlineWithDescription
 import com.darshan.notificity.components.LottieCenteredAnimation
-import com.darshan.notificity.components.PrimaryActionButton
-import com.darshan.notificity.components.SecondaryTextButton
+import com.darshan.notificity.components.buttons.PrimaryActionButton
+import com.darshan.notificity.components.buttons.SecondaryTextButton
 import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.main.ui.MainActivity

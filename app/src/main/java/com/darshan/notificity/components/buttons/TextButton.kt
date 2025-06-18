@@ -1,4 +1,4 @@
-package com.darshan.notificity.components
+package com.darshan.notificity.components.buttons
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
