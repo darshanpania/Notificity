@@ -39,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,7 +49,6 @@ import com.darshan.notificity.components.HeadlineWithDescription
 import com.darshan.notificity.components.LottieCenteredAnimation
 import com.darshan.notificity.components.buttons.PrimaryActionButton
 import com.darshan.notificity.components.buttons.SecondaryTextButton
-import com.darshan.notificity.extensions.getActivity
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.main.ui.MainActivity
 import com.darshan.notificity.ui.BaseActivity
@@ -89,7 +87,6 @@ class SignInActivity : BaseActivity() {
         onNavigateToMain: () -> Unit
     ) {
         val uiState by viewModel.uiState.collectAsState()
-        val context = LocalContext.current
         val snackbarHostState = remember { SnackbarHostState() }
 
         LaunchedEffect(uiState.isAuthenticated) {
@@ -179,7 +176,7 @@ class SignInActivity : BaseActivity() {
                             iconPainter = painterResource(id = R.drawable.ic_google),
                             showLoader = uiState.isLoading,
                             onClick = {
-                                viewModel.signInWithGoogle(context.getActivity() as SignInActivity)
+                                viewModel.signInWithGoogle(this@SignInActivity)
                             }
                         )
 
