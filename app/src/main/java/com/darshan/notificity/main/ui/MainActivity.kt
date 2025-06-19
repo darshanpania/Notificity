@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -134,6 +135,11 @@ class MainActivity : BaseActivity() {
                         launchActivity<SignInActivity>()
                     } else {
                         renderMainContent(uiState.currentUser?.name)
+                    }
+
+                    uiState.error?.let { error ->
+                        Toast.makeText(this@MainActivity, error, Toast.LENGTH_LONG).show()
+                        authViewModel.clearError()
                     }
                 }
         }
