@@ -81,9 +81,12 @@ class AuthViewModel @Inject constructor(
             when (val result = authRepository.signOut(context = context)) {
                 is AuthResult.Success -> {
                     _uiState.update {
-                        AuthUiState().copy(
+                        it.copy(
+                            currentUser = null,
                             isAuthChecked = true,
-                            isAuthenticated = false
+                            isAuthenticated = false,
+                            isLoading = false,
+                            error = null
                         )
                     }
                 }
