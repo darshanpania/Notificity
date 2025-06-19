@@ -7,8 +7,8 @@ import com.darshan.notificity.auth.providers.base.BaseAuthProvider
 import com.darshan.notificity.auth.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import jakarta.inject.Singleton
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Manages auth-related operations like saving user data, fetching current user info and
