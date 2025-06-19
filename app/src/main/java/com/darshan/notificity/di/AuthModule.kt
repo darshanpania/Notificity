@@ -1,6 +1,5 @@
 package com.darshan.notificity.di
 
-import android.content.Context
 import com.darshan.notificity.auth.AuthType
 import com.darshan.notificity.auth.manager.AuthManager
 import com.darshan.notificity.auth.providers.base.BaseAuthProvider
@@ -16,7 +15,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Singleton
 
 @Module
@@ -33,11 +31,9 @@ abstract class AuthModule {
         @Provides
         @Singleton
         fun provideFirebaseGoogleAuthProvider(
-            @ApplicationContext application: Context,
             firebaseAuth: FirebaseAuth
         ): FirebaseGoogleAuthProvider {
             return FirebaseGoogleAuthProvider(
-                activityContext = application,
                 firebaseAuth = firebaseAuth
             )
         }

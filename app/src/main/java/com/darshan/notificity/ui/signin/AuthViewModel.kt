@@ -1,5 +1,6 @@
 package com.darshan.notificity.ui.signin
 
+import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -73,11 +74,11 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun signOut() {
+    fun signOut(context: Context) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            when (val result = authRepository.signOut()) {
+            when (val result = authRepository.signOut(context = context)) {
                 is AuthResult.Success -> {
                     _uiState.update {
                         AuthUiState().copy(

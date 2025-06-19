@@ -1,5 +1,6 @@
 package com.darshan.notificity.auth.providers.base
 
+import android.content.Context
 import com.darshan.notificity.auth.models.User
 import com.darshan.notificity.auth.models.AuthResult
 import com.google.firebase.auth.FirebaseUser
@@ -12,9 +13,10 @@ interface BaseAuthProvider {
 
     /**
      * Signs out the current authenticated user.
+     * @param context the context
      * @return AuthResult indicating success or failure of the sign-out operation
      */
-    suspend fun signOut(): AuthResult
+    suspend fun signOut(context: Context): AuthResult
 
     /**
      * Checks if a user is currently signed in with this provider.

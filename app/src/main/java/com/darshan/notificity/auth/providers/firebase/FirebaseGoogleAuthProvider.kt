@@ -22,7 +22,6 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Co
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -36,12 +35,10 @@ import javax.inject.Singleton
  */
 @Singleton
 class FirebaseGoogleAuthProvider @Inject constructor(
-    @ApplicationContext private val activityContext: Context,
     private val firebaseAuth: FirebaseAuth
 ) : GoogleOAuthProvider {
 
     private val TAG = "FirebaseGoogleAuthProvider"
-    val credentialManager = CredentialManager.create(activityContext)
 
     /**
      * Initiates Google OAuth sign-in flow using Credential Manager.
@@ -67,6 +64,8 @@ class FirebaseGoogleAuthProvider @Inject constructor(
         context: ComponentActivity
     ): GetCredentialResponse {
         try {
+            val credentialManager = CredentialManager.create(context)
+
             val googleIdOption = GetGoogleIdOption.Builder()
                 .setServerClientId(context.getString(R.string.web_client_id)) // Server's client ID
                 .setFilterByAuthorizedAccounts(false) // Only show accounts previously used to sign in.
@@ -136,10 +135,11 @@ class FirebaseGoogleAuthProvider @Inject constructor(
      * Signs out the current Google-authenticated user from Firebase and clears credential state.
      * @return AuthResult indicating success or failure of sign-out operation
      */
-    override suspend fun signOut(): AuthResult = withContext(Dispatchers.IO) {
+    override suspend fun signOut(context: Context): AuthResult = withContext(Dispatchers.IO) {
         try {
             firebaseAuth.signOut()
             try {
+                val credentialManager = CredentialManager.create(context)
                 credentialManager.clearCredentialState(ClearCredentialStateRequest())
             } catch (e: Exception) {
                 // no-op

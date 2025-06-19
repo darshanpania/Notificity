@@ -1,5 +1,6 @@
 package com.darshan.notificity.auth.providers.firebase
 
+import android.content.Context
 import com.darshan.notificity.auth.AuthType
 import com.darshan.notificity.auth.models.AuthResult
 import com.darshan.notificity.auth.models.User
@@ -38,7 +39,7 @@ open class FirebaseAnonymousAuthProvider @Inject constructor(
      * Signs out the current anonymous user from Firebase.
      * @return AuthResult indicating success or failure of sign-out operation
      */
-    override suspend fun signOut(): AuthResult {
+    override suspend fun signOut(context: Context): AuthResult {
         return try {
             firebaseAuth.signOut()
             AuthResult.Success

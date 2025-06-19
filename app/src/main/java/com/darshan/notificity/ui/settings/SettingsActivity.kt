@@ -87,7 +87,7 @@ class SettingsActivity : BaseActivity() {
                     onBack = { finish() },
                     themeChange = settingsViewModel::updateTheme,
                     onLogout = {
-                        authViewModel.signOut()
+                        authViewModel.signOut(this)
 
                         launchActivity<SignInActivity>()
                         finish()

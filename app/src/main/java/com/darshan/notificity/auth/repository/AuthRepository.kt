@@ -1,5 +1,6 @@
 package com.darshan.notificity.auth.repository
 
+import android.content.Context
 import androidx.activity.ComponentActivity
 import com.darshan.notificity.auth.AuthType
 import com.darshan.notificity.auth.manager.AuthManager
@@ -54,9 +55,9 @@ class AuthRepository @Inject constructor(
      * Signs out the current authenticated user.
      * @return AuthResult indicating success or failure of sign-out operation
      */
-    suspend fun signOut(): AuthResult {
+    suspend fun signOut(context: Context): AuthResult {
         val provider = authManager.getCurrentAuthProvider()
-        return provider?.signOut() ?: AuthResult.Error(Exception("No authenticated user found"))
+        return provider?.signOut(context) ?: AuthResult.Error(Exception("No authenticated user found"))
     }
 
     /**
