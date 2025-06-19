@@ -215,7 +215,7 @@ fun MainScreen(
     Scaffold(
         topBar = {
             NotificityAppBar(
-                title = (userName?.let { "Hi, ${userName.toTitleCase()}" } ?:  "Notification"),
+                title = (userName?.let { "Hi, ${userName.toTitleCase()}" } ?:  "Notificity"),
                 actions = {
                     Icon(
                         imageVector = Icons.Default.Settings,
