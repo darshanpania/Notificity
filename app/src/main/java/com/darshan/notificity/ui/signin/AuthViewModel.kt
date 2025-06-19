@@ -139,10 +139,10 @@ class AuthViewModel @Inject constructor(
     }
 
     private fun handleAuthError(errorMessage: String) {
-        _uiState.value = _uiState.value.copy(
+        _uiState.update { it.copy(
             isLoading = false,
             error = errorMessage
-        )
+        ) }
     }
 
     fun clearError() {
