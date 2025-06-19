@@ -83,7 +83,7 @@ class AuthViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             currentUser = null,
-                            authCheckCompleted = true,
+                            authCheckCompleted = false,
                             isAuthenticated = false,
                             isLoading = false,
                             error = null
@@ -135,6 +135,8 @@ class AuthViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     isLoading = false,
+                    isAuthenticated = true,
+                    authCheckCompleted = true,
                     error = "Failed to get user data: ${e.message}"
                 )
             }
