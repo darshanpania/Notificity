@@ -127,7 +127,7 @@ class MainActivity : BaseActivity() {
 
         lifecycleScope.launch {
             authViewModel.uiState
-                .filter { it.isAuthChecked }
+                .filter { it.authCheckCompleted }
                 .first()
                 .let { uiState ->
                     if (!uiState.isAuthenticated) {

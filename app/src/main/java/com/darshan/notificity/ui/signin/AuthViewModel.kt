@@ -32,7 +32,7 @@ class AuthViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     isLoading = true,
-                    isAuthChecked = false
+                    authCheckCompleted = false
                 )
             }
 
@@ -44,7 +44,7 @@ class AuthViewModel @Inject constructor(
                     it.copy(
                         currentUser = userData,
                         isAuthenticated = isLoggedIn,
-                        isAuthChecked = true,
+                        authCheckCompleted = true,
                         isLoading = false,
                         error = null
                     )
@@ -53,7 +53,7 @@ class AuthViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isAuthenticated = false,
-                        isAuthChecked = true,
+                        authCheckCompleted = true,
                         isLoading = false,
                         error = e.message
                     )
@@ -83,7 +83,7 @@ class AuthViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             currentUser = null,
-                            isAuthChecked = true,
+                            authCheckCompleted = true,
                             isAuthenticated = false,
                             isLoading = false,
                             error = null
@@ -127,7 +127,7 @@ class AuthViewModel @Inject constructor(
                     isLoading = false,
                     currentUser = userData,
                     isAuthenticated = true,
-                    isAuthChecked = true,
+                    authCheckCompleted = true,
                     error = null
                 )
             }
@@ -144,7 +144,8 @@ class AuthViewModel @Inject constructor(
     private fun handleAuthError(errorMessage: String) {
         _uiState.update { it.copy(
             isLoading = false,
-            error = errorMessage
+            error = errorMessage,
+            authCheckCompleted = true
         ) }
     }
 

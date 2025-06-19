@@ -1,18 +1,24 @@
 package com.darshan.notificity.auth.models
 
 /**
- * Holds the UI state related to authentication.
+ * UI state holder for authentication-related operations.
  *
- * @property isLoading Whether an authentication operation is in progress.
- * @property currentUser The currently authenticated user, if any.
- * @property error Error message from the last failed operation, if any.
- * @property isAuthenticated Indicates if the user is currently authenticated.
+ * This class encapsulates the current state of authentication, including whether an
+ * operation is in progress, whether the user is authenticated, any errors encountered,
+ * and the current authenticated user (if available).
+ *
+ * @property isLoading Indicates if an authentication operation (sign-in, sign-out, etc.) is in progress.
+ * @property currentUser The currently authenticated user, or null if no user is signed in.
+ * @property error An error message from the last failed operation, or null if there was no error.
+ * @property authCheckCompleted Whether the initial authentication check has been completed.
+ *                              Useful to ensure that UI waits until the state is determined.
+ * @property isAuthenticated True if the user is currently signed in, false otherwise.
  */
 data class AuthUiState(
     val isLoading: Boolean = false,
     val currentUser: User? = null,
     val error: String? = null,
-    val isAuthChecked: Boolean = false,
+    val authCheckCompleted: Boolean = false,
     val isAuthenticated: Boolean = false
 )
 
