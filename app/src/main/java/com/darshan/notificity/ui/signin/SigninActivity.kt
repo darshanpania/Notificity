@@ -26,6 +26,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -87,6 +90,7 @@ class SignInActivity : BaseActivity() {
     ) {
         val uiState by viewModel.uiState.collectAsState()
         val context = LocalContext.current
+        val snackbarHostState = remember { SnackbarHostState() }
 
         LaunchedEffect(uiState.isAuthenticated) {
             if (uiState.isAuthenticated) {
@@ -94,95 +98,106 @@ class SignInActivity : BaseActivity() {
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .statusBarsPadding(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                val infiniteTransition =
-                    rememberInfiniteTransition(label = "Notification Animation")
-                val rotation by infiniteTransition.animateFloat(
-                    initialValue = -15f,
-                    targetValue = 15f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 400, easing = LinearEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "Notification Rotation"
-                )
-
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "App Title",
-                    modifier = Modifier
-                        .size(32.dp)
-                        .graphicsLayer {
-                            rotationZ = rotation
-                            transformOrigin = TransformOrigin(0.5f, 0f)
-                        },
-                    tint = Color(0xFFEBAB00),
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-                AppTitle()
+        LaunchedEffect(uiState.error) {
+            uiState.error?.let { error ->
+                snackbarHostState.showSnackbar(message = error)
+                viewModel.clearError()
             }
+        }
 
-            LottieCenteredAnimation(animationRes = R.raw.lottie_signin_page)
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            HeadlineWithDescription(
-                title = "Never Miss A Notification",
-                description = "Organize, categorize and track all your notifications in one place."
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Box(
+        Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        ) { padding ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .statusBarsPadding(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                    horizontalArrangement = Arrangement.Start
                 ) {
-                    // Google Sign In Button
-                    PrimaryActionButton(
-                        text = "Continue with Google",
-                        iconPainter = painterResource(id = R.drawable.ic_google),
-                        showLoader = uiState.isLoading,
-                        onClick = {
-                            viewModel.signInWithGoogle(context.getActivity() as SignInActivity)
-                        }
+                    val infiniteTransition =
+                        rememberInfiniteTransition(label = "Notification Animation")
+                    val rotation by infiniteTransition.animateFloat(
+                        initialValue = -15f,
+                        targetValue = 15f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(durationMillis = 400, easing = LinearEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "Notification Rotation"
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    SecondaryTextButton(
-                        text = "Skip for now",
-                        enabled = !uiState.isLoading,
-                        onClick = {
-                            viewModel.signInAnonymously()
-                        },
-                        modifier = Modifier.fillMaxWidth()
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "App Title",
+                        modifier = Modifier
+                            .size(32.dp)
+                            .graphicsLayer {
+                                rotationZ = rotation
+                                transformOrigin = TransformOrigin(0.5f, 0f)
+                            },
+                        tint = Color(0xFFEBAB00),
                     )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+                    AppTitle()
                 }
-            }
 
-            Spacer(modifier = Modifier.height(50.dp))
+                LottieCenteredAnimation(animationRes = R.raw.lottie_signin_page)
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                HeadlineWithDescription(
+                    title = "Never Miss A Notification",
+                    description = "Organize, categorize and track all your notifications in one place."
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Google Sign In Button
+                        PrimaryActionButton(
+                            text = "Continue with Google",
+                            iconPainter = painterResource(id = R.drawable.ic_google),
+                            showLoader = uiState.isLoading,
+                            onClick = {
+                                viewModel.signInWithGoogle(context.getActivity() as SignInActivity)
+                            }
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        SecondaryTextButton(
+                            text = "Skip for now",
+                            enabled = !uiState.isLoading,
+                            onClick = {
+                                viewModel.signInAnonymously()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(50.dp))
+            }
         }
     }
 }
