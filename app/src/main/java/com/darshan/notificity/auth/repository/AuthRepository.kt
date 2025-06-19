@@ -9,6 +9,7 @@ import com.darshan.notificity.auth.models.User
 import com.darshan.notificity.auth.providers.base.AnonymousAuthProvider
 import com.darshan.notificity.auth.providers.base.BaseAuthProvider
 import com.darshan.notificity.auth.providers.base.GoogleOAuthProvider
+import com.darshan.notificity.extensions.getProviderOrError
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,7 +31,7 @@ class AuthRepository @Inject constructor(
     suspend fun signInWithGoogle(
         activityContext: ComponentActivity
     ): AuthResult {
-        var googleAuthProvider = providers[AuthType.GOOGLE] as GoogleOAuthProvider
+        val googleAuthProvider: GoogleOAuthProvider = providers.getProviderOrError(AuthType.GOOGLE)
 
         return when (val result = googleAuthProvider.signInWithGoogle(activityContext)) {
             is AuthResult.Success -> authManager.handleAuthSuccess(googleAuthProvider)
@@ -43,7 +44,10 @@ class AuthRepository @Inject constructor(
      * @return AuthResult containing success or error information
      */
     suspend fun signInAnonymously(): AuthResult {
-        var anonymousAuthProvider = providers[AuthType.ANONYMOUS] as AnonymousAuthProvider
+        val anonymousAuthProvider: AnonymousAuthProvider = providers.getProviderOrError(
+            AuthType.ANONYMOUS,
+            "Guest Sign-in not available at this time, try relaunching the app"
+        )
 
         return when (val result = anonymousAuthProvider.signInAnonymously()) {
             is AuthResult.Success -> authManager.handleAuthSuccess(anonymousAuthProvider)
