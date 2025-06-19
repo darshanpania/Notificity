@@ -141,7 +141,7 @@ class FirebaseGoogleAuthProvider @Inject constructor(
             try {
                 val credentialManager = CredentialManager.create(context)
                 credentialManager.clearCredentialState(ClearCredentialStateRequest())
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // no-op
             }
             AuthResult.Success
