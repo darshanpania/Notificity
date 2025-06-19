@@ -7,7 +7,7 @@ import com.google.firebase.firestore.ServerTimestamp
 
 @Keep
 data class User(
-    val id: String = "",
+    val id: String,
     val email: String? = null,
     val name: String? = null,
     val profilePicUrl: String? = null,
