@@ -130,11 +130,11 @@ class MainActivity : BaseActivity() {
                 .filter { it.authCheckCompleted }
                 .first()
                 .let { uiState ->
-                    if (!uiState.isAuthenticated) {
+                    if (uiState.currentUser?.id.isNullOrBlank() || !uiState.isAuthenticated) {
                         finish()
                         launchActivity<SignInActivity>()
                     } else {
-                        renderMainContent(uiState.currentUser?.name)
+                        renderMainContent(uiState.currentUser.name)
                     }
 
                     uiState.error?.let { error ->
