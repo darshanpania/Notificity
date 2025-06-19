@@ -31,7 +31,6 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    isLoading = true,
                     authCheckCompleted = false
                 )
             }
@@ -45,7 +44,6 @@ class AuthViewModel @Inject constructor(
                         currentUser = userData,
                         isAuthenticated = isLoggedIn,
                         authCheckCompleted = true,
-                        isLoading = false,
                         error = null
                     )
                 }
@@ -54,7 +52,6 @@ class AuthViewModel @Inject constructor(
                     it.copy(
                         isAuthenticated = false,
                         authCheckCompleted = true,
-                        isLoading = false,
                         error = e.message
                     )
                 }
@@ -63,21 +60,49 @@ class AuthViewModel @Inject constructor(
     }
 
     fun signInWithGoogle(activityContext: ComponentActivity) {
-        performAuthOperation {
-            authRepository.signInWithGoogle(activityContext)
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(isGoogleLoading = true, error = null)
+            }
+
+            when (val result = authRepository.signInWithGoogle(activityContext)) {
+                is AuthResult.Success -> {
+                    handleAuthSuccess()
+                }
+                is AuthResult.Error -> {
+                    handleAuthError(result.exception.message ?: "Google sign-in failed")
+                }
+            }
+
+            _uiState.update {
+                it.copy(isGoogleLoading = false)
+            }
         }
     }
 
     fun signInAnonymously() {
-        performAuthOperation {
-            authRepository.signInAnonymously()
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(isAnonymousLoading = true, error = null)
+            }
+
+            when (val result = authRepository.signInAnonymously()) {
+                is AuthResult.Success -> {
+                    handleAuthSuccess()
+                }
+                is AuthResult.Error -> {
+                    handleAuthError(result.exception.message ?: "Anonymous sign-in failed")
+                }
+            }
+
+            _uiState.update {
+                it.copy(isAnonymousLoading = false)
+            }
         }
     }
 
     fun signOut(context: Context) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-
             when (val result = authRepository.signOut(context = context)) {
                 is AuthResult.Success -> {
                     _uiState.update {
@@ -85,7 +110,6 @@ class AuthViewModel @Inject constructor(
                             currentUser = null,
                             authCheckCompleted = false,
                             isAuthenticated = false,
-                            isLoading = false,
                             error = null
                         )
                     }
@@ -93,27 +117,9 @@ class AuthViewModel @Inject constructor(
                 is AuthResult.Error -> {
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
                             error = result.exception.message ?: "Sign out failed"
                         )
                     }
-                }
-            }
-        }
-    }
-
-    private fun performAuthOperation(operation: suspend () -> AuthResult) {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(isLoading = true, error = null)
-            }
-
-            when (val result = operation()) {
-                is AuthResult.Success -> {
-                    handleAuthSuccess()
-                }
-                is AuthResult.Error -> {
-                    handleAuthError(result.exception.message ?: "Unknown error occurred")
                 }
             }
         }
@@ -124,7 +130,6 @@ class AuthViewModel @Inject constructor(
             val userData = authRepository.getCurrentUserData()
             _uiState.update {
                 it.copy(
-                    isLoading = false,
                     currentUser = userData,
                     isAuthenticated = true,
                     authCheckCompleted = true,
@@ -134,7 +139,6 @@ class AuthViewModel @Inject constructor(
         } catch (e: Exception) {
             _uiState.update {
                 it.copy(
-                    isLoading = false,
                     isAuthenticated = true,
                     authCheckCompleted = true,
                     error = "Failed to get user data: ${e.message}"
@@ -145,7 +149,6 @@ class AuthViewModel @Inject constructor(
 
     private fun handleAuthError(errorMessage: String) {
         _uiState.update { it.copy(
-            isLoading = false,
             error = errorMessage,
             authCheckCompleted = true
         ) }

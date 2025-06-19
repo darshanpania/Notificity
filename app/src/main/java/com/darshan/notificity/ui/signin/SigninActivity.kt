@@ -22,13 +22,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -48,7 +53,6 @@ import com.darshan.notificity.components.AppTitle
 import com.darshan.notificity.components.HeadlineWithDescription
 import com.darshan.notificity.components.LottieCenteredAnimation
 import com.darshan.notificity.components.buttons.PrimaryActionButton
-import com.darshan.notificity.components.buttons.SecondaryTextButton
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.main.ui.MainActivity
 import com.darshan.notificity.ui.BaseActivity
@@ -69,10 +73,12 @@ class SignInActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+
             val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
             NotificityTheme(themeMode = themeMode) {
                 SignInScreen(
-                    viewModel = authViewModel, onNavigateToMain = {
+                    viewModel = authViewModel,
+                    onNavigateToMain = {
                         launchActivity<MainActivity>()
                         finish()
                     }
@@ -174,7 +180,7 @@ class SignInActivity : BaseActivity() {
                         PrimaryActionButton(
                             text = "Continue with Google",
                             iconPainter = painterResource(id = R.drawable.ic_google),
-                            showLoader = uiState.isLoading,
+                            enabled = !uiState.isGoogleLoading && !uiState.isAnonymousLoading,
                             onClick = {
                                 viewModel.signInWithGoogle(this@SignInActivity)
                             }
@@ -182,14 +188,23 @@ class SignInActivity : BaseActivity() {
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        SecondaryTextButton(
-                            text = "Skip for now",
-                            enabled = !uiState.isLoading,
-                            onClick = {
-                                viewModel.signInAnonymously()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        TextButton (
+                            onClick = { viewModel.signInAnonymously() },
+                            enabled = !uiState.isGoogleLoading && !uiState.isAnonymousLoading,
+                            modifier = Modifier
+                                .height(48.dp)
+                                .clip(RoundedCornerShape(4.dp)),
+                            shape = RoundedCornerShape(4.dp)
+                        ) {
+                            if (uiState.isAnonymousLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            } else {
+                                Text("Skip for now")
+                            }
+                        }
                     }
                 }
 

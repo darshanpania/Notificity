@@ -29,6 +29,7 @@ fun PrimaryActionButton(
     iconPainter: Painter? = null,
     showLoader: Boolean = false,
     onClick: () -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
     containerColor: Color = Color.White,
     contentColor: Color = Color.Black,
@@ -41,6 +42,7 @@ fun PrimaryActionButton(
             .fillMaxWidth()
             .height(56.dp),
         shape = shape,
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(containerColor = containerColor),
         border = BorderStroke(1.dp, Color.Black),
         interactionSource = remember { MutableInteractionSource() },
