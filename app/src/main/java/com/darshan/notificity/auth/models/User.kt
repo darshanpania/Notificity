@@ -2,6 +2,8 @@ package com.darshan.notificity.auth.models
 
 import androidx.annotation.Keep
 import com.darshan.notificity.auth.AuthType
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.ServerTimestamp
 
 @Keep
 data class User(
@@ -10,6 +12,8 @@ data class User(
     val name: String? = null,
     val profilePicUrl: String? = null,
     val authType: AuthType = AuthType.ANONYMOUS,
-    val createdAt: Long = System.currentTimeMillis(),
-    val lastLoginAt: Long = System.currentTimeMillis()
+    @ServerTimestamp
+    val createdAt: Timestamp? = null,
+    @ServerTimestamp
+    val lastLoginAt: Timestamp? = null
 )

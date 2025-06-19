@@ -3,6 +3,7 @@ package com.darshan.notificity.auth.repository
 import com.darshan.notificity.auth.models.User
 import com.darshan.notificity.constants.FirestoreConstants
 import com.darshan.notificity.constants.FirestoreConstants.FIELD_LAST_LOGIN
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -54,7 +55,7 @@ class FirestoreUserRepository @Inject constructor(
      */
     override suspend fun updateLastLogin(userId: String): Result<Unit> {
         return try {
-            usersCollection.document(userId).update(FIELD_LAST_LOGIN, System.currentTimeMillis())
+            usersCollection.document(userId).update(FIELD_LAST_LOGIN, FieldValue.serverTimestamp())
                 .await()
             Result.success(Unit)
         } catch (e: Exception) {
