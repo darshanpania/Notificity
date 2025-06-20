@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.google.firebase.firestore.toObject
 
 /**
  * Firestore implementation of [UserRepository].
@@ -30,7 +31,7 @@ class FirestoreUserRepository @Inject constructor(
      */
     override suspend fun saveUser(user: User): Result<Unit> {
         return try {
-            usersCollection.document(user.id).set(user).await()
+            usersCollection.document(user.id!!).set(user).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -43,7 +44,7 @@ class FirestoreUserRepository @Inject constructor(
     override suspend fun getUser(userId: String): Result<User?> {
         return try {
             val document = usersCollection.document(userId).get().await()
-            val user = document.toObject(User::class.java)
+            val user = document.toObject<User>()
             Result.success(user)
         } catch (e: Exception) {
             Result.failure(e)
