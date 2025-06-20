@@ -77,6 +77,13 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.messaging)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore)
+
+    //Google Identity & Credentials
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.auth)
+    implementation(libs.google.id)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

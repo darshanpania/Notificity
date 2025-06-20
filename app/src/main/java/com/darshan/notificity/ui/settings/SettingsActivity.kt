@@ -3,6 +3,7 @@ package com.darshan.notificity.ui.settings
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,15 +49,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.darshan.notificity.AboutActivity
 import com.darshan.notificity.CardColor
 import com.darshan.notificity.R
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.NotificityAppBar
+import com.darshan.notificity.components.dialogs.ConfirmationDialog
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.recommendApp
 import com.darshan.notificity.ui.BaseActivity
-import com.darshan.notificity.AboutActivity
+import com.darshan.notificity.ui.signin.AuthViewModel
+import com.darshan.notificity.ui.signin.SignInActivity
 import com.darshan.notificity.ui.theme.LocalIsDarkTheme
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.ui.theme.ThemeMode
@@ -64,6 +70,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class SettingsActivity : BaseActivity() {
 
     private val settingsViewModel: SettingsViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
 
     override val screenName: String
         get() = AnalyticsConstants.Screens.SETTINGS
@@ -78,7 +85,13 @@ class SettingsActivity : BaseActivity() {
                 SettingsScreen(
                     currentTheme = themeMode,
                     onBack = { finish() },
-                    themeChange = settingsViewModel::updateTheme
+                    themeChange = settingsViewModel::updateTheme,
+                    onLogout = {
+                        authViewModel.signOut(this)
+
+                        launchActivity<SignInActivity>()
+                        finish()
+                    }
                 )
             }
         }
@@ -91,10 +104,12 @@ fun SettingsScreen(
     currentTheme: ThemeMode,
     themeChange: (ThemeMode) -> Unit,
     onBack: () -> Unit,
+    onLogout: () -> Unit = {}
 ) {
 
     val sheetState = rememberModalBottomSheetState()
     val showSheet = remember { mutableStateOf(false) }
+    val showLogoutDialog = remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     Scaffold(
@@ -133,6 +148,12 @@ fun SettingsScreen(
 
                     AnalyticsLogger.onRecommendAppClicked()
                 }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            LogoutSection(
+                onLogoutClick = { showLogoutDialog.value = true }
             )
         }
 
@@ -181,6 +202,19 @@ fun SettingsScreen(
                         })
                 }
             }
+        }
+
+        if (showLogoutDialog.value) {
+            ConfirmationDialog(
+                message = "Are you sure you want to logout?",
+                confirmText = "Logout",
+                isDestructive = true,
+                onConfirm = {
+                    showLogoutDialog.value = false
+                    onLogout()
+                },
+                onDismiss = { showLogoutDialog.value = false }
+            )
         }
     }
 }
@@ -269,6 +303,71 @@ fun SettingsCard(
                 painterResource(id = R.drawable.iv_next),
                 modifier = Modifier.Companion.size(16.dp),
                 contentDescription = "Navigate"
+            )
+        }
+    }
+}
+
+@Composable
+fun LogoutSection(
+    onLogoutClick: () -> Unit
+) {
+    Column {
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LogoutCard(onClick = onLogoutClick)
+    }
+}
+
+@Composable
+fun LogoutCard(
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(
+
+        ),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(18.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_logout),
+                    modifier = Modifier.size(32.dp),
+                    contentDescription = "Logout",
+                    tint = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.width(24.dp))
+                Text(
+                    text = "Logout",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                )
+            }
+            Icon(
+                painterResource(id = R.drawable.iv_next),
+                modifier = Modifier.size(16.dp),
+                contentDescription = "Navigate",
+                tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
             )
         }
     }

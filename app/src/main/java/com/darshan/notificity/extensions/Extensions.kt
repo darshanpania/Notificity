@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import com.darshan.notificity.auth.AuthType
 import com.darshan.notificity.enums.NotificationPermissionStatus
 
 /**
@@ -82,4 +83,14 @@ fun Context.getNotificationPermissionStatus(): NotificationPermissionStatus {
         val notificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled()
         if (notificationsEnabled) NotificationPermissionStatus.GRANTED else NotificationPermissionStatus.DENIED
     }
+}
+
+fun String.toTitleCase(): String =
+    lowercase().split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercaseChar() } }
+
+inline fun <reified T> Map<AuthType, Any>.getProviderOrError(
+    type: AuthType,
+    errorMessage: String = "$type provider is not available or of incorrect type"
+): T {
+    return this[type] as? T ?: throw IllegalStateException(errorMessage)
 }
