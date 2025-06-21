@@ -48,13 +48,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.darshan.notificity.R
-import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.components.AppTitle
 import com.darshan.notificity.components.HeadlineWithDescription
 import com.darshan.notificity.components.LottieCenteredAnimation
 import com.darshan.notificity.components.buttons.PrimaryActionButton
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.main.ui.MainActivity
+import com.darshan.notificity.analytics.enums.Screen
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
@@ -66,8 +66,8 @@ class SignInActivity : BaseActivity() {
     private val authViewModel: AuthViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
 
-    override val screenName: String
-        get() = AnalyticsConstants.Screens.SIGNIN
+    override val screen: Screen
+        get() = Screen.SIGNIN
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,6 +103,7 @@ class SignInActivity : BaseActivity() {
 
         LaunchedEffect(uiState.error) {
             uiState.error?.let { error ->
+                analyticsManager.app.onErrorOccurred(screen, error)
                 snackbarHostState.showSnackbar(message = error)
                 viewModel.clearError()
             }

@@ -52,12 +52,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.darshan.notificity.AboutActivity
 import com.darshan.notificity.CardColor
 import com.darshan.notificity.R
-import com.darshan.notificity.analytics.AnalyticsConstants
-import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.components.dialogs.ConfirmationDialog
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.recommendApp
+import com.darshan.notificity.analytics.enums.Screen
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.signin.AuthViewModel
 import com.darshan.notificity.ui.signin.SignInActivity
@@ -72,8 +71,8 @@ class SettingsActivity : BaseActivity() {
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
 
-    override val screenName: String
-        get() = AnalyticsConstants.Screens.SETTINGS
+    override val screen: Screen
+        get() = Screen.SETTINGS
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +90,9 @@ class SettingsActivity : BaseActivity() {
 
                         launchActivity<SignInActivity>()
                         finish()
+                    },
+                    onRecommendAppClicked = {
+                        analyticsManager.app.onRecommendAppClicked()
                     }
                 )
             }
@@ -104,7 +106,8 @@ fun SettingsScreen(
     currentTheme: ThemeMode,
     themeChange: (ThemeMode) -> Unit,
     onBack: () -> Unit,
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onRecommendAppClicked: () -> Unit
 ) {
 
     val sheetState = rememberModalBottomSheetState()
@@ -144,9 +147,8 @@ fun SettingsScreen(
                 icon = rememberVectorPainter(image = Icons.Outlined.Share),
                 text = "Recommend this app",
                 onClick = {
+                    onRecommendAppClicked()
                     context.recommendApp()
-
-                    AnalyticsLogger.onRecommendAppClicked()
                 }
             )
 
@@ -376,5 +378,5 @@ fun LogoutCard(
 @Composable
 @Preview(showSystemUi = true, showBackground = true)
 fun ShowSettingsScreen() {
-    SettingsScreen(currentTheme = ThemeMode.LIGHT, themeChange = {}, onBack = {})
+    SettingsScreen(currentTheme = ThemeMode.LIGHT, themeChange = {}, onBack = {}, onRecommendAppClicked = {})
 }

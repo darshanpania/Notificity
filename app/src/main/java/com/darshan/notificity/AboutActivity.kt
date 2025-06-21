@@ -43,12 +43,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import com.darshan.notificity.analytics.AnalyticsConstants
-import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.BuyMeACoffee
 import com.darshan.notificity.components.ClickableSection
 import com.darshan.notificity.components.NotificityAppBar
 import com.darshan.notificity.extensions.openUrl
+import com.darshan.notificity.analytics.enums.Screen
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
@@ -59,8 +58,8 @@ class AboutActivity : BaseActivity() {
 
     private val settingsViewModel: SettingsViewModel by viewModels()
 
-    override val screenName: String
-        get() = AnalyticsConstants.Screens.ABOUT
+    override val screen: Screen
+        get() = Screen.ABOUT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,14 +68,30 @@ class AboutActivity : BaseActivity() {
             val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
 
             NotificityTheme(themeMode = themeMode) {
-                AboutScreen(onBack = { finish() })
+                AboutScreen(
+                    onBack = { finish() },
+                    onPrivacyPolicyClicked = {
+                        analyticsManager.app.onPrivacyPolicyClicked()
+                    },
+                    onBuyMeCoffeeClicked = {
+                        analyticsManager.app.onBuyMeCoffeeClicked()
+                    },
+                    onContributorProfileClicked = { name ->
+                        analyticsManager.app.onContributorProfileClicked(name)
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun AboutScreen(onBack: () -> Unit) {
+fun AboutScreen(
+    onBack: () -> Unit,
+    onPrivacyPolicyClicked: () -> Unit,
+    onBuyMeCoffeeClicked: () -> Unit,
+    onContributorProfileClicked: (String) -> Unit
+) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val showButton by remember {
@@ -119,7 +134,7 @@ fun AboutScreen(onBack: () -> Unit) {
                     onClick = {
                         context.openUrl("https://github.com/darshanpania/Notificity/blob/main/PRIVACY.md")
 
-                        AnalyticsLogger.onPrivacyPolicyClicked()
+                        onPrivacyPolicyClicked()
                     })
 
                 HorizontalDivider()
@@ -129,13 +144,24 @@ fun AboutScreen(onBack: () -> Unit) {
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Contributor("Darshan Pania", "i_m_Pania")
-                Contributor("Shivam Sharma", "ShivamS707")
-                Contributor("Shrinath Gupta", "gupta_shrinath")
-                Contributor("William John", "goonerdroid11")
-                Contributor("Jay Rathod", "zzjjaayy")
-                Contributor("Avadhut", "mr_whoknows55")
-                Contributor("Md Anas Shikoh", "ansiili_billi")
+
+                val contributors = listOf(
+                    ContributorData("Darshan Pania", "i_m_Pania"),
+                    ContributorData("Shivam Sharma", "ShivamS707"),
+                    ContributorData("Shrinath Gupta", "gupta_shrinath"),
+                    ContributorData("William John", "goonerdroid11"),
+                    ContributorData("Jay Rathod", "zzjjaayy"),
+                    ContributorData("Avadhut", "mr_whoknows55"),
+                    ContributorData("Md Anas Shikoh", "ansiili_billi")
+                )
+
+                contributors.forEach {
+                    Contributor(
+                        it.name,
+                        it.twitterUsername,
+                        onContributorProfileClicked
+                    )
+                }
             }
             AnimatedVisibility(
                 visible = showButton, enter = fadeIn(), exit = fadeOut(),
@@ -144,16 +170,25 @@ fun AboutScreen(onBack: () -> Unit) {
                 BuyMeACoffee(onClick = {
                     context.openUrl(Constants.BUY_ME_A_COFFEE_LINK)
 
-                    AnalyticsLogger.onBuyMeCoffeeClicked()
+                    onBuyMeCoffeeClicked()
                 })
             }
         }
     }
 }
 
+data class ContributorData(
+    val name: String,
+    val twitterUsername: String
+)
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun Contributor(name: String, twitterUsername: String) {
+fun Contributor(
+    name: String,
+    twitterUsername: String,
+    onContributorProfileClicked: (String) -> Unit
+) {
     val context = LocalContext.current
     val twitterProfileUrl = "https://twitter.com/$twitterUsername"
     val profilePicUrl = "https://unavatar.io/twitter/$twitterUsername"
@@ -164,7 +199,7 @@ fun Contributor(name: String, twitterUsername: String) {
             .clickable {
                 context.openUrl(twitterProfileUrl)
 
-                AnalyticsLogger.onContributorProfileClicked(name)
+                onContributorProfileClicked(name)
             }
             .padding(vertical = 6.dp),
         verticalAlignment = Alignment.Companion.CenterVertically,
@@ -199,5 +234,5 @@ fun Contributor(name: String, twitterUsername: String) {
 @Composable
 @Preview(showSystemUi = true, showBackground = true)
 fun ShowAboutScreen() {
-    AboutScreen {}
+    AboutScreen(onBack = {}, onPrivacyPolicyClicked = {}, onBuyMeCoffeeClicked = {}, onContributorProfileClicked = {})
 }
