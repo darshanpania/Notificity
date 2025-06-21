@@ -36,7 +36,6 @@ abstract class AnalyticsModule {
     ): PermissionAnalytics
 
     companion object {
-
         @Provides
         @Singleton
         fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics {
