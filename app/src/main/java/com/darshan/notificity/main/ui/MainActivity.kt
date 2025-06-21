@@ -60,11 +60,10 @@ import androidx.lifecycle.lifecycleScope
 import com.darshan.notificity.AppInfo
 import com.darshan.notificity.NotificationEntity
 import com.darshan.notificity.NotificationsActivity
-import com.darshan.notificity.analytics.AnalyticsConstants
-import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
 import com.darshan.notificity.components.LoadingScreen
 import com.darshan.notificity.components.NotificityAppBar
+import com.darshan.notificity.enums.AppPermissions
 import com.darshan.notificity.enums.NotificationPermissionStatus
 import com.darshan.notificity.extensions.getNotificationPermissionStatus
 import com.darshan.notificity.extensions.isLaunchedFromLauncher
@@ -72,6 +71,7 @@ import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.extensions.toTitleCase
 import com.darshan.notificity.main.viewmodel.MainViewModel
+import com.darshan.notificity.analytics.enums.Screen
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
@@ -108,8 +108,8 @@ class MainActivity : BaseActivity() {
             logNotificationPermissionStatus(updatedStatus)
         }
 
-    override val screenName: String
-        get() = AnalyticsConstants.Screens.MAIN
+    override val screen: Screen
+        get() = Screen.MAIN
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -163,7 +163,10 @@ class MainActivity : BaseActivity() {
                     appSettingsLauncher = appSettingsLauncher,
                     openNotificationAccessSettings = { openNotificationAccessSettings() },
                     requestPermissionLauncher = { requestPermissionLauncher.launch(it) },
-                    toggleNotificationPermissionDialog = mainViewModel::showNotificationPermissionBlockedDialog
+                    toggleNotificationPermissionDialog = mainViewModel::showNotificationPermissionBlockedDialog,
+                    onPermissionRequested = {
+                        analyticsManager.permission.onPermissionRequested(AppPermissions.NOTIFICATION)
+                    }
                 )
             }
         }
@@ -175,7 +178,7 @@ class MainActivity : BaseActivity() {
             // It will ONLY run during a fresh launch (cold start)
             val source =
                 if (intent.isLaunchedFromLauncher()) "launcher" else "external_or_notification"
-            AnalyticsLogger.onAppLaunch(source)
+            analyticsManager.app.onAppLaunch(source)
 
             // Log notification permission status at app launch
             val status = getNotificationPermissionStatus()
@@ -194,8 +197,7 @@ class MainActivity : BaseActivity() {
     }
 
     fun logNotificationPermissionStatus(status: NotificationPermissionStatus) {
-        AnalyticsLogger.onNotificationPermissionChanged(status)
-        AnalyticsLogger.setNotificationPermissionProperty(status)
+        analyticsManager.permission.onPermissionChanged(AppPermissions.NOTIFICATION, status)
     }
 }
 
@@ -210,6 +212,7 @@ fun MainScreen(
     toggleNotificationPermissionDialog: (Boolean) -> Unit,
     openNotificationAccessSettings: () -> Unit,
     requestPermissionLauncher: (String) -> Unit,
+    onPermissionRequested: () -> Unit
 ) {
     val context = LocalContext.current
     Scaffold(
@@ -235,7 +238,8 @@ fun MainScreen(
                 AppSearchScreen(notifications = notifications, allApps = apps)
                 AskNotificationPermission(
                     requestPermissionLauncher = requestPermissionLauncher,
-                    toggleNotificationPermissionDialog = toggleNotificationPermissionDialog
+                    toggleNotificationPermissionDialog = toggleNotificationPermissionDialog,
+                    onPermissionRequested = onPermissionRequested
                 )
             } else {
                 RequestAccessScreen(openNotificationAccessSettings = openNotificationAccessSettings)
@@ -394,7 +398,8 @@ fun RequestAccessScreen(openNotificationAccessSettings: () -> Unit) {
 @Composable
 private fun AskNotificationPermission(
     requestPermissionLauncher: (String) -> Unit,
-    toggleNotificationPermissionDialog: (Boolean) -> Unit
+    toggleNotificationPermissionDialog: (Boolean) -> Unit,
+    onPermissionRequested: () -> Unit
 ) {
     var alreadyAsked by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
@@ -409,7 +414,7 @@ private fun AskNotificationPermission(
             if (activity?.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) == true) {
                 toggleNotificationPermissionDialog(true)
             } else {
-                AnalyticsLogger.onNotificationPermissionRequested()
+                onPermissionRequested()
                 requestPermissionLauncher(Manifest.permission.POST_NOTIFICATIONS)
             }
         }

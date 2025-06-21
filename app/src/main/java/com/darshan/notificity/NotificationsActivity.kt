@@ -51,11 +51,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.darshan.notificity.analytics.AnalyticsConstants
-import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
 import com.darshan.notificity.components.SwipeToDelete
 import com.darshan.notificity.main.viewmodel.MainViewModel
+import com.darshan.notificity.analytics.enums.Screen
 import com.darshan.notificity.ui.BaseActivity
 import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
@@ -68,8 +67,8 @@ class NotificationsActivity : BaseActivity() {
     private val mainViewModel: MainViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
 
-    override val screenName: String
-        get() = AnalyticsConstants.Screens.NOTIFICATION_LIST
+    override val screen: Screen
+        get() = Screen.NOTIFICATION_LIST
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +84,10 @@ class NotificationsActivity : BaseActivity() {
                 NotificationSearchScreen(
                     appName = appName,
                     notificationsMap = notificationsMap,
-                    deleteNotification = mainViewModel::deleteNotification
+                    deleteNotification = mainViewModel::deleteNotification,
+                    onNotificationListOpened = { appName, total ->
+                        analyticsManager.app.onNotificationListOpened(appName, total)
+                    }
                 )
             }
         }
@@ -98,6 +100,7 @@ fun NotificationSearchScreen(
     appName: String?,
     notificationsMap: Map<String, List<NotificationEntity>>,
     deleteNotification: (NotificationEntity) -> Unit,
+    onNotificationListOpened: (String, Int) -> Unit
 ) {
     val dateRangePickerState = rememberDateRangePickerState()
     var notificationSearchQuery by remember { mutableStateOf("") }
@@ -119,7 +122,8 @@ fun NotificationSearchScreen(
                 notificationsMap = notificationsMap,
                 searchQuery = notificationSearchQuery,
                 selectedDateRange = selectedDateRange,
-                deleteNotification = deleteNotification
+                deleteNotification = deleteNotification,
+                onNotificationListOpened = onNotificationListOpened
             )
         }
 
@@ -181,6 +185,7 @@ fun NotificationList(
     searchQuery: String,
     selectedDateRange: Pair<Long?, Long?>,
     deleteNotification: (NotificationEntity) -> Unit,
+    onNotificationListOpened: (String, Int) -> Unit
 ) {
     // Safely handle the case where appName is null
     if (appName == null) {
@@ -220,7 +225,7 @@ fun NotificationList(
         LaunchedEffect(key1 = Unit) {
             // LaunchedEffect ensures the logging doesn't rerun on every recomposition but initial composition.
             if (filteredNotifications.isNotEmpty()) {
-                AnalyticsLogger.onNotificationListOpened(appName, filteredNotifications.size)
+                onNotificationListOpened(appName, filteredNotifications.size)
             }
         }
 

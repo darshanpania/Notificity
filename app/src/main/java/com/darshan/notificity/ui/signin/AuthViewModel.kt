@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.darshan.notificity.auth.AuthType
 import com.darshan.notificity.auth.models.AuthResult
 import com.darshan.notificity.auth.models.AuthUiState
 import com.darshan.notificity.auth.repository.AuthRepository
+import com.darshan.notificity.analytics.domain.AuthAnalytics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +23,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val authAnalytics: AuthAnalytics
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -65,11 +68,15 @@ class AuthViewModel @Inject constructor(
                 it.copy(isGoogleLoading = true, error = null)
             }
 
+            authAnalytics.onSigninAttempt(AuthType.GOOGLE)
+
             when (val result = authRepository.signInWithGoogle(activityContext)) {
                 is AuthResult.Success -> {
+                    authRepository.getCurrentUserData()?.let { authAnalytics.onSigninSuccess(it) }
                     handleAuthSuccess()
                 }
                 is AuthResult.Error -> {
+                    authAnalytics.onSigninFailure(AuthType.GOOGLE, result.exception.message ?: "")
                     handleAuthError(result.exception.message ?: "Google sign-in failed")
                 }
             }
@@ -86,11 +93,15 @@ class AuthViewModel @Inject constructor(
                 it.copy(isAnonymousLoading = true, error = null)
             }
 
+            authAnalytics.onSigninAttempt(AuthType.ANONYMOUS)
+
             when (val result = authRepository.signInAnonymously()) {
                 is AuthResult.Success -> {
+                    authRepository.getCurrentUserData()?.let { authAnalytics.onSigninSuccess(it) }
                     handleAuthSuccess()
                 }
                 is AuthResult.Error -> {
+                    authAnalytics.onSigninFailure(AuthType.ANONYMOUS, result.exception.message ?: "")
                     handleAuthError(result.exception.message ?: "Anonymous sign-in failed")
                 }
             }
@@ -103,6 +114,8 @@ class AuthViewModel @Inject constructor(
 
     fun signOut(context: Context) {
         viewModelScope.launch {
+            authAnalytics.onSignout()
+
             when (val result = authRepository.signOut(context = context)) {
                 is AuthResult.Success -> {
                     _uiState.update {

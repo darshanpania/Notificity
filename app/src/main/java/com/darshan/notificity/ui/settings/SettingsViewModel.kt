@@ -2,7 +2,7 @@ package com.darshan.notificity.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darshan.notificity.analytics.AnalyticsLogger
+import com.darshan.notificity.analytics.domain.AppAnalytics
 import com.darshan.notificity.ui.theme.ThemeMode
 import com.darshan.notificity.ui.theme.ThemePreferenceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val themePreferenceManager: ThemePreferenceManager
+    private val themePreferenceManager: ThemePreferenceManager,
+    private val appAnalytics: AppAnalytics
 ) : ViewModel() {
 
     private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
@@ -32,7 +33,7 @@ class SettingsViewModel @Inject constructor(
             themePreferenceManager.saveTheme(theme)
             _themeMode.value = theme
 
-            AnalyticsLogger.onThemeToggleClicked(theme.name)
+            appAnalytics.onThemeToggleClicked(theme.name)
         }
     }
 }

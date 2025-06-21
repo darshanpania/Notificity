@@ -1,11 +1,16 @@
 package com.darshan.notificity.ui
 
 import androidx.activity.ComponentActivity
-import com.darshan.notificity.analytics.AnalyticsLogger
+import com.darshan.notificity.analytics.core.AnalyticsManager
+import com.darshan.notificity.analytics.enums.Screen
+import javax.inject.Inject
 
 abstract class BaseActivity : ComponentActivity() {
 
-    abstract val screenName: String
+    @Inject
+    lateinit var analyticsManager: AnalyticsManager
+
+    abstract val screen: Screen
 
     companion object {
         private var lastScreenName: String? = null
@@ -14,9 +19,9 @@ abstract class BaseActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
 
-        if (lastScreenName != screenName) {
-            AnalyticsLogger.onScreenViewed(screenName, this::class.java.simpleName)
-            lastScreenName = screenName
+        if (lastScreenName != screen.screenName) {
+            analyticsManager.app.onScreenViewed(screen)
+            lastScreenName = screen.screenName
         }
     }
 }
