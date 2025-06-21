@@ -13,5 +13,9 @@ open class Util {
             val formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm")
             return localDate.format(formatter)
         }
+
+        fun getEpoch(): Long {
+            return System.currentTimeMillis() / 1000
+        }
     }
 }
