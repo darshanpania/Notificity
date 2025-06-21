@@ -181,6 +181,7 @@ class SignInActivity : BaseActivity() {
                             text = "Continue with Google",
                             iconPainter = painterResource(id = R.drawable.ic_google),
                             enabled = !uiState.isGoogleLoading && !uiState.isAnonymousLoading,
+                            showLoader = uiState.isGoogleLoading,
                             onClick = {
                                 viewModel.signInWithGoogle(this@SignInActivity)
                             }
