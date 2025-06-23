@@ -15,8 +15,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.darshan.notificity.enums.NotificationPermissionStatus
 
-
-
 /**
  * Launches the app settings screen
  */

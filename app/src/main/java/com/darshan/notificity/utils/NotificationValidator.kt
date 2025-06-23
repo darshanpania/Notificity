@@ -10,7 +10,8 @@ import android.app.Notification
  */
 object NotificationValidator {
 
-    private val summaryPattern1 = Regex("\\d+\\s+(new\\s+)?(message|msg)s?", RegexOption.IGNORE_CASE)
+    private val summaryPattern1 =
+        Regex("\\d+\\s+(new\\s+)?(message|msg)s?", RegexOption.IGNORE_CASE)
     private val summaryPattern2 = Regex("You have \\d+ (new|unread)", RegexOption.IGNORE_CASE)
 
     /**

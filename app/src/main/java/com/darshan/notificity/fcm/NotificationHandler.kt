@@ -51,7 +51,11 @@ class NotificationHandler(private val context: Context) {
         }
     }
 
-    private fun showNotification(notificationContent: NotificationContent, largeIcon: Bitmap?, notificationId: Int) {
+    private fun showNotification(
+        notificationContent: NotificationContent,
+        largeIcon: Bitmap?,
+        notificationId: Int
+    ) {
         NotificationUtil.showNotification(
             context = context,
             title = notificationContent.title,

@@ -1,23 +1,27 @@
 package com.darshan.notificity.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.ui.theme.ThemeMode
 import com.darshan.notificity.ui.theme.ThemePreferenceManager
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SettingsViewModel(private val application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    private val themePreferenceManager: ThemePreferenceManager
+) : ViewModel() {
 
     private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
     val themeMode = _themeMode.asStateFlow()
 
     init {
         viewModelScope.launch {
-            ThemePreferenceManager.getThemeFlow(application.applicationContext).collect {
+            themePreferenceManager.getThemeFlow().collect {
                 _themeMode.value = it
             }
         }
@@ -25,7 +29,7 @@ class SettingsViewModel(private val application: Application) : AndroidViewModel
 
     fun updateTheme(theme: ThemeMode) {
         viewModelScope.launch {
-            ThemePreferenceManager.saveTheme(application.applicationContext, theme)
+            themePreferenceManager.saveTheme(theme)
             _themeMode.value = theme
 
             AnalyticsLogger.onThemeToggleClicked(theme.name)

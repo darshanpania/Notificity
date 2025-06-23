@@ -5,27 +5,23 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import com.darshan.notificity.NotificationRepository
-import com.darshan.notificity.database.AppDatabase
+import com.darshan.notificity.data.NotificationRepository
 import com.darshan.notificity.database.NotificationEntity
 import com.darshan.notificity.utils.Logger
 import com.darshan.notificity.utils.NotificationValidator
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class NotificityListenerService : NotificationListenerService() {
 
-    private lateinit var database: AppDatabase
-    private lateinit var repository: NotificationRepository
-    val TAG = this::class.java.simpleName
+    @Inject
+    lateinit var repository: NotificationRepository
 
-    override fun onCreate() {
-        super.onCreate()
-        // Initialize the Room database
-        database = AppDatabase.getInstance(applicationContext)
-        repository = NotificationRepository(database.notificationDao())
-    }
+    val TAG = this::class.java.simpleName
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val packageName = sbn.packageName

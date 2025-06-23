@@ -6,7 +6,9 @@ import android.app.NotificationManager
 import com.darshan.notificity.analytics.AnalyticsService
 import com.darshan.notificity.analytics.FirebaseAnalyticsTracker
 import com.darshan.notificity.utils.Constants
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class MyApplication : Application() {
 
     override fun onCreate() {

@@ -18,10 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Notificity"
         tools:targetApi="31">
+
         <activity
             android:name=".ui.activity.NotificationsActivity"
             android:exported="false"
             android:theme="@style/Theme.App.Starting" />
+
         <activity
             android:name=".ui.activity.MainActivity"
             android:exported="true">
@@ -31,12 +33,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.activity.SettingsActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.activity.AboutActivity"
             android:exported="false" />
+
         <!-- Notification Listener Service -->
         <service
             android:name=".service.NotificityListenerService"
