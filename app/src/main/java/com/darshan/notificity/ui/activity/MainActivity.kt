@@ -1,4 +1,4 @@
-package com.darshan.notificity.main.ui
+package com.darshan.notificity.ui.activity
 
 import android.Manifest
 import android.content.Intent
@@ -55,23 +55,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.darshan.notificity.AppInfo
-import com.darshan.notificity.NotificationEntity
-import com.darshan.notificity.NotificationsActivity
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
 import com.darshan.notificity.components.EmptyContentState
 import com.darshan.notificity.components.NotificityAppBar
+import com.darshan.notificity.database.NotificationEntity
 import com.darshan.notificity.enums.NotificationPermissionStatus
 import com.darshan.notificity.extensions.getNotificationPermissionStatus
 import com.darshan.notificity.extensions.isLaunchedFromLauncher
 import com.darshan.notificity.extensions.launchActivity
 import com.darshan.notificity.extensions.openAppSettings
 import com.darshan.notificity.main.viewmodel.MainViewModel
-import com.darshan.notificity.ui.BaseActivity
-import com.darshan.notificity.ui.settings.SettingsActivity
-import com.darshan.notificity.ui.settings.SettingsViewModel
+import com.darshan.notificity.model.AppInfo
 import com.darshan.notificity.ui.theme.NotificityTheme
+import com.darshan.notificity.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

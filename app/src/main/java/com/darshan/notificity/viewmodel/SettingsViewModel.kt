@@ -1,4 +1,4 @@
-package com.darshan.notificity.ui.settings
+package com.darshan.notificity.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

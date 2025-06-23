@@ -10,9 +10,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darshan.notificity.AppInfo
-import com.darshan.notificity.NotificationEntity
-import com.darshan.notificity.main.data.NotificationRepository
+import com.darshan.notificity.database.NotificationEntity
+import com.darshan.notificity.data.NotificationRepository
+import com.darshan.notificity.model.AppInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +36,8 @@ constructor(
     private val packageManager = context.packageManager
 
     private val _notificationsFlow = MutableStateFlow<List<NotificationEntity>>(emptyList())
-    val notificationsFlow: StateFlow<List<NotificationEntity>> = _notificationsFlow.asStateFlow()
+    val notificationsFlow: StateFlow<List<NotificationEntity>> =
+        _notificationsFlow.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -93,28 +94,27 @@ constructor(
         }
     }
 
-}
+    fun loadAppNameFromPackageName(packageManager: PackageManager, packageName: String): String {
+        val ai: ApplicationInfo? =
+            try {
+                packageManager.getApplicationInfo(packageName, 0)
+            } catch (_: NameNotFoundException) {
+                null
+            }
+        val applicationName =
+            (if (ai != null) packageManager.getApplicationLabel(ai) else "(unknown)") as String
+        return applicationName
+    }
 
-fun loadAppNameFromPackageName(packageManager: PackageManager, packageName: String): String {
-    val ai: ApplicationInfo? =
-        try {
-            packageManager.getApplicationInfo(packageName, 0)
-        } catch (_: NameNotFoundException) {
-            null
-        }
-    val applicationName =
-        (if (ai != null) packageManager.getApplicationLabel(ai) else "(unknown)") as String
-    return applicationName
-}
+    fun loadIconFromPackageName(packageManager: PackageManager, packageName: String): ImageBitmap? {
 
-fun loadIconFromPackageName(packageManager: PackageManager, packageName: String): ImageBitmap? {
+        val ai: ApplicationInfo? =
+            try {
+                packageManager.getApplicationInfo(packageName, 0)
+            } catch (_: NameNotFoundException) {
+                null
+            }
 
-    val ai: ApplicationInfo? =
-        try {
-            packageManager.getApplicationInfo(packageName, 0)
-        } catch (_: NameNotFoundException) {
-            null
-        }
-
-    return (ai?.loadIcon(packageManager)?.toBitmap()?.asImageBitmap())
+        return (ai?.loadIcon(packageManager)?.toBitmap()?.asImageBitmap())
+    }
 }

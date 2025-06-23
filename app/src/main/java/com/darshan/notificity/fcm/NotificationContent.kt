@@ -1,7 +1,7 @@
 package com.darshan.notificity.fcm
 
 import androidx.annotation.Keep
-import com.darshan.notificity.Constants
+import com.darshan.notificity.utils.Constants
 import com.google.firebase.messaging.RemoteMessage
 
 /**

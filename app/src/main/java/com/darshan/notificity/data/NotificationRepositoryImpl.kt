@@ -1,7 +1,7 @@
-package com.darshan.notificity.main.data
+package com.darshan.notificity.data
 
-import com.darshan.notificity.NotificationDao
-import com.darshan.notificity.NotificationEntity
+import com.darshan.notificity.database.NotificationDao
+import com.darshan.notificity.database.NotificationEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
