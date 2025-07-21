@@ -17,4 +17,8 @@ interface NotificationDao {
 
     @Delete
     suspend fun deleteNotification(notification: NotificationEntity)
+
+    // Added: Delete all notifications for a specific app by appName (for Clear All feature)
+    @Query("DELETE FROM notification WHERE appName = :appName")
+    suspend fun deleteAllNotificationsForApp(appName: String)
 }

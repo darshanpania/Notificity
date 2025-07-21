@@ -6,6 +6,8 @@ import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -85,7 +88,9 @@ class NotificationsActivity : BaseActivity() {
                 NotificationSearchScreen(
                     appName = appName,
                     notificationsMap = notificationsMap,
-                    deleteNotification = mainViewModel::deleteNotification
+                    deleteNotification = mainViewModel::deleteNotification,
+                    // Added: Pass clearAllNotifications lambda to composable for Clear All button
+                    clearAllNotifications = { mainViewModel.clearAllNotificationsForApp(appName) }
                 )
             }
         }
@@ -98,11 +103,38 @@ fun NotificationSearchScreen(
     appName: String?,
     notificationsMap: Map<String, List<NotificationEntity>>,
     deleteNotification: (NotificationEntity) -> Unit,
+    // Added: clearAllNotifications lambda for Clear All button
+    clearAllNotifications: () -> Unit,
 ) {
     val dateRangePickerState = rememberDateRangePickerState()
     var notificationSearchQuery by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
     var selectedDateRange by remember { mutableStateOf<Pair<Long?, Long?>>(null to null) }
+    val notifications = notificationsMap[appName] ?: emptyList()
+
+    // Added: State to trigger clear all animation
+    var isClearingAll by remember { mutableStateOf(false) }
+
+    // Added: Handler to start animation when Clear All is clicked
+    fun handleClearAll() {
+        isClearingAll = true
+    }
+
+    // Added: Launch effect to clear notifications after animation
+    if (isClearingAll) {
+        LaunchedEffect(key1 = isClearingAll) {
+            kotlinx.coroutines.delay(400) // 400ms animation
+            clearAllNotifications()
+            // Do not set isClearingAll = false here
+        }
+    }
+
+    // Added: Wait for notifications to be empty before resetting isClearingAll
+    LaunchedEffect(isClearingAll, notifications) {
+        if (isClearingAll && notifications.isEmpty()) {
+            isClearingAll = false
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -112,15 +144,24 @@ fun NotificationSearchScreen(
             SearchBar(
                 hint = "Search Notifications in $appName",
                 onSearchQueryChanged = { notificationSearchQuery = it },
-                toggleDatePicker = { showDatePicker = true }
+                toggleDatePicker = { showDatePicker = true },
+                onClearAll = { if (!isClearingAll && notifications.isNotEmpty()) handleClearAll() },
+                clearAllEnabled = notifications.isNotEmpty() && !isClearingAll
             )
-            NotificationList(
-                appName = appName,
-                notificationsMap = notificationsMap,
-                searchQuery = notificationSearchQuery,
-                selectedDateRange = selectedDateRange,
-                deleteNotification = deleteNotification
-            )
+            // Added: AnimatedVisibility for fade out + slide up animation
+            AnimatedVisibility(
+                visible = !isClearingAll,
+                exit = fadeOut() + slideOutVertically(targetOffsetY = { -40 }),
+                enter = fadeIn()
+            ) {
+                NotificationList(
+                    appName = appName,
+                    notificationsMap = notificationsMap,
+                    searchQuery = notificationSearchQuery,
+                    selectedDateRange = selectedDateRange,
+                    deleteNotification = deleteNotification
+                )
+            }
         }
 
         if (showDatePicker) {
@@ -141,6 +182,8 @@ fun SearchBar(
     hint: String,
     onSearchQueryChanged: (String) -> Unit,
     toggleDatePicker: () -> Unit,
+    onClearAll: (() -> Unit)? = null,
+    clearAllEnabled: Boolean = true,
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -169,6 +212,20 @@ fun SearchBar(
         ) {
             IconButton(onClick = toggleDatePicker) {
                 Icon(imageVector = Icons.Default.DateRange, contentDescription = "Date Picker")
+            }
+        }
+        // Delete icon is always available and the active is controlled based on state.
+        if (onClearAll != null) {
+            IconButton(
+                onClick = onClearAll,
+                enabled = clearAllEnabled,
+                modifier = Modifier.padding(start = 4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Clear All Notifications",
+                    tint = if (clearAllEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                )
             }
         }
     }

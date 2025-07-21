@@ -23,4 +23,9 @@ constructor(
     override suspend fun deleteNotification(notification: NotificationEntity) {
         notificationDao.deleteNotification(notification)
     }
+
+    // Added: Implementation to delete all notifications for a specific app (for Clear All feature)
+    override suspend fun deleteAllNotificationsForApp(appName: String) {
+        notificationDao.deleteAllNotificationsForApp(appName)
+    }
 }

@@ -93,6 +93,14 @@ constructor(
         }
     }
 
+
+    // Added: Function to clear all notifications for a specific app by calling the repository (for Clear All feature)
+    fun clearAllNotificationsForApp(appName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteAllNotificationsForApp(appName)
+        }
+    }
+
 }
 
 fun loadAppNameFromPackageName(packageManager: PackageManager, packageName: String): String {
