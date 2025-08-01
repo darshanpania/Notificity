@@ -120,17 +120,22 @@ fun NotificationSearchScreen(
         isClearingAll = true
     }
 
+
     // Added: Launch effect to clear notifications after animation
-    if (isClearingAll) {
-        LaunchedEffect(key1 = isClearingAll) {
-            kotlinx.coroutines.delay(400) // 400ms animation
-            clearAllNotifications()
-            // Do not set isClearingAll = false here
+    LaunchedEffect(isClearingAll) {
+        if (isClearingAll) {
+            try {
+                kotlinx.coroutines.delay(400) // Match animation duration
+                clearAllNotifications()
+            } catch (e: Exception) {
+                // Handle error case
+                isClearingAll = false
+            }
         }
     }
 
-    // Added: Wait for notifications to be empty before resetting isClearingAll
-    LaunchedEffect(isClearingAll, notifications) {
+// Added: Wait for notifications to be empty before resetting isClearingAll
+    LaunchedEffect(notifications.size) {
         if (isClearingAll && notifications.isEmpty()) {
             isClearingAll = false
         }
