@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,7 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Scaffold
+
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -162,14 +163,13 @@ fun NotificationSearchScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Scaffold(
-            snackbarHost = { SnackbarHost(snackbarHostState) }
-        ) { paddingValues ->
+
+        //Removed the Scaffold wrapper as it was adding a padding
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .windowInsetsPadding(WindowInsets.systemBars)
-                    .padding(paddingValues)
             ) {
                 SearchBar(
                     hint = "Search Notifications in $appName",
@@ -193,6 +193,12 @@ fun NotificationSearchScreen(
                     )
                 }
             }
+            
+            // Snackbar positioned at the bottom
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
 
         if (showDatePicker) {
@@ -290,7 +296,7 @@ fun NotificationList(
 
         val matchesDateRange = selectedDateRange.first?.let { start ->
             selectedDateRange.second?.let { end ->
-                notification.timestamp >= start && notification.timestamp <= end
+                notification.timestamp in start..end
             }
         } != false
 
