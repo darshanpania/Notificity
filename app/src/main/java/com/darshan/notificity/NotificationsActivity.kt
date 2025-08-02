@@ -1,6 +1,7 @@
 package com.darshan.notificity
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
@@ -38,6 +39,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -47,12 +51,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.darshan.notificity.analytics.AnalyticsConstants
 import com.darshan.notificity.analytics.AnalyticsLogger
@@ -64,13 +70,12 @@ import com.darshan.notificity.ui.settings.SettingsViewModel
 import com.darshan.notificity.ui.theme.NotificityTheme
 import com.darshan.notificity.utils.Util
 import dagger.hilt.android.AndroidEntryPoint
-
+private const val CLEAR_ALL_ANIMATION_DURATION = 400L
 @AndroidEntryPoint
 class NotificationsActivity : BaseActivity() {
 
     private val mainViewModel: MainViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
-
     override val screenName: String
         get() = AnalyticsConstants.Screens.NOTIFICATION_LIST
 
@@ -114,6 +119,10 @@ fun NotificationSearchScreen(
 
     // Added: State to trigger clear all animation
     var isClearingAll by remember { mutableStateOf(false) }
+    
+    // Added: Snackbar state and coroutine scope
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     // Added: Handler to start animation when Clear All is clicked
     fun handleClearAll() {
@@ -125,11 +134,19 @@ fun NotificationSearchScreen(
     LaunchedEffect(isClearingAll) {
         if (isClearingAll) {
             try {
-                kotlinx.coroutines.delay(400) // Match animation duration
+                kotlinx.coroutines.delay(CLEAR_ALL_ANIMATION_DURATION) // Match animation duration
                 clearAllNotifications()
             } catch (e: Exception) {
                 // Handle error case
+                Log.e("NotificationsActivity", "Failed to clear notifications", e)
                 isClearingAll = false
+                // Show Snackbar to user
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Failed to clear notifications. Please try again later.",
+                        duration = androidx.compose.material3.SnackbarDuration.Short
+                    )
+                }
             }
         }
     }
@@ -145,27 +162,36 @@ fun NotificationSearchScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)) {
-            SearchBar(
-                hint = "Search Notifications in $appName",
-                onSearchQueryChanged = { notificationSearchQuery = it },
-                toggleDatePicker = { showDatePicker = true },
-                onClearAll = { if (!isClearingAll && notifications.isNotEmpty()) handleClearAll() },
-                clearAllEnabled = notifications.isNotEmpty() && !isClearingAll
-            )
-            // Added: AnimatedVisibility for fade out + slide up animation
-            AnimatedVisibility(
-                visible = !isClearingAll,
-                exit = fadeOut() + slideOutVertically(targetOffsetY = { -40 }),
-                enter = fadeIn()
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.systemBars)
+                    .padding(paddingValues)
             ) {
-                NotificationList(
-                    appName = appName,
-                    notificationsMap = notificationsMap,
-                    searchQuery = notificationSearchQuery,
-                    selectedDateRange = selectedDateRange,
-                    deleteNotification = deleteNotification
+                SearchBar(
+                    hint = "Search Notifications in $appName",
+                    onSearchQueryChanged = { notificationSearchQuery = it },
+                    toggleDatePicker = { showDatePicker = true },
+                    onClearAll = { if (!isClearingAll && notifications.isNotEmpty()) handleClearAll() },
+                    clearAllEnabled = notifications.isNotEmpty() && !isClearingAll
                 )
+                // Added: AnimatedVisibility for fade out + slide up animation
+                AnimatedVisibility(
+                    visible = !isClearingAll,
+                    exit = fadeOut() + slideOutVertically(targetOffsetY = { -40 }),
+                    enter = fadeIn()
+                ) {
+                    NotificationList(
+                        appName = appName,
+                        notificationsMap = notificationsMap,
+                        searchQuery = notificationSearchQuery,
+                        selectedDateRange = selectedDateRange,
+                        deleteNotification = deleteNotification
+                    )
+                }
             }
         }
 
