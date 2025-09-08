@@ -31,7 +31,11 @@ Follow these steps to set up the project locally:
    ```
 2. Open the project in Android Studio or any compatible IDE.
 3. Sync the project with Gradle to resolve all dependencies.
-4. Run the app on an Android emulator or a physical device.
+4. Get `google-services.json` : Since, this project uses Firebase services for enhancing user experience, you can either disable firebase libraries in `app/build.gradle.kts` & `root/build.gradle.kts` , or :
+   - Create a dummy project on Firebase.
+   - Add a new Android App in it with id : `com.darshan.notificity`
+   - download the generated `google-services.json` into `app` directory and build the project
+5. Run the app on an Android emulator or a physical device.
 
 ## Usage
 
