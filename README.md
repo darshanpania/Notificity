@@ -35,7 +35,7 @@ Follow these steps to set up the project locally:
    - Option A (recommended):
       - Create or use a Firebase project
       - Add an Android app with `applicationId` matching this project (default: `com.darshan.notificity`)
-      - Download `google-services.json` and place it at `app/google-services.json`. Do not commit this file.
+      - Download `google-services.json` and place it at `app/google-services.json`. Make sure this file is never pushed to remote
    - Option B (advanced):
       - Temporarily Disable Firebase SDK : Remove or comment out all instances and usage of `com.google.firebase` from the project . Make sure to undo this before making a PR
 5. Run the app on an Android emulator or a physical device.
