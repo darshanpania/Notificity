@@ -49,6 +49,12 @@ constructor(
     val appInfoFromFlow: Flow<List<AppInfo>> =
         notificationsFlow.map { notifications ->
             notifications
+                .sortedByDescending { it ->
+                    it.timestamp
+                    // Normalize timestamp to the start of its hour (ignoring minutes/seconds)
+                    val millisPerHour = 1000 * 60 * 60
+                    it.timestamp / millisPerHour
+                }
                 .groupBy { it.packageName }
                 .map { entry ->
                     AppInfo(
