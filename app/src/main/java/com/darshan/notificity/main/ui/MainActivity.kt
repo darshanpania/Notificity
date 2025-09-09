@@ -191,7 +191,7 @@ fun MainScreen(
     ) { innerPadding ->
         Box(modifier = Modifier.Companion.padding(innerPadding)) {
             if (isPermissionGranted) {
-                AppSearchScreen(notifications = notifications, allApps = apps)
+                AppSearchScreen( allApps = apps)
                 AskNotificationPermission(
                     requestPermissionLauncher = requestPermissionLauncher,
                     toggleNotificationPermissionDialog = toggleNotificationPermissionDialog
@@ -290,16 +290,17 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
 }
 
 @Composable
-fun AppSearchScreen(notifications: List<NotificationEntity>, allApps: List<AppInfo>) {
+fun AppSearchScreen(allApps: List<AppInfo>) {
     val context = LocalContext.current
     var appSearchQuery by remember { mutableStateOf("") }
     val filteredApps = allApps.filter {
         it.appName.contains(appSearchQuery, ignoreCase = true)
     }
+    val availableApps = allApps.map { it.appName }
 
     Column {
         SearchBar("Search Apps... ", onSearchQueryChanged = { appSearchQuery = it })
-        AnimatedContent(notifications, label = "app_list") { list ->
+        AnimatedContent(availableApps, label = "app_list") { list ->
             when {
                 list.isEmpty() -> {
                     // No notifications collected at all
