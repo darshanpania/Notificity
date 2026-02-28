@@ -11,6 +11,9 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -169,7 +173,6 @@ class MainActivity : BaseActivity() {
 fun MainScreen(
     isPermissionGranted: Boolean,
     showNotificationPermissionBlockedDialog: Boolean,
-    notifications: List<NotificationEntity>,
     apps: List<AppInfo>,
     appSettingsLauncher: ActivityResultLauncher<Intent>,
     toggleNotificationPermissionDialog: (Boolean) -> Unit,
@@ -201,6 +204,18 @@ fun MainScreen(
                     RequestAccessScreen(
                         openNotificationAccessSettings = openNotificationAccessSettings)
                 }
+            )
+        }
+    ) { innerPadding ->
+        Box(modifier = Modifier.Companion.padding(innerPadding)) {
+            if (isPermissionGranted) {
+                AppSearchScreen( allApps = apps)
+                AskNotificationPermission(
+                    requestPermissionLauncher = requestPermissionLauncher,
+                    toggleNotificationPermissionDialog = toggleNotificationPermissionDialog
+                )
+            } else {
+                RequestAccessScreen(openNotificationAccessSettings = openNotificationAccessSettings)
             }
         }
 
@@ -219,17 +234,30 @@ fun AppGridView(apps: List<AppInfo>, onAppSelected: (String) -> Unit) {
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2), // Adjust based on screen size or preference
-        contentPadding = PaddingValues(8.dp)) {
-            items(items = apps, key = { it.packageName }) { app ->
-                AppGridItem(appInfo = app, onClick = { onAppSelected(app.appName) })
-            }
+        contentPadding = PaddingValues(8.dp)
+    ) {
+        items(items = apps, key = { it.packageName }) { app ->
+            AppGridItem(
+                modifier = Modifier
+                    .animateItem(
+                        fadeInSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                        placementSpec = spring(
+                            stiffness = Spring.StiffnessLow,
+                            visibilityThreshold = IntOffset.VisibilityThreshold
+                        ),
+                        fadeOutSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                    ), // this helps animating entries itself without making  a flickr on the screen
+                appInfo = app,
+                onClick = { onAppSelected(app.appName) })
         }
 }
 
 @Composable
-fun AppGridItem(appInfo: AppInfo, onClick: () -> Unit) {
+fun AppGridItem(modifier: Modifier = Modifier, appInfo: AppInfo, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.Companion.padding(8.dp).clickable(onClick = onClick),
+        modifier = modifier
+            .padding(8.dp)
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(4.dp),
         shape = RoundedCornerShape(8.dp)) {
             Column(
@@ -277,14 +305,17 @@ fun SearchBar(hint: String, onSearchQueryChanged: (String) -> Unit) {
 }
 
 @Composable
-fun AppSearchScreen(notifications: List<NotificationEntity>, allApps: List<AppInfo>) {
+fun AppSearchScreen(allApps: List<AppInfo>) {
     val context = LocalContext.current
     var appSearchQuery by remember { mutableStateOf("") }
-    val filteredApps = allApps.filter { it.appName.contains(appSearchQuery, ignoreCase = true) }
+    val filteredApps = allApps.filter {
+        it.appName.contains(appSearchQuery, ignoreCase = true)
+    }
+    val stableList = filteredApps.map { it.packageName }.sorted() // this is mostly a stable list since apps that show notification are limited . this helps reduce flickr and only show a flickr when an app whose notification is not in room db shows up
 
     Column {
         SearchBar("Search Apps... ", onSearchQueryChanged = { appSearchQuery = it })
-        AnimatedContent(notifications, label = "app_list") { list ->
+        AnimatedContent(stableList, label = "app_list") { list ->
             when {
                 list.isEmpty() -> {
                     // No notifications collected at all
