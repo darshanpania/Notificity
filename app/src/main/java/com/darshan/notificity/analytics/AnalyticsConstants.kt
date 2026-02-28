@@ -1,8 +1,6 @@
 package com.darshan.notificity.analytics
 
-/**
- * Defines constants for analytics events, parameters, and screen names.
- */
+/** Defines constants for analytics events, parameters, and screen names. */
 object AnalyticsConstants {
 
     // Event names used for logging analytics.

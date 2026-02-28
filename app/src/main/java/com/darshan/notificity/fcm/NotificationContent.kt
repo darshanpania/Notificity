@@ -4,9 +4,7 @@ import androidx.annotation.Keep
 import com.darshan.notificity.Constants
 import com.google.firebase.messaging.RemoteMessage
 
-/**
- * Data class representing notification content extracted from a [RemoteMessage].
- */
+/** Data class representing notification content extracted from a [RemoteMessage]. */
 @Keep
 data class NotificationContent(
     val title: String,
@@ -19,7 +17,8 @@ data class NotificationContent(
          * Parses a [RemoteMessage] to extract [NotificationContent].
          *
          * @param remoteMessage The FCM message containing the payload.
-         * @return A [NotificationContent] instance if the notification payload is valid; otherwise, null.
+         * @return A [NotificationContent] instance if the notification payload is valid; otherwise,
+         *   null.
          */
         fun fromRemoteMessage(remoteMessage: RemoteMessage): NotificationContent? {
             return fromNotificationPayload(remoteMessage)
@@ -38,8 +37,7 @@ data class NotificationContent(
                 title = title,
                 body = body,
                 channelId = notification.channelId ?: Constants.DEFAULT_CHANNEL_ID,
-                imageUrl = notification.imageUrl?.toString()
-            )
+                imageUrl = notification.imageUrl?.toString())
         }
     }
 

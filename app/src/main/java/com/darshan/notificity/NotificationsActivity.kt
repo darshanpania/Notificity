@@ -77,16 +77,15 @@ class NotificationsActivity : BaseActivity() {
         this.actionBar?.hide()
         setContent {
             val themeMode by remember { settingsViewModel.themeMode }.collectAsStateWithLifecycle()
-            val notificationsMap by remember { mainViewModel.notificationsGroupedByAppFlow }.collectAsStateWithLifecycle(
-                mapOf()
-            )
+            val notificationsMap by
+                remember { mainViewModel.notificationsGroupedByAppFlow }
+                    .collectAsStateWithLifecycle(mapOf())
 
             NotificityTheme(themeMode = themeMode) {
                 NotificationSearchScreen(
                     appName = appName,
                     notificationsMap = notificationsMap,
-                    deleteNotification = mainViewModel::deleteNotification
-                )
+                    deleteNotification = mainViewModel::deleteNotification)
             }
         }
     }
@@ -104,23 +103,18 @@ fun NotificationSearchScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var selectedDateRange by remember { mutableStateOf<Pair<Long?, Long?>>(null to null) }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)) {
             SearchBar(
                 hint = "Search Notifications in $appName",
                 onSearchQueryChanged = { notificationSearchQuery = it },
-                toggleDatePicker = { showDatePicker = true }
-            )
+                toggleDatePicker = { showDatePicker = true })
             NotificationList(
                 appName = appName,
                 notificationsMap = notificationsMap,
                 searchQuery = notificationSearchQuery,
                 selectedDateRange = selectedDateRange,
-                deleteNotification = deleteNotification
-            )
+                deleteNotification = deleteNotification)
         }
 
         if (showDatePicker) {
@@ -130,8 +124,7 @@ fun NotificationSearchScreen(
                     selectedDateRange = dateRange
                     showDatePicker = false
                 },
-                onDismiss = { showDatePicker = false }
-            )
+                onDismiss = { showDatePicker = false })
         }
     }
 }
@@ -145,33 +138,31 @@ fun SearchBar(
     var searchQuery by remember { mutableStateOf("") }
 
     Row(
-        modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        TextField(
-            modifier = Modifier.weight(1f),
-            value = searchQuery,
-            onValueChange = { searchQuery = it; onSearchQueryChanged(it) },
-            placeholder = { Text(text = hint, overflow = TextOverflow.Ellipsis, maxLines = 1) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = "Search Icon"
-                )
-            },
-            singleLine = true,
-        )
-        Card(
-            elevation = CardDefaults.cardElevation(4.dp),
-            shape = CircleShape,
-        ) {
-            IconButton(onClick = toggleDatePicker) {
-                Icon(imageVector = Icons.Default.DateRange, contentDescription = "Date Picker")
+        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextField(
+                modifier = Modifier.weight(1f),
+                value = searchQuery,
+                onValueChange = {
+                    searchQuery = it
+                    onSearchQueryChanged(it)
+                },
+                placeholder = { Text(text = hint, overflow = TextOverflow.Ellipsis, maxLines = 1) },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Filled.Search, contentDescription = "Search Icon")
+                },
+                singleLine = true,
+            )
+            Card(
+                elevation = CardDefaults.cardElevation(4.dp),
+                shape = CircleShape,
+            ) {
+                IconButton(onClick = toggleDatePicker) {
+                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "Date Picker")
+                }
             }
         }
-    }
 }
 
 @Composable
@@ -193,87 +184,76 @@ fun NotificationList(
     val notifications = notificationsMap[appName] ?: listOf()
 
     // Filter notifications based on the search query
-    val filteredNotifications = notifications.filter { notification ->
-        val matchesSearchQuery = searchQuery.isEmpty() ||
-                notification.content.contains(searchQuery, ignoreCase = true) ||
-                notification.title.contains(searchQuery, ignoreCase = true) ||
-                Util.convertEpochLongToString(notification.timestamp)
-                    .contains(searchQuery, ignoreCase = true)
+    val filteredNotifications =
+        notifications.filter { notification ->
+            val matchesSearchQuery =
+                searchQuery.isEmpty() ||
+                    notification.content.contains(searchQuery, ignoreCase = true) ||
+                    notification.title.contains(searchQuery, ignoreCase = true) ||
+                    Util.convertEpochLongToString(notification.timestamp)
+                        .contains(searchQuery, ignoreCase = true)
 
-        val matchesDateRange = selectedDateRange.first?.let { start ->
-            selectedDateRange.second?.let { end ->
-                notification.timestamp >= start && notification.timestamp <= end
-            }
-        } != false
+            val matchesDateRange =
+                selectedDateRange.first?.let { start ->
+                    selectedDateRange.second?.let { end ->
+                        notification.timestamp >= start && notification.timestamp <= end
+                    }
+                } != false
 
-        matchesSearchQuery && matchesDateRange
-    }
+            matchesSearchQuery && matchesDateRange
+        }
 
     if (filteredNotifications.isEmpty()) {
         EmptyContentState(text = "No notifications found with this filter")
     }
 
     AnimatedVisibility(
-        visible = filteredNotifications.isNotEmpty(),
-        enter = fadeIn() + expandVertically()
-    ) {
-        LaunchedEffect(key1 = Unit) {
-            // LaunchedEffect ensures the logging doesn't rerun on every recomposition but initial composition.
-            if (filteredNotifications.isNotEmpty()) {
-                AnalyticsLogger.onNotificationListOpened(appName, filteredNotifications.size)
-            }
-        }
-
-        // Display the notifications using a LazyColumn
-        LazyColumn {
-            items(filteredNotifications, key = { it.id }) { notification ->
-                SwipeToDelete(
-                    item = notification,
-                    onDelete = {
-                        deleteNotification(notification)
-                    }
-                ) {
-                    NotificationItem(notification)
+        visible = filteredNotifications.isNotEmpty(), enter = fadeIn() + expandVertically()) {
+            LaunchedEffect(key1 = Unit) {
+                // LaunchedEffect ensures the logging doesn't rerun on every recomposition but
+                // initial composition.
+                if (filteredNotifications.isNotEmpty()) {
+                    AnalyticsLogger.onNotificationListOpened(appName, filteredNotifications.size)
                 }
+            }
 
+            // Display the notifications using a LazyColumn
+            LazyColumn {
+                items(filteredNotifications, key = { it.id }) { notification ->
+                    SwipeToDelete(
+                        item = notification, onDelete = { deleteNotification(notification) }) {
+                            NotificationItem(notification)
+                        }
+                }
             }
         }
-    }
 }
 
 @Composable
 fun NotificationItem(notification: NotificationEntity) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         shape = RoundedCornerShape(8.dp),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = notification.title,
-                style = MaterialTheme.typography.titleMedium,
-                letterSpacing = 0.08.sp
-            )
-            Text(
-                text = notification.content,
-                style = MaterialTheme.typography.bodyMedium,
-                letterSpacing = 0.08.sp
-            )
-            Spacer(modifier = Modifier.size(2.dp))
-            Text(
-                text = Util.convertEpochLongToString(notification.timestamp),
-                style = MaterialTheme.typography.labelSmall,
-                letterSpacing = 0.08.sp,
-                modifier = Modifier.align(Alignment.End)
-            )
-        }
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = notification.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    letterSpacing = 0.08.sp)
+                Text(
+                    text = notification.content,
+                    style = MaterialTheme.typography.bodyMedium,
+                    letterSpacing = 0.08.sp)
+                Spacer(modifier = Modifier.size(2.dp))
+                Text(
+                    text = Util.convertEpochLongToString(notification.timestamp),
+                    style = MaterialTheme.typography.labelSmall,
+                    letterSpacing = 0.08.sp,
+                    modifier = Modifier.align(Alignment.End))
+            }
     }
 }
 
@@ -292,29 +272,16 @@ fun DateRangePickerModal(
                     onDateRangeSelected(
                         Pair(
                             dateRangePickerState.selectedStartDateMillis,
-                            dateRangePickerState.selectedEndDateMillis
-                        )
-                    )
+                            dateRangePickerState.selectedEndDateMillis))
+                }) {
+                    Text("OK")
                 }
-            ) {
-                Text("OK")
-            }
         },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }) {
+            DateRangePicker(
+                state = dateRangePickerState,
+                title = { Text(text = "Select date range") },
+                showModeToggle = false,
+                modifier = Modifier.height(500.dp).padding(10.dp))
         }
-    ) {
-        DateRangePicker(
-            state = dateRangePickerState,
-            title = {
-                Text(text = "Select date range")
-            },
-            showModeToggle = false,
-            modifier = Modifier
-                .height(500.dp)
-                .padding(10.dp)
-        )
-    }
 }

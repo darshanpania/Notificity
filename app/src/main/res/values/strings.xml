@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Notificity</string>
+    <string name="setting_retention_period">Notification Retention Period</string>
+    <string name="setting_retention_7_days">7 days</string>
+    <string name="setting_retention_30_days">30 days</string>
+    <string name="setting_retention_unlimited">Unlimited</string>
+    <string name="dialog_title_confirm_retention_change">Confirm Retention Change</string>
+    <string name="dialog_message_confirm_retention_change">Changing the retention period to %s will permanently delete all notifications older than that. Are you sure you want to proceed?</string>
+    <string name="dialog_button_confirm">Confirm</string>
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="toast_no_notifications_deleted">No notifications to delete</string>
+    <string name="toast_notifications_deleted">%d notifications deleted</string>
 </resources>

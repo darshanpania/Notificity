@@ -1,8 +1,6 @@
 package com.darshan.notificity.analytics
 
-/**
- * Interface for tracking analytics events and user properties.
- */
+/** Interface for tracking analytics events and user properties. */
 interface AnalyticsTracker {
 
     /**

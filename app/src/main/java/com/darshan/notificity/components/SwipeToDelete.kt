@@ -1,6 +1,5 @@
 package com.darshan.notificity.components
 
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -35,19 +34,17 @@ fun <T> SwipeToDelete(
     animationDuration: Int = 500,
     content: @Composable (T) -> Unit
 ) {
-    var isRemoved by remember {
-        mutableStateOf(false)
-    }
-    val state = rememberSwipeToDismissBoxState(
-        confirmValueChange = { value ->
-            if (value == SwipeToDismissBoxValue.EndToStart) {
-                isRemoved = true
-                true
-            } else {
-                false
-            }
-        }
-    )
+    var isRemoved by remember { mutableStateOf(false) }
+    val state =
+        rememberSwipeToDismissBoxState(
+            confirmValueChange = { value ->
+                if (value == SwipeToDismissBoxValue.EndToStart) {
+                    isRemoved = true
+                    true
+                } else {
+                    false
+                }
+            })
 
     LaunchedEffect(key1 = isRemoved) {
         if (isRemoved) {
@@ -58,42 +55,30 @@ fun <T> SwipeToDelete(
 
     AnimatedVisibility(
         visible = !isRemoved,
-        exit = shrinkVertically(
-            animationSpec = tween(durationMillis = animationDuration),
-            shrinkTowards = Alignment.Top
-        ) + fadeOut()
-    ) {
-        SwipeToDismissBox(
-            state = state,
-            backgroundContent = {
-                DeleteBackground(swipeDismissState = state)
-            },
-            enableDismissFromEndToStart = true,
-            enableDismissFromStartToEnd = false,
-            content = { content(item) },
-        )
-    }
+        exit =
+            shrinkVertically(
+                animationSpec = tween(durationMillis = animationDuration),
+                shrinkTowards = Alignment.Top) + fadeOut()) {
+            SwipeToDismissBox(
+                state = state,
+                backgroundContent = { DeleteBackground(swipeDismissState = state) },
+                enableDismissFromEndToStart = true,
+                enableDismissFromStartToEnd = false,
+                content = { content(item) },
+            )
+        }
 }
 
 @Composable
-fun DeleteBackground(
-    swipeDismissState: SwipeToDismissBoxState
-) {
-    val color = if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-        Color.Red
-    } else Color.Transparent
+fun DeleteBackground(swipeDismissState: SwipeToDismissBoxState) {
+    val color =
+        if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+            Color.Red
+        } else Color.Transparent
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color)
-            .padding(16.dp),
-        contentAlignment = Alignment.CenterEnd
-    ) {
-        Icon(
-            imageVector = Icons.Default.Delete,
-            contentDescription = null,
-            tint = Color.White
-        )
-    }
+        modifier = Modifier.fillMaxSize().background(color).padding(16.dp),
+        contentAlignment = Alignment.CenterEnd) {
+            Icon(imageVector = Icons.Default.Delete, contentDescription = null, tint = Color.White)
+        }
 }

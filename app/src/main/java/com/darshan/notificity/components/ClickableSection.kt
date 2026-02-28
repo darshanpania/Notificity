@@ -22,34 +22,24 @@ import androidx.compose.ui.unit.dp
  * @param onClick Optional click action; null means non-clickable.
  */
 @Composable
-fun ClickableSection(
-    title: String, description: String, onClick: (() -> Unit)? = null
+fun ClickableSection(title: String, description: String, onClick: (() -> Unit)? = null) {
 
-) {
-    val modifier = if (onClick != null) {
-        Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 8.dp)
-    } else {
-        Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-    }
+    val modifier =
+        if (onClick != null) {
+            Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 8.dp)
+        } else {
+            Modifier.fillMaxWidth().padding(vertical = 8.dp)
+        }
 
-    Column(
-        modifier = modifier
-    ) {
+    Column(modifier = modifier) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
+            color = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = description,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+            color = MaterialTheme.colorScheme.onBackground)
     }
 }

@@ -6,7 +6,9 @@ import kotlinx.coroutines.flow.Flow
 interface NotificationRepository {
     suspend fun insertNotification(notificationEntity: NotificationEntity)
 
-    suspend fun getAllNotification(): Flow<List<NotificationEntity>>
+    fun getAllNotificationsFlow(): Flow<List<NotificationEntity>>
 
-    suspend fun deleteNotification(notification: NotificationEntity)
+    suspend fun deleteNotificationsOlderThan(cutoffTimestamp: Long): Int
+
+    suspend fun deleteNotification(notificationEntity: NotificationEntity)
 }

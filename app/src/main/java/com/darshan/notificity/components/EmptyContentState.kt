@@ -25,11 +25,12 @@ import com.darshan.notificity.R
 /**
  * A reusable composable that displays a centered empty state with a Lottie animation and a message.
  *
- * This component is useful for showing empty UI states such as no search results, no data available,
- * or error states.
+ * This component is useful for showing empty UI states such as no search results, no data
+ * available, or error states.
  *
  * @param text The message to display below the animation.
- * @param lottieRes The optional Lottie animation resource to show. Defaults to [R.raw.lottie_no_data].
+ * @param lottieRes The optional Lottie animation resource to show. Defaults to
+ *   [R.raw.lottie_no_data].
  * @param modifier Optional [Modifier] for styling the layout.
  */
 @Composable
@@ -39,31 +40,25 @@ fun EmptyContentState(
     lottieRes: Int = R.raw.lottie_no_data,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(lottieRes))
-        val progress by animateLottieCompositionAsState(
-            composition = composition,
-            iterations = LottieConstants.IterateForever
-        )
+        verticalArrangement = Arrangement.Center) {
+            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(lottieRes))
+            val progress by
+                animateLottieCompositionAsState(
+                    composition = composition, iterations = LottieConstants.IterateForever)
 
-        LottieAnimation(
-            composition = composition,
-            progress = { progress },
-            modifier = Modifier.size(200.dp)
-        )
+            LottieAnimation(
+                composition = composition,
+                progress = { progress },
+                modifier = Modifier.size(200.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = text,
-            maxLines = 2,
-            fontSize = 20.sp,
-            style = MaterialTheme.typography.titleMedium
-        )
-    }
+            Text(
+                text = text,
+                maxLines = 2,
+                fontSize = 20.sp,
+                style = MaterialTheme.typography.titleMedium)
+        }
 }

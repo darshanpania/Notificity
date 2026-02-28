@@ -8,8 +8,8 @@ import android.content.Intent
 import android.graphics.Bitmap
 import androidx.core.app.NotificationCompat
 import com.bumptech.glide.Glide
-import com.darshan.notificity.main.ui.MainActivity
 import com.darshan.notificity.R
+import com.darshan.notificity.main.ui.MainActivity
 
 object NotificationUtil {
 
@@ -50,18 +50,23 @@ object NotificationUtil {
     }
 
     private fun createNotification(
-        context: Context, title: String, message: String, channelId: String, largeIcon: Bitmap?
+        context: Context,
+        title: String,
+        message: String,
+        channelId: String,
+        largeIcon: Bitmap?
     ): Notification {
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+        val intent =
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
 
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent =
+            PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         return NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.mipmap.app_icon)
@@ -77,8 +82,7 @@ object NotificationUtil {
                     setStyle(
                         NotificationCompat.BigPictureStyle()
                             .bigPicture(largeIcon)
-                            .bigLargeIcon(null as Bitmap?)
-                    )
+                            .bigLargeIcon(null as Bitmap?))
                 } else {
                     setStyle(NotificationCompat.BigTextStyle().bigText(message))
                 }

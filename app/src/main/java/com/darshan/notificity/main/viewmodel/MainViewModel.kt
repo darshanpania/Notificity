@@ -15,6 +15,7 @@ import com.darshan.notificity.NotificationEntity
 import com.darshan.notificity.main.data.NotificationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel
@@ -40,7 +40,7 @@ constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getAllNotification().collect { notifications ->
+            repository.getAllNotificationsFlow().collect { notifications ->
                 _notificationsFlow.value = notifications
             }
         }
@@ -55,8 +55,7 @@ constructor(
                         appName = loadAppNameFromPackageName(packageManager, entry.key),
                         icon = loadIconFromPackageName(packageManager, entry.key),
                         notificationCount = entry.value.size,
-                        packageName = entry.key
-                    )
+                        packageName = entry.key)
                 }
         }
 
@@ -72,15 +71,11 @@ constructor(
 
     fun refreshNotificationPermission() {
         val enabledListeners = NotificationManagerCompat.getEnabledListenerPackages(context)
-        _isNotificationPermissionGranted.update {
-            enabledListeners.contains(context.packageName)
-        }
+        _isNotificationPermissionGranted.update { enabledListeners.contains(context.packageName) }
     }
 
     fun showNotificationPermissionBlockedDialog(show: Boolean) {
-        _showNotificationPermissionBlockedDialog.update {
-            show
-        }
+        _showNotificationPermissionBlockedDialog.update { show }
     }
 
     init {
@@ -88,11 +83,8 @@ constructor(
     }
 
     fun deleteNotification(notificationEntity: NotificationEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteNotification(notificationEntity)
-        }
+        viewModelScope.launch(Dispatchers.IO) { repository.deleteNotification(notificationEntity) }
     }
-
 }
 
 fun loadAppNameFromPackageName(packageManager: PackageManager, packageName: String): String {

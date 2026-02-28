@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase.JournalMode
 import androidx.room.migration.Migration
+import androidx.work.WorkManager
 import com.darshan.notificity.AppDatabase
 import com.darshan.notificity.AppDatabase.Companion.MIGRATION_1_2
 import com.darshan.notificity.AppDatabase.Companion.MIGRATION_2_3
@@ -49,15 +50,20 @@ abstract class AppModule {
 
         @Provides
         @Singleton
+        fun provideNotificationRepositoryImpl(
+            notificationDao: NotificationDao
+        ): NotificationRepositoryImpl {
+            return NotificationRepositoryImpl(notificationDao)
+        }
+
+        @Provides
+        @Singleton
         fun provideDatabase(
             @ApplicationContext context: Context,
             migrations: Array<Migration>,
         ): AppDatabase {
-            return Room.databaseBuilder(
-                context,
-                AppDatabase::class.java,
-                Constants.DB_NAME
-            ).addMigrations(*migrations)
+            return Room.databaseBuilder(context, AppDatabase::class.java, Constants.DB_NAME)
+                .addMigrations(*migrations)
                 .setJournalMode(JournalMode.AUTOMATIC)
                 .fallbackToDestructiveMigration()
                 .enableMultiInstanceInvalidation()
@@ -72,9 +78,17 @@ abstract class AppModule {
                 MIGRATION_2_3,
             )
         }
+
+        @Provides
+        @Singleton
+        fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
+            return WorkManager.getInstance(context)
+        }
     }
 
     @Binds
     @Singleton
-    abstract fun providesNotificationRepository(notificationRepositoryImpl: NotificationRepositoryImpl): NotificationRepository
+    abstract fun providesNotificationRepository(
+        notificationRepositoryImpl: NotificationRepositoryImpl
+    ): NotificationRepository
 }

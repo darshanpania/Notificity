@@ -1,9 +1,8 @@
 package com.darshan.notificity.analytics
 
 /**
- * Wrapper for [AnalyticsTracker] implementation.
- * Provides static access to log events, screens,
- * and set user properties through a configured tracker.
+ * Wrapper for [AnalyticsTracker] implementation. Provides static access to log events, screens, and
+ * set user properties through a configured tracker.
  */
 object AnalyticsService {
     private lateinit var tracker: AnalyticsTracker
