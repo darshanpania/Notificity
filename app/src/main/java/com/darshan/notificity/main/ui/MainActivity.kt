@@ -117,8 +117,6 @@ class MainActivity : BaseActivity() {
             val showNotificationPermissionBlockedDialog by
                 remember { mainViewModel.showNotificationPermissionBlockedDialog }
                     .collectAsStateWithLifecycle()
-            val notifications by
-                remember { mainViewModel.notificationsFlow }.collectAsStateWithLifecycle()
             val apps by
                 remember { mainViewModel.appInfoFromFlow }
                     .collectAsStateWithLifecycle(initialValue = emptyList())
@@ -128,7 +126,6 @@ class MainActivity : BaseActivity() {
                     isPermissionGranted = isPermissionGranted,
                     showNotificationPermissionBlockedDialog =
                         showNotificationPermissionBlockedDialog,
-                    notifications = notifications,
                     apps = apps,
                     appSettingsLauncher = appSettingsLauncher,
                     openNotificationAccessSettings = { openNotificationAccessSettings() },
@@ -194,19 +191,6 @@ fun MainScreen(
                             })
                 })
         }) { innerPadding ->
-            Box(modifier = Modifier.Companion.padding(innerPadding)) {
-                if (isPermissionGranted) {
-                    AppSearchScreen(notifications = notifications, allApps = apps)
-                    AskNotificationPermission(
-                        requestPermissionLauncher = requestPermissionLauncher,
-                        toggleNotificationPermissionDialog = toggleNotificationPermissionDialog)
-                } else {
-                    RequestAccessScreen(
-                        openNotificationAccessSettings = openNotificationAccessSettings)
-                }
-            )
-        }
-    ) { innerPadding ->
         Box(modifier = Modifier.Companion.padding(innerPadding)) {
             if (isPermissionGranted) {
                 AppSearchScreen( allApps = apps)
@@ -218,6 +202,7 @@ fun MainScreen(
                 RequestAccessScreen(openNotificationAccessSettings = openNotificationAccessSettings)
             }
         }
+    }
 
     if (showNotificationPermissionBlockedDialog) {
         PermissionBlockedDialog(
@@ -250,6 +235,7 @@ fun AppGridView(apps: List<AppInfo>, onAppSelected: (String) -> Unit) {
                 appInfo = app,
                 onClick = { onAppSelected(app.appName) })
         }
+    }
 }
 
 @Composable
