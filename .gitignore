@@ -5,6 +5,11 @@ buildSrc/build
 /local.properties
 .env.properties
 
+# Release signing (never commit keystores or their passwords)
+keystore.properties
+*.jks
+*.keystore
+
 # Built application files
 *.apk
 *.aar

@@ -2,6 +2,8 @@
 
 # Notificity
 
+[![CI](https://github.com/darshanpania/Notificity/actions/workflows/ci.yml/badge.svg)](https://github.com/darshanpania/Notificity/actions/workflows/ci.yml)
+
 Notificity is an Android application designed to capture and categorize all incoming push notifications.
 It provides users with the ability to search through notifications both at the application level and using specific keywords.
 This project aims to enhance user productivity and notification management on Android devices.
@@ -39,6 +41,13 @@ After installation, you will need to grant the application permission to access 
 
 Navigate to: Settings -> Apps & Notifications -> Special App Access -> Notification access, and enable access for Notificity.
 Relaunch the application and start managing your notifications more effectively.
+
+## Releasing
+
+Releases are built and shipped to the Google Play Store automatically via GitHub
+Actions. Tagging a commit `vX.Y.Z` builds a signed AAB and uploads it to the Play
+internal testing track. See [docs/RELEASING.md](docs/RELEASING.md) for the
+one-time setup (secrets, service account, keystore) and the release steps.
 
 ## Contributing
 

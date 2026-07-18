@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
@@ -8,6 +10,25 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+// Load release signing config from (in order of precedence):
+//   1. Environment variables (used by CI) — KEYSTORE_FILE, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+//   2. A local, git-ignored keystore.properties file (used for local release builds)
+// When neither is present (e.g. a contributor's machine), release builds simply
+// fall back to unsigned/debug behaviour so the project still builds.
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps =
+    Properties().apply {
+        if (keystorePropsFile.exists()) {
+            keystorePropsFile.inputStream().use { load(it) }
+        }
+    }
+
+fun signingValue(envKey: String, propKey: String): String? =
+    System.getenv(envKey) ?: keystoreProps.getProperty(propKey)
+
+val releaseStoreFile = signingValue("KEYSTORE_FILE", "storeFile")
+val hasReleaseSigning = releaseStoreFile != null
+
 android {
     namespace = "com.darshan.notificity"
     compileSdk = 35
@@ -16,10 +37,23 @@ android {
         applicationId = "com.darshan.notificity"
         minSdk = 26
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.2.0"
+        // versionCode / versionName can be overridden at release time with
+        // -PversionCode=<n> -PversionName=<x.y.z> (see .github/workflows/release.yml).
+        versionCode = (project.findProperty("versionCode") as String?)?.toInt() ?: 6
+        versionName = (project.findProperty("versionName") as String?) ?: "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(releaseStoreFile!!)
+                storePassword = signingValue("KEYSTORE_PASSWORD", "storePassword")
+                keyAlias = signingValue("KEY_ALIAS", "keyAlias")
+                keyPassword = signingValue("KEY_PASSWORD", "keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -29,6 +63,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
@@ -42,9 +79,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.13"
     }
 }
 

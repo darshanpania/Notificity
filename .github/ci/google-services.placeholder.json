@@ -1,0 +1,25 @@
+{
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "notificity-ci",
+    "storage_bucket": "notificity-ci.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "android_client_info": {
+          "package_name": "com.darshan.notificity"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        { "current_key": "AIzaSyDCIplaceholderplaceholderplaceholder000" }
+      ],
+      "services": {
+        "appinvite_service": { "other_platform_oauth_client": [] }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
